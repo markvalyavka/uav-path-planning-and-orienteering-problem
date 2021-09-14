@@ -6,6 +6,8 @@
 
 #define PRECISION_PMM_VALUES (1.0e-8)
 
+namespace agi {
+
 PMMTrajectory::PMMTrajectory()
   : exists_(false),
     t_(Vector<3>(0, 0, 0)),
@@ -15,11 +17,11 @@ PMMTrajectory::PMMTrajectory()
     i_(0),
     dt_da_(0) {}
 
-PMMTrajectory::PMMTrajectory(const double ps, const double vs, const double pe,
-                             const double ve, const double a1_in,
-                             const double a2_in, const int i,
+PMMTrajectory::PMMTrajectory(const Scalar ps, const Scalar vs, const Scalar pe,
+                             const Scalar ve, const Scalar a1_in,
+                             const Scalar a2_in, const int i,
                              const bool keep_acc_sign, const bool calc_gradient,
-                             const double check_result) {
+                             const Scalar check_result) {
   i_ = i;
   p_(0) = ps;
   p_(3) = pe;
@@ -33,8 +35,8 @@ PMMTrajectory::PMMTrajectory(const double ps, const double vs, const double pe,
     return;
   }
 
-  const double pow_ve2 = ve * ve;
-  const double pow_vs2 = vs * vs;
+  const Scalar pow_ve2 = ve * ve;
+  const Scalar pow_vs2 = vs * vs;
 
   // already there
   if (fabs(pe - ps) < PRECISION_PMM_VALUES &&
@@ -47,36 +49,36 @@ PMMTrajectory::PMMTrajectory(const double ps, const double vs, const double pe,
     return;
   }
 
-  double t1 = MAX_SCALAR;
-  double t2 = MAX_SCALAR;
-  double dt_da = MAX_SCALAR;
+  Scalar t1 = MAX_SCALAR;
+  Scalar t2 = MAX_SCALAR;
+  Scalar dt_da = MAX_SCALAR;
 
-  double used_acc1 = a1_in;
-  double used_acc2 = a2_in;
+  Scalar used_acc1 = a1_in;
+  Scalar used_acc2 = a2_in;
   std::vector<Vector<2>> test_acc_vec = {Vector<2>(a1_in, a2_in),
                                          Vector<2>(a2_in, a1_in)};
   if (keep_acc_sign) {
     test_acc_vec = {Vector<2>(a1_in, a2_in)};
   }
   for (Vector<2> a : test_acc_vec) {
-    const double a1 = a(0);
-    const double a2 = a(1);
-    const double pow_a2_2 = a2 * a2;
-    const double pow_a1_2 = a1 * a1;
-    const double pow_a1_3 = pow_a1_2 * a1;
+    const Scalar a1 = a(0);
+    const Scalar a2 = a(1);
+    const Scalar pow_a2_2 = a2 * a2;
+    const Scalar pow_a1_2 = a1 * a1;
+    const Scalar pow_a1_3 = pow_a1_2 * a1;
 
-    const double tst1 = sqrt(
+    const Scalar tst1 = sqrt(
       (-a1 + a2) * (2 * a1 * a2 * (pe - ps) - a1 * pow_ve2 + a2 * pow_vs2));
-    const double tst2 = sqrt(
+    const Scalar tst2 = sqrt(
       (a1 - a2) * (a1 * (-2 * a2 * pe + 2 * a2 * ps + pow_ve2) - a2 * pow_vs2));
 
     // case 1
-    const double t1_1 = (-(a1 * vs) + a2 * vs + tst1) / (a1 * (a1 - a2));
-    const double t2_1 = -((-(a1 * ve) + a2 * ve + tst2) / ((a1 - a2) * a2));
+    const Scalar t1_1 = (-(a1 * vs) + a2 * vs + tst1) / (a1 * (a1 - a2));
+    const Scalar t2_1 = -((-(a1 * ve) + a2 * ve + tst2) / ((a1 - a2) * a2));
 
     // case 2
-    const double t1_2 = -((a1 * vs - a2 * vs + tst1) / (a1 * (a1 - a2)));
-    const double t2_2 = (a1 * ve - a2 * ve + tst2) / ((a1 - a2) * a2);
+    const Scalar t1_2 = -((a1 * vs - a2 * vs + tst1) / (a1 * (a1 - a2)));
+    const Scalar t2_2 = (a1 * ve - a2 * ve + tst2) / ((a1 - a2) * a2);
 
     if (std::isfinite(t1_1) and std::isfinite(t2_1) and
         t1_1 > -PRECISION_PMM_VALUES and t2_1 > -PRECISION_PMM_VALUES and
@@ -86,10 +88,10 @@ PMMTrajectory::PMMTrajectory(const double ps, const double vs, const double pe,
 
       if (calc_gradient) {
         // dt/da == gradient we can use to optimize time
-        const double d_t_da1 = (a1 * (2 * a2 * (pe - ps) - pow_ve2 - pow_vs2) +
+        const Scalar d_t_da1 = (a1 * (2 * a2 * (pe - ps) - pow_ve2 - pow_vs2) +
                                 2 * vs * (a2 * vs + tst1)) /
                                (2 * pow_a1_2 * tst1);
-        const double d_t_da2 = (2 * a1 * (a2 * (-pe + ps) + pow_ve2) -
+        const Scalar d_t_da2 = (2 * a1 * (a2 * (-pe + ps) + pow_ve2) -
                                 a2 * (pow_ve2 + pow_vs2) - 2 * ve * tst2) /
                                (2 * pow_a2_2 * tst1);
 
@@ -113,11 +115,11 @@ PMMTrajectory::PMMTrajectory(const double ps, const double vs, const double pe,
 
       if (calc_gradient) {
         // dt/da == gradient we can use to optimize time
-        const double d_t_da1 =
+        const Scalar d_t_da1 =
           (a1 * (-2 * a2 * pe + 2 * a2 * ps + pow_ve2 + pow_vs2) +
            2 * vs * (-(a2 * vs) + tst1)) /
           (2 * pow_a1_2 * tst1);
-        const double d_t_da2 = (2 * a1 * a2 * (pe - ps) - 2 * a1 * pow_ve2 +
+        const Scalar d_t_da2 = (2 * a1 * a2 * (pe - ps) - 2 * a1 * pow_ve2 +
                                 a2 * (pow_ve2 + pow_vs2) - 2 * ve * tst2) /
                                (2 * pow_a2_2 * tst1);
 
@@ -147,8 +149,8 @@ PMMTrajectory::PMMTrajectory(const double ps, const double vs, const double pe,
     dt_da_ = std::isfinite(dt_da) ? dt_da : 0;
 
     if (check_result) {
-      const double ve_tst = v_(1) + a_(1) * t2;
-      const double pe_tst = p_(2) + t2 * v_(1) + 0.5 * a_(1) * t2 * t2;
+      const Scalar ve_tst = v_(1) + a_(1) * t2;
+      const Scalar pe_tst = p_(2) + t2 * v_(1) + 0.5 * a_(1) * t2 * t2;
       if (fabs(ve_tst - ve) > PRECISION_PMM_VALUES ||
           fabs(pe_tst - pe) > PRECISION_PMM_VALUES) {
         std::cout << "wrong ve or pe oddi two acc" << std::endl;
@@ -289,3 +291,5 @@ void PMMTrajectory::save_to_file(std::string filename) {
     myfile.close();
   }
 }
+
+}  // namespace agi

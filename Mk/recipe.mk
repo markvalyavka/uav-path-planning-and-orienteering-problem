@@ -35,42 +35,16 @@ create_directories:
 	echo "create dircetory $(OBJ_DIR)"
 	mkdir -p $(OBJ_DIR)
 
-dependencies: cnpy_lib rapid_lib flann_lib agilicious_lib
-
-rapid_lib:
-	echo "making rapid"
-	$(MAKE) -C lib/rapid-2.01/
-
-flann_lib:
-	echo "making flann"
-	cd ./lib/flann; mkdir -p build; cd build; cmake .. -DCMAKE_INSTALL_PREFIX=../install ; make -j4; make install
-
-cnpy_lib:
-	echo "making cnpy"
-	cd ./lib/cnpy; mkdir -p build; cd build; cmake .. -DCMAKE_INSTALL_PREFIX=../install ; make -j4; make install
-
-mav_trajectory_generation_lib:
-	echo "making mav_trajectory_generation"
-	cd ./lib/mav_trajectory_generation; mkdir -p build; cd build; cmake .. -DCMAKE_INSTALL_PREFIX=../install ; make -j4;
+dependencies: agilicious_lib
 
 agilicious_lib:
 	echo "making agilicious"
-	cd ./lib/agilicious/agilib/build; cmake .. -DCMAKE_BUILD_TYPE=Release ; make -j8; #-DUNSAFE_MATH=OFF -DCMAKE_VERBOSE_MAKEFILE=ON
-	#cd ./lib/agilicious/agilib/build; cmake .. -DCMAKE_BUILD_TYPE=Debug; make;
+	cd ./agilicious/agilib/build; cmake -DCMAKE_CXX_FLAGS="-Werror" -DCMAKE_BUILD_TYPE=RelWithDebInfo -DBUILD_TEST=ON -DEIGEN_FROM_SYSTEM=OFF .. ; make -j8;
+	#cd ./agilicious/agilib/build; cmake .. ; make -j8; #-DUNSAFE_MATH=OFF -DCMAKE_VERBOSE_MAKEFILE=ON
+	#cd ./agilicious/agilib/build; cmake .. -DCMAKE_BUILD_TYPE=Debug; make;
+	#-DCMAKE_BUILD_TYPE=Release
 
-clean_dependencies: clean_rapid_lib clean_flann_lib clean_agilicious_lib clean_cnpy_lib
-
-clean_cnpy_lib:
-	echo "cleaning cnpy"
-	cd ./lib/cnpy; rm -rf build; rm -rf install
-
-clean_rapid_lib:
-	echo "cleaning rapid"
-	cd lib/rapid-2.01/ ; make clean
-
-clean_flann_lib:
-	echo "cleaning flann"
-	cd ./lib/flann; rm -rf build; rm -rf install
+clean_dependencies: clean_agilicious_lib
 
 clean_agilicious_lib:
 	echo "cleaning flann"
