@@ -373,8 +373,7 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
 
 void VelocitySearchGraph::save_track_trajectory_equidistant(
   const MultiWaypointTrajectory& trajectories, std::string filename) {
-  std::vector<std::vector<QuadState>> samples;
-  samples.resize(1);
+  std::vector<QuadState> samples;
   const Scalar desired_ds = 0.250;
   Scalar trajectory_length = 0;
 
@@ -391,7 +390,7 @@ void VelocitySearchGraph::save_track_trajectory_equidistant(
 
   QuadState beginstate = trajectories[0].state_in_time(0);
   beginstate.t = 0;
-  samples[0].push_back(beginstate);
+  samples.push_back(beginstate);
 
   int tr_id = 0;
   Scalar tr_start_time = 0;
@@ -466,14 +465,14 @@ void VelocitySearchGraph::save_track_trajectory_equidistant(
     }
     dronestate.t = t_from_start + t_current;
 
-    const Scalar dist_to_last = (samples[0].back().p - dronestate.p).norm();
+    const Scalar dist_to_last = (samples.back().p - dronestate.p).norm();
     if (fabs(dist_to_last - ds) > 0.01) {
       std::cout << "bad distance change in save_track_trajectory_equidistant "
                 << dist_to_last << std::endl;
       std::cout << "sample " << i << " out of " << num_samples << std::endl;
       return;
     }
-    samples[0].push_back(dronestate);
+    samples.push_back(dronestate);
   }
 
   saveSamplesToFile(filename, samples);
@@ -481,8 +480,7 @@ void VelocitySearchGraph::save_track_trajectory_equidistant(
 
 void VelocitySearchGraph::save_track_trajectory(
   const MultiWaypointTrajectory& trajectories, std::string filename) {
-  std::vector<std::vector<QuadState>> samples;
-  samples.resize(1);
+  std::vector<QuadState> samples;
   const Scalar dt_desired = 0.01;
   Scalar trajectories_time = 0;
   for (size_t i = 0; i < trajectories.size(); i++)
@@ -490,7 +488,7 @@ void VelocitySearchGraph::save_track_trajectory(
 
   const int num_samples = ceil(trajectories_time / dt_desired);
 
-  samples[0].resize(num_samples + 1);
+  samples.resize(num_samples + 1);
   const Scalar dt = trajectories_time / ((Scalar)(num_samples));
   int tr_id = 0;
   Scalar tr_start_time = 0;
@@ -508,115 +506,11 @@ void VelocitySearchGraph::save_track_trajectory(
 
     QuadState ds = trajectories[tr_id].state_in_time(t - tr_start_time);
     ds.t = t;
-    samples[0][i] = ds;
+    samples[i] = ds;
   }
 
   saveSamplesToFile(filename, samples);
 }
-
-std::vector<Vector<3>> VelSearchGraph::sampleTrajectory(
-  const TrMaxAcc3D& trajectory, const Scalar ds_desired) {
-  std::vector<Vector<3>> samples;
-  // INFO("sample trajectory begin")
-
-
-  // get the trajectories time and length
-  const Scalar ttime = trajectory.timemin();
-  // INFO_VAR(ttime)
-  const Scalar trajectory_length = trajectory.get_length(0, ttime);
-  // INFO_VAR(trajectory_length)
-
-  // define num samples and ds
-  int num_samples = ceil(trajectory_length / ds_desired);
-  Scalar ds = trajectory_length / ((Scalar)(num_samples - 1));
-  // INFO_VAR(num_samples)
-  // INFO_VAR(ds)
-
-  DroneState beginstate = trajectory.state_in_time(0);
-  samples.push_back(beginstate.p);
-
-  Scalar tr_start_time = 0;
-  Scalar tr_end_time = ttime;
-
-
-  Scalar lower_time = 0;
-  Scalar upper_time = 0;
-  Scalar dist_first = 0;
-  Scalar time_middle = 0;
-  Scalar t_current = 0;
-  Scalar t_from_start = 0;
-  Scalar accumulated_s = 0;
-  for (size_t i = 1; i < num_samples; i++) {
-    const Scalar s = i * ds;
-    Scalar target_ds = s - accumulated_s;
-
-    // INFO("i " << i << " s " << s << " target_ds " << target_ds)
-    lower_time = t_current;
-    upper_time = tr_end_time;
-
-    do {
-      time_middle = (lower_time + upper_time) / 2.0;
-      dist_first = trajectory.get_length(t_current, time_middle);
-
-      if (dist_first > target_ds) {
-        // soulution between lower_time and time_middle
-        // INFO("bellow")
-        upper_time = time_middle;
-      } else {
-        // soulution between time_middle and upper_time
-        // INFO("above")
-        lower_time = time_middle;
-      }
-    } while (fabs(dist_first - target_ds) > 0.001);
-
-    /*
-        // add also samples of acc switch
-        std::vector<Scalar> acc_switch_times;
-        for (size_t axi = 0; axi < 3; axi++) {
-          const Scalar t1 = trajectory.get_axis_switch_time(axi);
-          // const Scalar t1 = trajectory.get_axis(axi).t1;
-          if (t1 > t_current && t1 < time_middle) {
-            acc_switch_times.push_back(t1);
-          }
-        }
-        std::sort(acc_switch_times.begin(), acc_switch_times.end());
-    */
-
-    // converged
-    t_current = time_middle;
-    accumulated_s += dist_first;
-
-    // INFO("converged to time " << t_current);
-
-    if (t_current < 0 || t_current > trajectory.timemin()) {
-      INFO("bad time");
-      exit(1);
-    }
-
-
-    DroneState dronestate = trajectory.state_in_time(t_current);
-
-    const Scalar dist_to_last = (samples.back() - dronestate.p).norm();
-    if (fabs(dist_to_last - ds) > ds) {
-      INFO("bad distance change in sampleTrajectory " << dist_to_last)
-      INFO("sample " << i << " out of " << num_samples)
-      INFO_VAR(samples[0].size());
-      INFO_VAR(target_ds);
-      INFO_VAR(t_current)
-      INFO_VAR(ttime)
-      INFO_VAR(trajectory)
-      INFO_VAR(dist_first)
-      INFO_VAR(target_ds)
-      INFO_VAR(fabs(dist_first - target_ds))
-      exit(1);
-    }
-    samples.push_back(dronestate.p);
-  }
-
-  // INFO("sample trajectory end")
-  return samples;
-}
-
 
 void VelocitySearchGraph::saveSamplesToFile(std::string filename,
                                             std::vector<QuadState> samples) {
