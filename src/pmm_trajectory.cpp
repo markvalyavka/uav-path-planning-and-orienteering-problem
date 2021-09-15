@@ -17,6 +17,9 @@ PMMTrajectory::PMMTrajectory()
     i_(0),
     dt_da_(0) {}
 
+PMMTrajectory::PMMTrajectory(const PMMTrajectory &in) { copy_trajectory(in); }
+
+
 PMMTrajectory::PMMTrajectory(const Scalar ps, const Scalar vs, const Scalar pe,
                              const Scalar ve, const Scalar a1_in,
                              const Scalar a2_in, const int i,
@@ -41,10 +44,11 @@ PMMTrajectory::PMMTrajectory(const Scalar ps, const Scalar vs, const Scalar pe,
   // already there
   if (fabs(pe - ps) < PRECISION_PMM_VALUES &&
       fabs(ve - vs) < PRECISION_PMM_VALUES) {
-    a_(0) = a1_in;
-    a_(1) = a2_in;
+    a_(0) = 0;
+    a_(1) = 0;
     p_(0) = p_(1) = p_(2) = p_(3) = ps;
-    v_(0) = v_(1) = v_(3) = vs;
+    v_(0) = v_(1) = v_(2) = vs;
+    std::cout << "already there" << std::endl;
     exists_ = true;
     return;
   }
@@ -167,7 +171,68 @@ PMMTrajectory::PMMTrajectory(const Scalar ps, const Scalar vs, const Scalar pe,
   }
 }
 
-Vector<3> PMMTrajectory::state_in_time(const Scalar time_in_tr) {
+
+PMMTrajectory::PMMTrajectory(const PMMTrajectory &in, const Scalar total_time)
+  : PMMTrajectory(in) {
+  // recalc the trajectory for known time
+  if (time() == total_time) {
+    return;
+  }
+
+  const Scalar &ps = in.p_(0);
+  const Scalar &pe = in.p_(3);
+  const Scalar &vs = in.v_(0);
+  const Scalar &ve = in.v_(2);
+  const Scalar &a1 = in.a_(0);
+  const Scalar &a2 = in.a_(1);
+  const int &i = in.i_;
+  const Scalar pow_ve2 = ve * ve;
+  const Scalar pow_vs2 = vs * vs;
+
+  const Scalar pow_tot2 = total_time * total_time;
+
+  const Scalar part = (2 * a1 * pe - 2 * a2 * pe - 2 * a1 * ps + 2 * a2 * ps -
+                       2 * a1 * total_time * ve + 2 * a2 * total_time * vs);
+  const Scalar sqrt_part = sqrt(
+    part * part - 4 * a1 * a2 * pow_tot2 * (pow_ve2 - 2 * ve * vs + pow_vs2));
+  const Scalar scale1 =
+    (-2 * a1 * pe + 2 * a2 * pe + 2 * a1 * ps - 2 * a2 * ps +
+     2 * a1 * total_time * ve - 2 * a2 * total_time * vs - sqrt_part) /
+    (2 * a1 * a2 * pow_tot2);
+  const Scalar scale2 =
+    (-2 * a1 * pe + 2 * a2 * pe + 2 * a1 * ps - 2 * a2 * ps +
+     2 * a1 * total_time * ve - 2 * a2 * total_time * vs + sqrt_part) /
+    (2 * a1 * a2 * pow_tot2);
+
+
+  if (scale1 < 1.0 && scale1 > 0.0) {
+    PMMTrajectory scaled = PMMTrajectory(ps, vs, pe, ve, a1 * scale1,
+                                         a2 * scale1, i, true, false, false);
+    copy_trajectory(scaled);
+    // tr = one_dim_Scalar_integrator_two_acc(ps, vs, pe, ve, a1 * scale1,
+    //                                        a2 * scale1, i, true);
+  } else if (scale2 < 1.0 && scale2 > 0.0) {
+    PMMTrajectory scaled = PMMTrajectory(ps, vs, pe, ve, a1 * scale2,
+                                         a2 * scale2, i, true, false, false);
+    copy_trajectory(scaled);
+    // tr = one_dim_Scalar_integrator_two_acc(ps, vs, pe, ve, a1 * scale2,
+    //                                        a2 * scale2, i, true);
+  } else {
+    // nummerical issues solution
+    if (fabs(scale1 - 1.0) < 1e-10 || fabs(scale2 - 1.0) < 1e-10) {
+      if (t_(0) > 0) {
+        t_(0) += total_time - time();
+      } else if (t_(2) > 0) {
+        t_(2) += total_time - time();
+      } else {
+        std::cout << "some error here?" << std::endl;
+        exists_ = false;
+      }
+    }
+  }
+}
+
+Vector<3> PMMTrajectory::state_in_time(const Scalar time_in_tr) const {
   Scalar pos, vel, acc;
 
   if (time_in_tr < t_(0)) {  // const acc part with a1
@@ -276,6 +341,15 @@ std::tuple<PMMTrajectory, PMMTrajectory> PMMTrajectory::split_in_time(
   return {bef, aft};
 }
 
+void PMMTrajectory::copy_trajectory(const PMMTrajectory &in) {
+  exists_ = in.exists_;
+  t_ = in.t_;
+  p_ = in.p_;
+  v_ = in.v_;
+  a_ = in.a_;
+  i_ = in.i_;
+  dt_da_ = in.dt_da_;
+}
 
 void PMMTrajectory::save_to_file(std::string filename) {
   std::ofstream myfile;
@@ -290,6 +364,17 @@ void PMMTrajectory::save_to_file(std::string filename) {
            << exists_ << "," << dt_da_ << "," << i_;
     myfile.close();
   }
+}
+
+std::ostream &operator<<(std::ostream &o, const PMMTrajectory &f) {
+  o << "maxacc: t1:" << f.t_(0) << ";t2:" << f.t_(1) << ";t3:" << f.t_(2)
+    << ";exists:" << f.exists_ << ";a1:" << f.a_(0) << ";a2:" << f.a_(1)
+    << ";i:" << f.i_ << "\n";
+  o << " \t: p0:" << f.p_(0) << ";p1:" << f.p_(1) << ";p2:" << f.p_(2)
+    << ";p3:" << f.p_(3) << "\n";
+  o << " \t: v0:" << f.v_(0) << ";v1:" << f.v_(1) << ";v3:" << f.v_(2)
+    << "t_tot" << (f.time());
+  return o;
 }
 
 }  // namespace agi
