@@ -2,6 +2,7 @@
 #include "velocity_search_graph.hpp"
 
 #include <cfloat>
+#include <fstream>
 
 #include "agilib/utils/timer.hpp"
 
@@ -239,10 +240,14 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
 
     // trace back the trajectory from the shortest final sample
     // additionally also optimize the ranges of the velocity cone
+
     int prev_sample_idx = end_best_idx;
     for (int g_id = endi; g_id > 0; g_id--) {
       found_gates_speeds[g_id - 1] =
         std::get<0>(gate_velocity_samples[g_id][prev_sample_idx]);
+
+      std::cout << "idx " << g_id << " speed "
+                << found_gates_speeds[g_id - 1].transpose() << std::endl;
 
       Vector<3> indexes =
         std::get<2>(gate_velocity_samples[g_id][prev_sample_idx]);
@@ -300,6 +305,7 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
   }
 
   timer.toc();
+  std::cout << timer.last() << std::endl;
 
   // find the shortest among the end ones
   Scalar shortest_time = DBL_MAX;
@@ -312,6 +318,8 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
       end_best_idx = i;
     }
   }
+
+  std::cout << "shortest_time " << shortest_time << std::endl;
 
   int prev_sample_idx = end_best_idx;
   for (int g_id = endi; g_id > 0; g_id--) {
@@ -350,6 +358,8 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
     QuadState to_state_b;
     to_state_b.p = gates_waypoints[i];
     to_state_b.v = found_gates_speeds[i - 1];
+    PointMassTrajectory3D tr_max_between_non_equalized =
+      PointMassTrajectory3D(from_state_b, to_state_b, max_acc_, false);
     PointMassTrajectory3D tr_max_between =
       PointMassTrajectory3D(from_state_b, to_state_b, max_acc_);
     trajectories.push_back(tr_max_between);
@@ -357,7 +367,12 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
     time_sum += tr_max_between.time();
     if (!tr_max_between.exists()) {
       // this trajectory does not exists
-      std::cout << "found pmm trajectory does not exist" << std::endl;
+      std::cout << "found pmm trajectory does not exist, gate " << i
+                << std::endl;
+      std::cout << "non equalized" << std::endl;
+      std::cout << tr_max_between_non_equalized << std::endl;
+      std::cout << "equalized" << std::endl;
+      std::cout << tr_max_between << std::endl;
       return MultiWaypointTrajectory();
     }
   }
@@ -365,6 +380,8 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
 
   if (fabs(time_sum - shortest_time) > 0.0001) {
     std::cout << "error calculationg pmm trajectory" << std::endl;
+    std::cout << "time_sum " << time_sum << std::endl;
+    std::cout << "shortest_time" << shortest_time << std::endl;
     return MultiWaypointTrajectory();
   }
 
@@ -512,24 +529,47 @@ void VelocitySearchGraph::save_track_trajectory(
   saveSamplesToFile(filename, samples);
 }
 
+std::string VelocitySearchGraph::stateToStringHeader(const QuadState& s) {
+  std::stringstream o;
+  o << std::setprecision(4)
+    << "t,p_x,p_y,p_z,q_w,q_x,q_y,q_z,v_x,v_y,v_z,w_x,w_y,w_z,a_lin_x,a_lin_y,"
+       "a_lin_z";
+  return o.str();
+}
+
+std::string VelocitySearchGraph::stateToString(const QuadState& s) {
+  std::stringstream o;
+  o << std::setprecision(std::numeric_limits<long double>::digits10 + 1) << s.t
+    << "," << s.p(0) << "," << s.p(1) << "," << s.p(2) << "," << s.qx(0) << ","
+    << s.qx(1) << "," << s.qx(2) << "," << s.qx(3) << "," << s.v(0) << ","
+    << s.v(1) << "," << s.v(2) << "," << s.w(0) << "," << s.w(1) << ","
+    << s.w(2) << "," << s.a(0) << "," << s.a(1) << "," << s.a(2);
+  return o.str();
+}
+
 void VelocitySearchGraph::saveSamplesToFile(std::string filename,
                                             std::vector<QuadState> samples) {
   std::ofstream myfile;
   myfile.open(filename.c_str());
   if (myfile.is_open()) {
     if (samples.size() > 0 && samples[0].size() > 0) {
-      myfile << to_string_raw_header(samples[0]) << std::endl;
+      myfile << stateToStringHeader(samples[0]) << std::endl;
     }
 
     const int s1 = samples.size();
     for (int var1 = 0; var1 < s1; ++var1) {
-      const DroneState& data = samples[var1];
-      myfile << to_string_raw(data);
+      const QuadState& data = samples[var1];
+      myfile << stateToString(data);
       myfile << std::endl;
     }
 
     myfile.close();
   }
+}
+
+void operator>>(const YAML::Node& node, Scalar& value) {
+  assert(node.IsScalar());
+  value = node.as<Scalar>();
 }
 
 }  // namespace agi

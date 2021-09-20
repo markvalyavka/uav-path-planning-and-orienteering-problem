@@ -84,6 +84,9 @@ PMMTrajectory::PMMTrajectory(const Scalar ps, const Scalar vs, const Scalar pe,
     const Scalar t1_2 = -((a1 * vs - a2 * vs + tst1) / (a1 * (a1 - a2)));
     const Scalar t2_2 = (a1 * ve - a2 * ve + tst2) / ((a1 - a2) * a2);
 
+    std::cout << "t1_1 " << t1_1 << " t2_1 " << t2_1 << std::endl;
+    std::cout << "t1_2 " << t1_2 << " t2_2 " << t2_2 << std::endl;
+
     if (std::isfinite(t1_1) and std::isfinite(t2_1) and
         t1_1 > -PRECISION_PMM_VALUES and t2_1 > -PRECISION_PMM_VALUES and
         t1_1 + t2_1 < t1 + t2) {
@@ -178,7 +181,7 @@ PMMTrajectory::PMMTrajectory(const PMMTrajectory &in, const Scalar total_time)
   if (time() == total_time) {
     return;
   }
-
+  std::cout << "equalize time" << std::endl;
   const Scalar &ps = in.p_(0);
   const Scalar &pe = in.p_(3);
   const Scalar &vs = in.v_(0);
@@ -204,16 +207,23 @@ PMMTrajectory::PMMTrajectory(const PMMTrajectory &in, const Scalar total_time)
      2 * a1 * total_time * ve - 2 * a2 * total_time * vs + sqrt_part) /
     (2 * a1 * a2 * pow_tot2);
 
+  std::cout << "exists" << exists_ << std::endl;
 
+  std::cout << "scale1 " << scale1 << std::endl;
+  std::cout << "scale2 " << scale2 << std::endl;
   if (scale1 < 1.0 && scale1 > 0.0) {
+    std::cout << "scale1 " << scale1 << std::endl;
     PMMTrajectory scaled = PMMTrajectory(ps, vs, pe, ve, a1 * scale1,
                                          a2 * scale1, i, true, false, false);
+
     copy_trajectory(scaled);
     // tr = one_dim_Scalar_integrator_two_acc(ps, vs, pe, ve, a1 * scale1,
     //                                        a2 * scale1, i, true);
   } else if (scale2 < 1.0 && scale2 > 0.0) {
+    std::cout << "scale2 " << scale2 << std::endl;
     PMMTrajectory scaled = PMMTrajectory(ps, vs, pe, ve, a1 * scale2,
                                          a2 * scale2, i, true, false, false);
+
     copy_trajectory(scaled);
     // tr = one_dim_Scalar_integrator_two_acc(ps, vs, pe, ve, a1 * scale2,
     //                                        a2 * scale2, i, true);
@@ -373,7 +383,7 @@ std::ostream &operator<<(std::ostream &o, const PMMTrajectory &f) {
   o << " \t: p0:" << f.p_(0) << ";p1:" << f.p_(1) << ";p2:" << f.p_(2)
     << ";p3:" << f.p_(3) << "\n";
   o << " \t: v0:" << f.v_(0) << ";v1:" << f.v_(1) << ";v3:" << f.v_(2)
-    << "t_tot" << (f.time());
+    << ";t_tot" << (f.time());
   return o;
 }
 

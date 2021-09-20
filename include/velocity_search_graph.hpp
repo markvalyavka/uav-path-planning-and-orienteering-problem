@@ -5,6 +5,25 @@
 
 namespace agi {
 
+void operator>>(const YAML::Node& node, Scalar& value);
+
+template<typename DataType>
+bool parseArrayParam(const YAML::Node& config, std::string param,
+                     std::vector<DataType>& array) {
+  if (config[param.c_str()]) {
+    YAML::Node vector = config[param.c_str()];
+    for (YAML::const_iterator ti = vector.begin(); ti != vector.end(); ++ti) {
+      const YAML::Node& datayaml = *ti;
+      DataType from_yaml;
+      datayaml >> from_yaml;
+      array.push_back(from_yaml);
+    }
+  } else {
+    return false;
+  }
+  return true;
+}
+
 typedef std::vector<PointMassTrajectory3D> MultiWaypointTrajectory;
 
 class VelocitySearchGraph {
@@ -32,6 +51,8 @@ class VelocitySearchGraph {
   static std::vector<Vector<3>> sampleTrajectory(
     const MultiWaypointTrajectory& trajectory, const Scalar ds_desired);
   void saveSamplesToFile(std::string filename, std::vector<QuadState> samples);
+  std::string stateToStringHeader(const QuadState& s);
+  std::string stateToString(const QuadState& s);
 
  private:
   const Scalar max_acc_;

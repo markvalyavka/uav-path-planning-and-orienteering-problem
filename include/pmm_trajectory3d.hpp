@@ -13,10 +13,10 @@ namespace agi {
 class PointMassTrajectory3D {
  public:
   PointMassTrajectory3D(const QuadState &from, const QuadState &to,
-                        double max_acc, const bool equalize_time = true);
+                        Scalar max_acc, const bool equalize_time = true);
   bool exists() const { return x_.exists_ && y_.exists_ && z_.exists_; };
   Scalar time() const { return std::max({x_.time(), y_.time(), z_.time()}); };
-  double time_min() const {
+  Scalar time_min() const {
     return std::min({x_.time(), y_.time(), z_.time()});
   }
   QuadState state_in_time(const Scalar time_in_tr) const;

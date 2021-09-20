@@ -89,30 +89,30 @@ Scalar PointMassTrajectory3D::get_length_const_a(const Scalar tfrom,
                                                  const Vector<3> p,
                                                  const Vector<3> v,
                                                  const Vector<3> a) const {
-  // const double &sx = p(0);
-  // const double &sy = p(1);
-  // const double &sz = p(2);
+  // const Scalar &sx = p(0);
+  // const Scalar &sy = p(1);
+  // const Scalar &sz = p(2);
 
-  const double ax_pow2 = a(0) * a(0);
-  const double ay_pow2 = a(1) * a(1);
-  const double az_pow2 = a(2) * a(2);
-  const double vx_pow2 = v(0) * v(0);
-  const double vy_pow2 = v(1) * v(1);
-  const double vz_pow2 = v(2) * v(2);
+  const Scalar ax_pow2 = a(0) * a(0);
+  const Scalar ay_pow2 = a(1) * a(1);
+  const Scalar az_pow2 = a(2) * a(2);
+  const Scalar vx_pow2 = v(0) * v(0);
+  const Scalar vy_pow2 = v(1) * v(1);
+  const Scalar vz_pow2 = v(2) * v(2);
 
-  double t = tto;
-  double t_pow2 = t * t;
+  Scalar t = tto;
+  Scalar t_pow2 = t * t;
 
-  double tmp = sqrt(ax_pow2 * t_pow2 + ay_pow2 * t_pow2 + az_pow2 * t_pow2 +
+  Scalar tmp = sqrt(ax_pow2 * t_pow2 + ay_pow2 * t_pow2 + az_pow2 * t_pow2 +
                     2 * a(0) * t * v(0) + vx_pow2 + 2 * a(1) * t * v(1) +
                     vy_pow2 + 2 * a(2) * t * v(2) + vz_pow2);
-  double logpart =
+  Scalar logpart =
     log(ax_pow2 * t + ay_pow2 * t + az_pow2 * t + a(0) * v(0) + a(1) * v(1) +
         a(2) * v(2) + sqrt(ax_pow2 + ay_pow2 + az_pow2) * tmp);
   if (v(0) == 0 && v(1) == 0 && v(2) == 0 && t == 0) {
     logpart = 0;
   }
-  const double ds_to =
+  const Scalar ds_to =
     (0.5) *
     (tmp * (t + (a(0) * v(0) + a(1) * v(1) + a(2) * v(2)) /
                   (ax_pow2 + ay_pow2 + az_pow2)) +
@@ -136,7 +136,7 @@ Scalar PointMassTrajectory3D::get_length_const_a(const Scalar tfrom,
     logpart = 0;
   }
 
-  const double ds_from =
+  const Scalar ds_from =
     (0.5) *
     (tmp * (t + (a(0) * v(0) + a(1) * v(1) + a(2) * v(2)) /
                   (ax_pow2 + ay_pow2 + az_pow2)) +
@@ -146,7 +146,7 @@ Scalar PointMassTrajectory3D::get_length_const_a(const Scalar tfrom,
          ay_pow2 * (vx_pow2 + vz_pow2) + ax_pow2 * (vy_pow2 + vz_pow2)) *
         logpart));
 
-  const double ds = ds_to - ds_from;
+  const Scalar ds = ds_to - ds_from;
 
   if (!std::isfinite(ds) || ds < 0) {
     std::cout << "non finite ds or bellow zero" << std::endl;
