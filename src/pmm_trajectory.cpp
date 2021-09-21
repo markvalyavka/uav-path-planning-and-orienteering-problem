@@ -84,8 +84,8 @@ PMMTrajectory::PMMTrajectory(const Scalar ps, const Scalar vs, const Scalar pe,
     const Scalar t1_2 = -((a1 * vs - a2 * vs + tst1) / (a1 * (a1 - a2)));
     const Scalar t2_2 = (a1 * ve - a2 * ve + tst2) / ((a1 - a2) * a2);
 
-    std::cout << "t1_1 " << t1_1 << " t2_1 " << t2_1 << std::endl;
-    std::cout << "t1_2 " << t1_2 << " t2_2 " << t2_2 << std::endl;
+    // std::cout << "t1_1 " << t1_1 << " t2_1 " << t2_1 << std::endl;
+    // std::cout << "t1_2 " << t1_2 << " t2_2 " << t2_2 << std::endl;
 
     if (std::isfinite(t1_1) and std::isfinite(t2_1) and
         t1_1 > -PRECISION_PMM_VALUES and t2_1 > -PRECISION_PMM_VALUES and
@@ -174,14 +174,13 @@ PMMTrajectory::PMMTrajectory(const Scalar ps, const Scalar vs, const Scalar pe,
   }
 }
 
-
 PMMTrajectory::PMMTrajectory(const PMMTrajectory &in, const Scalar total_time)
   : PMMTrajectory(in) {
   // recalc the trajectory for known time
   if (time() == total_time) {
     return;
   }
-  std::cout << "equalize time" << std::endl;
+  // std::cout << "equalize time" << std::endl;
   const Scalar &ps = in.p_(0);
   const Scalar &pe = in.p_(3);
   const Scalar &vs = in.v_(0);
@@ -207,28 +206,28 @@ PMMTrajectory::PMMTrajectory(const PMMTrajectory &in, const Scalar total_time)
      2 * a1 * total_time * ve - 2 * a2 * total_time * vs + sqrt_part) /
     (2 * a1 * a2 * pow_tot2);
 
-  std::cout << "exists" << exists_ << std::endl;
+  // std::cout << "exists" << exists_ << std::endl;
+  // std::cout << "scale1 " << scale1 << std::endl;
+  // std::cout << "scale2 " << scale2 << std::endl;
 
-  std::cout << "scale1 " << scale1 << std::endl;
-  std::cout << "scale2 " << scale2 << std::endl;
-  if (scale1 < 1.0 && scale1 > 0.0) {
-    std::cout << "scale1 " << scale1 << std::endl;
+  if (scale1 < 1.0 && scale1 > -1.0) {
     PMMTrajectory scaled = PMMTrajectory(ps, vs, pe, ve, a1 * scale1,
                                          a2 * scale1, i, true, false, false);
-
-    copy_trajectory(scaled);
-    // tr = one_dim_Scalar_integrator_two_acc(ps, vs, pe, ve, a1 * scale1,
-    //                                        a2 * scale1, i, true);
-  } else if (scale2 < 1.0 && scale2 > 0.0) {
-    std::cout << "scale2 " << scale2 << std::endl;
+    if (scaled.exists_) {
+      copy_trajectory(scaled);
+    }
+  }
+  if (!exists_ && scale2 < 1.0 && scale2 > -1.0) {
     PMMTrajectory scaled = PMMTrajectory(ps, vs, pe, ve, a1 * scale2,
                                          a2 * scale2, i, true, false, false);
-
-    copy_trajectory(scaled);
-    // tr = one_dim_Scalar_integrator_two_acc(ps, vs, pe, ve, a1 * scale2,
-    //                                        a2 * scale2, i, true);
-  } else {
+    if (scaled.exists_) {
+      copy_trajectory(scaled);
+    }
+  }
+  if (!exists_) {
     // nummerical issues solution
+    std::cout << "numerical issues" << std::endl;
+    exit(1);
     if (fabs(scale1 - 1.0) < 1e-10 || fabs(scale2 - 1.0) < 1e-10) {
       if (t_(0) > 0) {
         t_(0) += total_time - time();

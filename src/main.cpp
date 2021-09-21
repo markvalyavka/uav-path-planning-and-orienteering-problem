@@ -82,6 +82,8 @@ int test_pmm(int argc, char **argv) {
   std::cout << "gates_yaw_deg.size() " << gates_yaw_deg.size() << std::endl;
 
 
+  gates_waypoints.resize(3);
+  gates_yaw_deg.resize(3);
   vel_search_graph.find_velocities_in_positions(
     gates_waypoints, start_velocity, end_velocity, gates_yaw_deg, end_free);
 

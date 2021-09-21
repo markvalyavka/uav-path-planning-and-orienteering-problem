@@ -27,6 +27,7 @@ class PMMTrajectory {
   one that scales times to given one
   */
   PMMTrajectory(const PMMTrajectory &in, const Scalar total_time);
+
   Scalar time() const { return t_.sum(); }
   Vector<3> state_in_time(const Scalar time_in_tr) const;
   std::tuple<PMMTrajectory, PMMTrajectory> split_in_time(

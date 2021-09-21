@@ -74,6 +74,10 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
                                  ((Scalar)(num_vel_samples_size - 1))
                              : 0;
 
+  std::cout << "num_vel_samples_yaw_pitch_ang " << num_vel_samples_yaw_pitch_ang
+            << std::endl;
+  std::cout << "num_vel_samples_size " << num_vel_samples_size << std::endl;
+
   int sample_num_gates = gates_size - 2;
   if (end_free) {
     sample_num_gates += 1;
@@ -84,16 +88,20 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
       {-1, DBL_MAX});  // add end
   }
 
-
   Timer timer;
   timer.tic();
 
+  Timer timer_samples;
+  Timer timer_calc_pm;
 
-  const int num_iter_improve = 5;
+  const int num_iter_improve = 10;
+  Scalar last_shortest_time = MAX_SCALAR;
 
   // iteration over improvements of velocities == focusing velocity cones
   for (size_t iterimp = 0; iterimp < num_iter_improve; iterimp++) {
     // loop gates 1....sample_num_gates (0 is start and gatesize-1 is end)
+
+    timer_samples.tic();
     // here creating only the samples
     for (size_t gid = 1; gid <= sample_num_gates; gid++) {
       const int num_samples_gate =
@@ -151,6 +159,8 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
         }
       }
     }
+    timer_samples.toc();
+
 
     // now we have the samples, search the shortest time path through the graph
     // loop from the first gate gid_to = 1
@@ -197,8 +207,10 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
           to_state.p = to_p;
           to_state.v = to_v;
 
+          timer_calc_pm.tic();
           const PointMassTrajectory3D tr_max_acc(from_state, to_state, max_acc_,
                                                  false);
+          timer_calc_pm.toc();
 
           if (tr_max_acc.exists()) {
             const Scalar time_between = tr_max_acc.time();
@@ -238,6 +250,12 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
       }
     }
 
+    std::cout << "shortest_time " << shortest_time << std::endl;
+    if (shortest_time > 0.99 * last_shortest_time) {
+      break;
+    }
+    last_shortest_time = shortest_time;
+
     // trace back the trajectory from the shortest final sample
     // additionally also optimize the ranges of the velocity cone
 
@@ -246,8 +264,8 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
       found_gates_speeds[g_id - 1] =
         std::get<0>(gate_velocity_samples[g_id][prev_sample_idx]);
 
-      std::cout << "idx " << g_id << " speed "
-                << found_gates_speeds[g_id - 1].transpose() << std::endl;
+      // std::cout << "idx " << g_id << " speed "
+      //           << found_gates_speeds[g_id - 1].transpose() << std::endl;
 
       Vector<3> indexes =
         std::get<2>(gate_velocity_samples[g_id][prev_sample_idx]);
@@ -305,7 +323,14 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
   }
 
   timer.toc();
-  std::cout << timer.last() << std::endl;
+
+
+  std::cout << "timer_samples: ";
+  timer_samples.print();
+  std::cout << "timer_calc_pm: ";
+  timer_calc_pm.print();
+
+  std::cout << "calc time " << timer.last() * 1000 << " ms" << std::endl;
 
   // find the shortest among the end ones
   Scalar shortest_time = DBL_MAX;
@@ -373,6 +398,8 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
       std::cout << tr_max_between_non_equalized << std::endl;
       std::cout << "equalized" << std::endl;
       std::cout << tr_max_between << std::endl;
+
+
       return MultiWaypointTrajectory();
     }
   }
