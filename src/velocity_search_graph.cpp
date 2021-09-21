@@ -208,8 +208,8 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
           to_state.v = to_v;
 
           timer_calc_pm.tic();
-          const PointMassTrajectory3D tr_max_acc(from_state, to_state, max_acc_,
-                                                 false);
+          const PointMassTrajectory3D tr_max_acc(
+            from_state, to_state, Vector<3>::Constant(max_acc_), false);
           timer_calc_pm.toc();
 
           if (tr_max_acc.exists()) {
@@ -366,8 +366,8 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
   QuadState to_state;
   to_state.p = gates_waypoints[1];
   to_state.v = found_gates_speeds[0];
-  PointMassTrajectory3D tr_max_acc_start =
-    PointMassTrajectory3D(from_start_state, to_state, max_acc_);
+  PointMassTrajectory3D tr_max_acc_start = PointMassTrajectory3D(
+    from_start_state, to_state, Vector<3>::Constant(max_acc_));
   trajectories.push_back(tr_max_acc_start);
   time_sum += tr_max_acc_start.time();
 
@@ -383,10 +383,9 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
     QuadState to_state_b;
     to_state_b.p = gates_waypoints[i];
     to_state_b.v = found_gates_speeds[i - 1];
-    PointMassTrajectory3D tr_max_between_non_equalized =
-      PointMassTrajectory3D(from_state_b, to_state_b, max_acc_, false);
-    PointMassTrajectory3D tr_max_between =
-      PointMassTrajectory3D(from_state_b, to_state_b, max_acc_);
+
+    PointMassTrajectory3D tr_max_between = PointMassTrajectory3D(
+      from_state_b, to_state_b, Vector<3>::Constant(max_acc_));
     trajectories.push_back(tr_max_between);
 
     time_sum += tr_max_between.time();
@@ -394,8 +393,6 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
       // this trajectory does not exists
       std::cout << "found pmm trajectory does not exist, gate " << i
                 << std::endl;
-      std::cout << "non equalized" << std::endl;
-      std::cout << tr_max_between_non_equalized << std::endl;
       std::cout << "equalized" << std::endl;
       std::cout << tr_max_between << std::endl;
 

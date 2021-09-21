@@ -12,8 +12,17 @@ namespace agi {
 
 class PointMassTrajectory3D {
  public:
+  /*
+  version of per axis acceleration limits
+  */
   PointMassTrajectory3D(const QuadState &from, const QuadState &to,
-                        Scalar max_acc, const bool equalize_time = true);
+                        const Vector<3> max_acc,
+                        const bool equalize_time = true);
+  /*
+  version of norm acceleration limits, using GD to distribute acc
+  */
+  PointMassTrajectory3D(const QuadState &from, const QuadState &to,
+                        Scalar max_acc_norm, const bool equalize_time = true);
   bool exists() const { return x_.exists_ && y_.exists_ && z_.exists_; };
   Scalar time() const { return std::max({x_.time(), y_.time(), z_.time()}); };
   Scalar time_min() const {
