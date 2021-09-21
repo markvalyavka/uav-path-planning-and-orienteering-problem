@@ -3,6 +3,11 @@
 
 #include "agilib/math/types.hpp"
 
+#define PRECISION_PMM_VALUES (1.0e-8)
+#define PRECISION_TRANS3D (1E-4)
+#define MIN_ACC_REQ (0.01)
+#define INITIAL_MIN_ACC (0.5)
+
 namespace agi {
 
 static constexpr Scalar MAX_SCALAR = std::numeric_limits<Scalar>::max();
@@ -27,6 +32,9 @@ class PMMTrajectory {
   one that scales times to given one
   */
   PMMTrajectory(const PMMTrajectory &in, const Scalar total_time);
+
+  static Scalar minRequiredAcc(const Scalar ps, const Scalar vs,
+                               const Scalar pe, const Scalar ve);
 
   Scalar time() const { return t_.sum(); }
   Vector<3> state_in_time(const Scalar time_in_tr) const;

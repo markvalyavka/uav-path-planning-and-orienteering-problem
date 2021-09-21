@@ -4,7 +4,6 @@
 #include <fstream>
 #include <iostream>
 
-#define PRECISION_PMM_VALUES (1.0e-8)
 
 namespace agi {
 
@@ -372,6 +371,29 @@ void PMMTrajectory::save_to_file(std::string filename) {
            << p_(3) << "," << v_(0) << "," << v_(1) << "," << v_(2) << ","
            << exists_ << "," << dt_da_ << "," << i_;
     myfile.close();
+  }
+}
+
+Scalar PMMTrajectory::minRequiredAcc(const Scalar ps, const Scalar vs,
+                                     const Scalar pe, const Scalar ve) {
+  // required acc to be able to fulfill the task
+  // i.e. accelerate between required velocities and in the same time not
+  // overshoot the position derived from
+  // t_change_vel = (ve-vs)/amax
+  // and pe-ps = vs*t_change_vel + 0.5*amax*t_change_vel**2
+  // from that what is the amax....
+  if (fabs(pe - ps) < PRECISION_TRANS3D) {
+    return MIN_ACC_REQ;
+  } else {
+    const Scalar pow_ve2 = ve * ve;
+    const Scalar pow_vs2 = vs * vs;
+    if (fabs(pow_ve2 - pow_vs2) < PRECISION_TRANS3D) {
+      // does not need any acc basically
+      return std::copysign(INITIAL_MIN_ACC, pe - ps);
+    } else {
+      const Scalar a_min_req = (-pow_ve2 + pow_vs2) / (2 * (-pe + ps));
+      return a_min_req;
+    }
   }
 }
 

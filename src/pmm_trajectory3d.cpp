@@ -38,8 +38,44 @@ PointMassTrajectory3D::PointMassTrajectory3D(const QuadState &from,
 
   Vector<3> t_times(0.0, 0.0, 0.0);
   Vector<3> gradients(0.0, 0.0, 0.0);
-  Vector<3> acc_req(0.01, 0.01, 0.01);
+  Vector<3> acc_req(MIN_ACC_REQ, MIN_ACC_REQ, MIN_ACC_REQ);
 
+  for (int i = 0; i < 3; ++i) {
+    const double vs = from.v(i);
+    const double ve = to.v(i);
+    const double ps = from.p(i);
+    const double pe = to.p(i);
+    acc_req(i) = PMMTrajectory::minRequiredAcc(ps, vs, pe, ve);
+    if (acc_req(i) < 0) {
+      acc_req(i) = std::min(acc_req(i), -MIN_ACC_REQ);
+    } else {
+      acc_req(i) = std::max(acc_req(i), MIN_ACC_REQ);
+    }
+
+
+    Tr1D tr_above = one_dim_double_integrator_two_acc(
+      ps, vs, pe, ve, acc_req(i) * 1.1, -acc_req(i) * 1.1, i);
+    if (tr_above.exists) {
+      acc_req(i) = std::copysign(acc_req(i), tr_above.a1);
+      t_times(i) = tr_above.time();
+      gradients(i) = tr_above.dt_da;
+    } else {
+      std::cout << "non existing min acc should not happen i:" << i
+                << std::endl;
+      exit(1);
+    }
+    Tr1D tr_bellow = one_dim_double_integrator_two_acc(
+      ps, vs, pe, ve, acc_req(i) * 0.9, -acc_req(i) * 0.9, i);
+    if (tr_bellow.exists) {
+      INFO_COND(PRINT_DEBUG, "tr bellow exists " << i << " a1 " << tr_bellow.a1
+                                                 << " a2 " << tr_bellow.a2)
+      acc_req(i) = std::copysign(MIN_ACC_REQ, acc_req(i));
+    } else {
+      INFO("bellow does not exists")
+    }
+  }
+
+  acc_req(2) = fabs(acc_req(2));
 
   double tmax = std::numeric_limits<double>::max();
 
