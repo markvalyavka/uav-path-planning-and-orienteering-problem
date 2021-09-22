@@ -27,8 +27,14 @@ VelocitySearchGraph::VelocitySearchGraph(
 MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
   const std::vector<Vector<3>>& gates_waypoints,
   const Vector<3>& start_velocity, const Vector<3>& end_velocity,
-  const std::vector<Scalar>& gates_yaw_deg, const bool end_free) {
+  const std::vector<Scalar>& gates_yaw_deg, const bool end_free,
+  const bool use_gd) {
   const int gates_size = gates_waypoints.size();
+
+  Scalar pow_max_acc_2 = max_acc_ * max_acc_;
+  Scalar single_axis = sqrt(pow_max_acc_2 / 3.0);
+  Vector<3> max_acc_per_axis = Vector<3>::Constant(single_axis);
+  std::cout << "single_axis " << single_axis << std::endl;
 
   std::vector<Vector<3>> found_gates_speeds;
   std::vector<Scalar> found_gates_times;
@@ -208,8 +214,17 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
           to_state.v = to_v;
 
           timer_calc_pm.tic();
-          const PointMassTrajectory3D tr_max_acc(
-            from_state, to_state, Vector<3>::Constant(max_acc_), false);
+          PointMassTrajectory3D tr_max_acc;
+          if (use_gd) {
+            tr_max_acc =
+              PointMassTrajectory3D(from_state, to_state, max_acc_, false);
+          } else {
+            tr_max_acc = PointMassTrajectory3D(from_state, to_state,
+                                               max_acc_per_axis, false);
+          }
+          // const PointMassTrajectory3D tr_max_acc(from_state, to_state,
+          // max_acc_,
+          //                                        false);
           timer_calc_pm.toc();
 
           if (tr_max_acc.exists()) {
@@ -366,8 +381,16 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
   QuadState to_state;
   to_state.p = gates_waypoints[1];
   to_state.v = found_gates_speeds[0];
-  PointMassTrajectory3D tr_max_acc_start = PointMassTrajectory3D(
-    from_start_state, to_state, Vector<3>::Constant(max_acc_));
+  PointMassTrajectory3D tr_max_acc_start;
+  if (use_gd) {
+    tr_max_acc_start =
+      PointMassTrajectory3D(from_start_state, to_state, max_acc_);
+  } else {
+    tr_max_acc_start =
+      PointMassTrajectory3D(from_start_state, to_state, max_acc_per_axis);
+  }
+  // PointMassTrajectory3D tr_max_acc_start =
+  //   PointMassTrajectory3D(from_start_state, to_state, max_acc_);
   trajectories.push_back(tr_max_acc_start);
   time_sum += tr_max_acc_start.time();
 
@@ -376,6 +399,7 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
     return MultiWaypointTrajectory();
   }
 
+  std::cout << "gates_waypoints size " << gates_waypoints.size() << std::endl;
   for (size_t i = 2; i < gates_waypoints.size(); i++) {
     QuadState from_state_b;
     from_state_b.p = gates_waypoints[i - 1];
@@ -384,8 +408,15 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
     to_state_b.p = gates_waypoints[i];
     to_state_b.v = found_gates_speeds[i - 1];
 
-    PointMassTrajectory3D tr_max_between = PointMassTrajectory3D(
-      from_state_b, to_state_b, Vector<3>::Constant(max_acc_));
+    PointMassTrajectory3D tr_max_between;
+    if (use_gd) {
+      tr_max_between =
+        PointMassTrajectory3D(from_state_b, to_state_b, max_acc_);
+    } else {
+      tr_max_between =
+        PointMassTrajectory3D(from_state_b, to_state_b, max_acc_per_axis);
+    }
+
     trajectories.push_back(tr_max_between);
 
     time_sum += tr_max_between.time();

@@ -258,7 +258,7 @@ Vector<3> PMMTrajectory::state_in_time(const Scalar time_in_tr) const {
     vel = v_(1) + a_(1) * time_part;
     acc = a_(1);
   } else {  // return the last state
-    pos = p_(4);
+    pos = p_(3);
     vel = v_(2);
     acc = a_(1);
   }

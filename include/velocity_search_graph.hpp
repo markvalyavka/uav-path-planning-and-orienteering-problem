@@ -40,7 +40,8 @@ class VelocitySearchGraph {
   MultiWaypointTrajectory find_velocities_in_positions(
     const std::vector<Vector<3>>& gates_waypoints,
     const Vector<3>& start_velocity, const Vector<3>& end_velocity,
-    const std::vector<Scalar>& gates_yaw_deg, const bool end_free);
+    const std::vector<Scalar>& gates_yaw_deg, const bool end_free,
+    const bool use_gd);
 
   void save_track_trajectory(const MultiWaypointTrajectory& trajectories,
 

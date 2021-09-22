@@ -12,6 +12,7 @@ namespace agi {
 
 class PointMassTrajectory3D {
  public:
+  PointMassTrajectory3D();
   /*
   version of per axis acceleration limits
   */
@@ -43,6 +44,17 @@ class PointMassTrajectory3D {
   PMMTrajectory x_;
   PMMTrajectory y_;
   PMMTrajectory z_;
+
+ private:
+  void reproject_to_sphere(Vector<3> &new_thrust_acc, std::vector<bool> &fixed,
+                           const Vector<3> &req_thrust_acc_min,
+                           const Vector<3> &req_thrust_acc_max,
+                           const Vector<3> &acc_req, const Vector<3> &t_times,
+                           const Scalar &a_max);
+  void get_time_avg_min(Scalar &tavg, Scalar &tmin, int &max_time_idx,
+                        int &min_time_idx, const Scalar &tmax,
+                        const Vector<3> &t_times,
+                        const Vector<3> &gradients_scaled);
 };
 
 std::ostream &operator<<(std::ostream &o, const PointMassTrajectory3D &f);

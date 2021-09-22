@@ -50,10 +50,10 @@ int test_pmm(int argc, char **argv) {
   const Scalar max_velocity_norm = 17.0;
   const Scalar precision_velocity_norm = 8.0;
 
-  const Scalar max_acc = 25;
+  const Scalar max_acc_norm = 32.94;
 
   VelocitySearchGraph vel_search_graph(
-    max_acc, max_yaw_pitch_ang, precision_yaw_pitch_ang,
+    max_acc_norm, max_yaw_pitch_ang, precision_yaw_pitch_ang,
     yaw_pitch_cone_angle_boundary, min_velocity_norm_boundary,
     min_velocity_norm, max_velocity_norm, precision_velocity_norm);
 
@@ -82,10 +82,19 @@ int test_pmm(int argc, char **argv) {
   std::cout << "gates_yaw_deg.size() " << gates_yaw_deg.size() << std::endl;
 
 
-  gates_waypoints.resize(3);
-  gates_yaw_deg.resize(3);
-  vel_search_graph.find_velocities_in_positions(
-    gates_waypoints, start_velocity, end_velocity, gates_yaw_deg, end_free);
+  // gates_waypoints.resize(3);
+  // gates_yaw_deg.resize(3);
+  Scalar sum_times = 0;
+  MultiWaypointTrajectory tr = vel_search_graph.find_velocities_in_positions(
+    gates_waypoints, start_velocity, end_velocity, gates_yaw_deg, end_free,
+    false);
+  std::cout << "output tr size " << tr.size() << std::endl;
+  for (size_t i = 0; i < tr.size(); i++) {
+    std::cout << i << " vel " << tr[i].get_end_state().v.transpose()
+              << std::endl;
+    sum_times += tr[i].time();
+  }
+  std::cout << "total time " << sum_times << std::endl;
 
   // save_track_trajectory(trajectories, shortest_time,
   //                       output_folder_ + "samples_pmm.csv");

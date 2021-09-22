@@ -5,7 +5,10 @@
 #include <limits>
 #include <sstream>
 
+#include "agilib/math/gravity.hpp"
+
 namespace agi {
+PointMassTrajectory3D::PointMassTrajectory3D() {}
 
 PointMassTrajectory3D::PointMassTrajectory3D(const QuadState &from,
                                              const QuadState &to,
@@ -34,17 +37,17 @@ PointMassTrajectory3D::PointMassTrajectory3D(const QuadState &from,
                                              Scalar max_acc_norm,
                                              const bool equalize_time) {
   static const Scalar ALLOWED_DIFF_TIMES_RATIO{0.0001};
-  static const Scalar NUM_ITERS{30};
+  static const Scalar NUM_ITERS{10};
 
   Vector<3> t_times(0.0, 0.0, 0.0);
   Vector<3> gradients(0.0, 0.0, 0.0);
   Vector<3> acc_req(MIN_ACC_REQ, MIN_ACC_REQ, MIN_ACC_REQ);
 
   for (int i = 0; i < 3; ++i) {
-    const double vs = from.v(i);
-    const double ve = to.v(i);
-    const double ps = from.p(i);
-    const double pe = to.p(i);
+    const Scalar vs = from.v(i);
+    const Scalar ve = to.v(i);
+    const Scalar ps = from.p(i);
+    const Scalar pe = to.p(i);
     acc_req(i) = PMMTrajectory::minRequiredAcc(ps, vs, pe, ve);
     if (acc_req(i) < 0) {
       acc_req(i) = std::min(acc_req(i), -MIN_ACC_REQ);
@@ -53,39 +56,102 @@ PointMassTrajectory3D::PointMassTrajectory3D(const QuadState &from,
     }
 
 
-    Tr1D tr_above = one_dim_double_integrator_two_acc(
-      ps, vs, pe, ve, acc_req(i) * 1.1, -acc_req(i) * 1.1, i);
-    if (tr_above.exists) {
-      acc_req(i) = std::copysign(acc_req(i), tr_above.a1);
+    PMMTrajectory tr_above(ps, vs, pe, ve, acc_req(i) * 1.1, -acc_req(i) * 1.1,
+                           i, false, true, false);
+    if (tr_above.exists_) {
+      acc_req(i) = std::copysign(acc_req(i), tr_above.a_(0));
       t_times(i) = tr_above.time();
-      gradients(i) = tr_above.dt_da;
+      gradients(i) = tr_above.dt_da_;
     } else {
       std::cout << "non existing min acc should not happen i:" << i
                 << std::endl;
       exit(1);
     }
-    Tr1D tr_bellow = one_dim_double_integrator_two_acc(
-      ps, vs, pe, ve, acc_req(i) * 0.9, -acc_req(i) * 0.9, i);
-    if (tr_bellow.exists) {
-      INFO_COND(PRINT_DEBUG, "tr bellow exists " << i << " a1 " << tr_bellow.a1
-                                                 << " a2 " << tr_bellow.a2)
+    PMMTrajectory tr_bellow(ps, vs, pe, ve, acc_req(i) * 0.9, -acc_req(i) * 0.9,
+                            i, false, true, false);
+    if (tr_bellow.exists_) {
       acc_req(i) = std::copysign(MIN_ACC_REQ, acc_req(i));
     } else {
-      INFO("bellow does not exists")
+      std::cout << "bellow does not exists i:" << i << std::endl;
     }
   }
 
   acc_req(2) = fabs(acc_req(2));
 
-  double tmax = std::numeric_limits<double>::max();
+  // we need abs of the az + g to be within the limit....
+  const Vector<3> req_max_thrust_acc = acc_req.cwiseAbs() + Vector<3>(0, 0, G);
 
-  Vector<3> t_times_old = t_times;
+  if (req_max_thrust_acc.norm() > max_acc_norm) {
+    x_.exists_ = false;
+    y_.exists_ = false;
+    z_.exists_ = false;
+    std::cout << "req_max_thrust_acc above limit " << req_max_thrust_acc.norm()
+              << " a_max " << max_acc_norm << std::endl;
+    return;
+  }
+
+  // add G to min thrust acc
+  Vector<3> req_thrust_acc_min;
+  Vector<3> req_thrust_acc_max;
+  for (size_t i = 0; i < 3; i++) {
+    if (i == 2) {
+      // z
+      if (acc_req(i) > 0) {
+        req_thrust_acc_min(i) = acc_req(i) + G;
+        req_thrust_acc_max(i) = max_acc_norm;
+      } else {
+        req_thrust_acc_max(i) = acc_req(i) + G;
+        req_thrust_acc_min(i) = -max_acc_norm;
+      }
+    } else {
+      // x, y
+      if (acc_req(i) > 0) {
+        req_thrust_acc_min(i) = acc_req(i);
+        req_thrust_acc_max(i) = max_acc_norm;
+      } else {
+        req_thrust_acc_max(i) = acc_req(i);
+        req_thrust_acc_min(i) = -max_acc_norm;
+      }
+    }
+  }
+
+  Vector<3> thrust_acc = acc_req - GVEC;
+  std::vector<bool> fixed_init{false, false, false};
+  reproject_to_sphere(thrust_acc, fixed_init, req_thrust_acc_min,
+                      req_thrust_acc_max, acc_req, t_times, max_acc_norm);
+
+  if (fabs(thrust_acc.norm() - max_acc_norm) > 0.01) {
+    std::cout << "bad thrust acc norm" << std::endl;
+    exit(1);
+  }
+
+  Scalar min_tdiff_min_max = std::numeric_limits<Scalar>::max();
+
+
+  int iter_unimproved_max = 0;
+  int last_improved_iter = 0;
+
+  Scalar tmax = std::numeric_limits<Scalar>::max();
+  Scalar tmin, tavg;
+  Scalar tmax_old = tmax;
+
+  // best trajectory recorded during GD
+  std::vector<PMMTrajectory> best_trajectory;
+  best_trajectory.resize(3);
+  Scalar best_trajectory_tmax = tmax;
+
   Vector<3> gradients_old = gradients;
+  Vector<3> t_times_old = t_times;
   int max_time_idx, max_time_idx_old = 0;
   int min_time_idx, min_time_idx_old = 0;
-  double tmax_old = tmax;
-  double dalph = 0;
-  double dalph_old = dalph;
+  Scalar dalph = 0;
+  Scalar dalph_old = dalph;
+  double default_min_time_change_decay = 1.0;
+  double min_time_change_decay = default_min_time_change_decay;
+  const double decay_decrease_min_time_swap = 1.0;
+  const double decay_decrease_max_time_swap = 0.8;
+  const double decay_increase_tmax = 0.9;
+  const double decay_decrease_three_constrained = 0.2;
 
   bool converged = true;
   const int num_iter_opt = NUM_ITERS;
@@ -105,9 +171,9 @@ PointMassTrajectory3D::PointMassTrajectory3D(const QuadState &from,
     dalph_old = dalph;
 
     // check if thrust_acc is max
-    if (fabs(thrust_acc.norm() - a_max) > 0.01) {
+    if (fabs(thrust_acc.norm() - max_acc_norm) > 0.01) {
       std::cout << "bad thrust_dir_size " << thrust_acc.norm() << " vs "
-                << a_max << std::endl;
+                << max_acc_norm << std::endl;
       exit(1);
     }
 
@@ -125,50 +191,34 @@ PointMassTrajectory3D::PointMassTrajectory3D(const QuadState &from,
       }
     */
 
-      const double max_acc = body_acc(i);
-      const double min_acc = body_acc_down(i);
-      const double vs = from_state.v(i);
-      const double ve = to_state.v(i);
-      const double ps = from_state.p(i);
-      const double pe = to_state.p(i);
+      const Scalar max_acc = body_acc(i);
+      const Scalar min_acc = body_acc_down(i);
+      const Scalar vs = from.v(i);
+      const Scalar ve = to.v(i);
+      const Scalar ps = from.p(i);
+      const Scalar pe = to.p(i);
 
-      const Tr1D tr =
-        one_dim_double_integrator_two_acc(ps, vs, pe, ve, max_acc, min_acc, i);
+      const PMMTrajectory tr(ps, vs, pe, ve, max_acc, min_acc, i, false, true,
+                             false);
       // INFO(i << " dtda " << tr.dt_da)
 
-      if (!tr.exists) {
-        ERROR_RED("iterated to nonexisting one_dim_double_integrator");
-        INFO("axis " << i)
-        INFO_VAR(tr.a1)
-        INFO_VAR(tr.a2)
-        INFO_VAR(max_acc)
-
-        INFO_VAR(req_thrust_acc_max.transpose())
-        INFO_VAR(req_thrust_acc_min.transpose())
-        INFO_VAR(acc_req.transpose())
-        INFO_VAR(acc_req.norm())
-        INFO_VAR(body_acc.transpose())
-        INFO_VAR(thrust_acc.transpose())
-        INFO_VAR(thrust_acc.norm())
-        INFO_VAR(a_max)
-        INFO_VAR(acc_req.transpose())
+      if (!tr.exists_) {
+        std::cout << "iterated to nonexisting one_dim_Scalar_integrator"
+                  << std::endl;
         exit(1);
       }
 
       t_times(i) = tr.time();
-      gradients(i) = tr.dt_da;
-      tr_max_acc.set_by_axis(i, tr);
+      gradients(i) = tr.dt_da_;
+      set_axis_trajectory(i, tr);
 
-      // if (i == 2) {
-      //   gradients(i) = copysign(gradients(i), -1);
-      // }
 
       // the best a may change sign
-      if (i != 2 && acc_req(i) * tr.a1 < 0) {
-        thrust_acc(i) = tr.a1;
-        acc_req(i) = copysign(acc_req(i), tr.a1);
-        const double tmp_acc_max = req_thrust_acc_max(i);
-        const double tmp_acc_min = req_thrust_acc_min(i);
+      if (i != 2 && acc_req(i) * tr.a_(0) < 0) {
+        thrust_acc(i) = tr.a_(0);
+        acc_req(i) = copysign(acc_req(i), tr.a_(0));
+        const Scalar tmp_acc_max = req_thrust_acc_max(i);
+        const Scalar tmp_acc_min = req_thrust_acc_min(i);
         req_thrust_acc_max(i) = -tmp_acc_min;
         req_thrust_acc_min(i) = -tmp_acc_max;
       }
@@ -180,24 +230,15 @@ PointMassTrajectory3D::PointMassTrajectory3D(const QuadState &from,
 
     tmax = t_times.maxCoeff();
 
+    if (tmax < best_trajectory_tmax) {
+      best_trajectory[0] = x_;
+      best_trajectory[1] = y_;
+      best_trajectory[2] = z_;
+      best_trajectory_tmax = tmax;
+    }
+
     get_time_avg_min(tavg, tmin, max_time_idx, min_time_idx, tmax, t_times,
                      gradients_scaled);
-
-
-    INFO_COND_COLOR(PRINT_DEBUG, OUTPUT_CYAN, "tmax " << tmax)
-    INFO_COND_COLOR(
-      PRINT_DEBUG, OUTPUT_CYAN,
-      "t_times " << t_times(0) << " " << t_times(1) << " " << t_times(2))
-    INFO_COND(PRINT_DEBUG, "gradients " << gradients(0) << " " << gradients(1)
-                                        << " " << gradients(2))
-    INFO_COND(PRINT_DEBUG, "gradients_scaled init "
-                             << gradients_scaled(0) << " "
-                             << gradients_scaled(1) << " "
-                             << gradients_scaled(2))
-    INFO_COND(PRINT_DEBUG, "thrust_acc " << thrust_acc(0) << " "
-                                         << thrust_acc(1) << " "
-                                         << thrust_acc(2))
-    INFO_COND(PRINT_DEBUG, "tmin " << tmin)
 
 
     Vector<3> t_times_diff = (t_times_old - t_times);
@@ -206,9 +247,7 @@ PointMassTrajectory3D::PointMassTrajectory3D(const QuadState &from,
     Vector<3> gradients_diff =
       (gradients_old - gradients).cwiseAbs().cwiseMax(0.0005);
 
-    INFO_COND(PRINT_DEBUG, "t_times_diff " << t_times_diff.transpose())
     bool on_limit = true;
-
 
     // setting gradient to zero if on the limit of acc
     while (on_limit) {
@@ -230,12 +269,6 @@ PointMassTrajectory3D::PointMassTrajectory3D(const QuadState &from,
 
             gradients_scaled(i) = 0;
 
-            INFO_COND_COLOR(
-              PRINT_DEBUG, OUTPUT_RED,
-              "is on limit of descent, do not consider for  avg.... " << i)
-            INFO_COND(PRINT_DEBUG, "acc_req " << acc_req.transpose())
-
-
             on_limit = true;
             break;
           }
@@ -249,12 +282,11 @@ PointMassTrajectory3D::PointMassTrajectory3D(const QuadState &from,
     if (iter - last_improved_iter > iter_unimproved_max) {
       iter_unimproved_max = iter - last_improved_iter;
     }
-    const double tdiff_min_max = tmax - tmin;
+    const Scalar tdiff_min_max = tmax - tmin;
     if (tdiff_min_max < min_tdiff_min_max) {
       min_tdiff_min_max = tdiff_min_max;
       last_improved_iter = iter;
     }
-
 
     // end convergence if gradient is zero of >1 axises
     int num_on_limit = 0;
@@ -271,7 +303,7 @@ PointMassTrajectory3D::PointMassTrajectory3D(const QuadState &from,
     // scale the gradient based on time diff to last and signed distance from
     // average
     for (int i = 0; i < 3; i++) {
-      double dist_t_avg = fabs(tavg - t_times(i));
+      Scalar dist_t_avg = fabs(tavg - t_times(i));
       if (t_times(i) > tavg) {
         // INFO("inverse for i " << i)
         gradients_scaled(i) = -gradients_scaled(i) * dist_t_avg /
@@ -283,13 +315,6 @@ PointMassTrajectory3D::PointMassTrajectory3D(const QuadState &from,
       }
     }
 
-
-    INFO_COND(PRINT_DEBUG, "gradients_scaled bef " << gradients_scaled(0) << " "
-                                                   << gradients_scaled(1) << " "
-                                                   << gradients_scaled(2))
-    INFO_COND(PRINT_DEBUG,
-              "tmax " << tmax << " tavg " << tavg << " tmin " << tmin)
-
     // scale alpha angle by distance from average and the dacay
     dalph = min_time_change_decay * (fabs(tmax - tavg) / tmax);
     if (dalph == 0) {
@@ -297,7 +322,6 @@ PointMassTrajectory3D::PointMassTrajectory3D(const QuadState &from,
       break;
     }
     dalph = std::min(0.6, dalph);  // limit the angle
-    INFO_COND(PRINT_DEBUG, "dalph " << dalph)
 
     // so now we have gradients_scaled and need to make them
     // dot(gradients_scaled,thrust_acc_u)==0 and
@@ -306,27 +330,21 @@ PointMassTrajectory3D::PointMassTrajectory3D(const QuadState &from,
     // == thrust acc
     // so we will fix the zeros first
 
-    gradients_scaled = gradients_scaled.normalized() * a_max;
-
-    INFO_COND(PRINT_DEBUG, "gradients_scaled normalized "
-                             << gradients_scaled(0) << " "
-                             << gradients_scaled(1) << " "
-                             << gradients_scaled(2))
+    gradients_scaled = gradients_scaled.normalized() * max_acc_norm;
 
     // the ones that reached the limit are fixed by force == their scale can
     // not be changed
-    std::vector<double> fixed_tang_plane_force = {false, false, false};
+    std::vector<Scalar> fixed_tang_plane_force = {false, false, false};
 
-    double dot_fixed = 0;
-    double g_len_fixed = a_max * a_max;
-    std::vector<double> fixed_tang_plane = {false, false, false};
+    Scalar dot_fixed = 0;
+    Scalar g_len_fixed = max_acc_norm * max_acc_norm;
+    std::vector<Scalar> fixed_tang_plane = {false, false, false};
     std::vector<int> nf_ids;
     Vector<3> gradient_tang_plane(0, 0, 0);
     for (size_t i = 0; i < 3; i++) {
       if (gradients_scaled(i) == 0) {
         // we have to make acc = acc*cos(alph) + gtp*cos(alph) too keep the
         // acc at the same value
-        INFO_COND_COLOR(PRINT_DEBUG, OUTPUT_MAGENTA, "on limit for idx " << i)
         fixed_tang_plane[i] = true;
         fixed_tang_plane_force[i] = true;
         gradient_tang_plane(i) =
@@ -340,25 +358,24 @@ PointMassTrajectory3D::PointMassTrajectory3D(const QuadState &from,
       }
     }
 
-
     if (fixed_tang_plane[0] + fixed_tang_plane[1] + fixed_tang_plane[2] == 1) {
       //  now the gradient_tang_plane non fixed parts are set to be
       //  solutions to the
       // system of equations
       // 0 = a_0*g_0 + a_1*g_1 + a_2*g_2
       // a_max^2 = g_0^2 + g_1^2 + g_2^2
-      const double acc0_pow2 = (thrust_acc(nf_ids[0]) * thrust_acc(nf_ids[0]));
-      const double acc1_pow2 = (thrust_acc(nf_ids[1]) * thrust_acc(nf_ids[1]));
-      const double c = -g_len_fixed + (dot_fixed * dot_fixed) / (acc0_pow2);
-      const double b = -2.0 * dot_fixed * thrust_acc(nf_ids[1]) / acc0_pow2;
-      const double a = (acc1_pow2 + acc0_pow2) / acc0_pow2;
-      const double disc = b * b - 4.0 * a * c;
-      const double g1_first = (-b + sqrt(disc)) / (2.0 * a);
-      const double g1_second = (-b - sqrt(disc)) / (2.0 * a);
+      const Scalar acc0_pow2 = (thrust_acc(nf_ids[0]) * thrust_acc(nf_ids[0]));
+      const Scalar acc1_pow2 = (thrust_acc(nf_ids[1]) * thrust_acc(nf_ids[1]));
+      const Scalar c = -g_len_fixed + (dot_fixed * dot_fixed) / (acc0_pow2);
+      const Scalar b = -2.0 * dot_fixed * thrust_acc(nf_ids[1]) / acc0_pow2;
+      const Scalar a = (acc1_pow2 + acc0_pow2) / acc0_pow2;
+      const Scalar disc = b * b - 4.0 * a * c;
+      const Scalar g1_first = (-b + sqrt(disc)) / (2.0 * a);
+      const Scalar g1_second = (-b - sqrt(disc)) / (2.0 * a);
 
-      const double g0_first =
+      const Scalar g0_first =
         (dot_fixed - thrust_acc(nf_ids[1]) * g1_first) / thrust_acc(nf_ids[0]);
-      const double g0_second =
+      const Scalar g0_second =
         (dot_fixed - thrust_acc(nf_ids[1]) * g1_second) / thrust_acc(nf_ids[0]);
 
       // first solution of the quadratic function is the correct one == the
@@ -411,136 +428,88 @@ PointMassTrajectory3D::PointMassTrajectory3D(const QuadState &from,
           gradient_tang_plane(nf_ids[1]) = g1_second;
           gradient_tang_plane(nf_ids[0]) = g0_second;
         } else {
-          INFO("there is no max among the nonfixed???")
-          INFO("gradients_scaled normalized " << gradients_scaled(0) << " "
-                                              << gradients_scaled(1) << " "
-                                              << gradients_scaled(2))
-          INFO("gradients " << gradients(0) << " " << gradients(1) << " "
-                            << gradients(2))
-          INFO("non existing same sign gradient plane")
-          INFO_VAR(g1_first)
-          INFO_VAR(g1_second)
-          INFO_VAR(gradients_scaled(nf_ids[1]))
+          std::cout << "there is no max among the nonfixed???" << std::endl;
+          std::cout << "non existing same sign gradient plane" << std::endl;
 
-          INFO_VAR(tavg);
-          INFO_VAR(g0_first)
-          INFO_VAR(g0_second)
-          INFO_VAR(gradients_scaled(nf_ids[0]))
-          INFO_VAR(tavg);
-          INFO_VAR(disc)
-
-          INFO_VAR(req_thrust_acc_max.transpose())
-          INFO_VAR(req_thrust_acc_min.transpose())
-
-          INFO_VAR(req_max_thrust_acc.transpose())
-          INFO_VAR(req_max_thrust_acc.norm())
-          INFO_VAR(a_max)
-
-          INFO("t_times " << t_times(0) << " " << t_times(1) << " "
-                          << t_times(2))
-          INFO("t_times-tavg " << t_times(0) - tavg << " " << t_times(1) - tavg
-                               << " " << t_times(2) - tavg)
-          INFO("t_times_diff " << t_times_diff.transpose())
-          INFO("thrust_acc " << thrust_acc(0) << " " << thrust_acc(1) << " "
-                             << thrust_acc(2) << " norm " << thrust_acc.norm()
-                             << " a_max " << a_max)
-          INFO_VAR(nf_ids[0])
-          INFO_VAR(nf_ids[1])
-          INFO_VAR(max_time_idx)
-          INFO_VAR(min_time_idx)
           exit(1);
         }
       }
 
-
     } else {
       // fix max first
-      // INFO("thrust_acc norm " << thrust_acc.norm())
       gradient_tang_plane =
         gradients_scaled -
         gradients_scaled.normalized().dot(thrust_acc.normalized()) * thrust_acc;
-      gradient_tang_plane = gradient_tang_plane.normalized() * a_max;
+      gradient_tang_plane = gradient_tang_plane.normalized() * max_acc_norm;
 
       // limit the dalph to be within the scale of gradient to tangent
       // projection
-      double angle_between = acos(
+      Scalar angle_between = acos(
         gradient_tang_plane.normalized().dot(gradients_scaled.normalized()));
       if (M_PI_2 - angle_between > 0) {
         dalph = std::min(dalph, M_PI_2 - angle_between);
-        INFO_COND_COLOR(PRINT_DEBUG, OUTPUT_RED,
-                        "!!!!!!!! limiting dalph to " << dalph)
       }
-      // INFO_MAGENTA("angle_between " << angle_between)
     }
 
-    INFO_COND(PRINT_DEBUG, "gradient_tang_plane dot_equal "
-                             << gradient_tang_plane.transpose() << " norm "
-                             << gradient_tang_plane.norm())
-
-
-    INFO_COND(PRINT_DEBUG, "acc_req " << acc_req(0) << " " << acc_req(1) << " "
-                                      << acc_req(2))
-
-
-    INFO_COND(PRINT_DEBUG, "gradient_tang_plane "
-                             << gradient_tang_plane.transpose() << " norm "
-                             << gradient_tang_plane.norm())
 
     Vector<3> new_thrust_acc =
       thrust_acc * cos(dalph) + gradient_tang_plane * sin(dalph);
 
-
-    INFO_COND(PRINT_DEBUG, "new_thrust_acc new "
-                             << new_thrust_acc(0) << " " << new_thrust_acc(1)
-                             << " " << new_thrust_acc(2) << " norm "
-                             << new_thrust_acc.norm() << " a_max " << a_max)
-
-
-    // INFO("thrust_acc_tst size " << new_thrust_acc.norm() << " a_max "
-    //                             << a_max)
-
     // projecting to constrained acc
     std::vector<bool> fixed{false, false, false};
     reproject_to_sphere(new_thrust_acc, fixed, req_thrust_acc_min,
-                        req_thrust_acc_max, acc_req, t_times, a_max);
+                        req_thrust_acc_max, acc_req, t_times, max_acc_norm);
 
 
     const int num_fixed = fixed[0] + fixed[1] + fixed[2];
 
     if (max_time_idx != max_time_idx_old && iter > 0) {
+      // changed max time axis decay
       min_time_change_decay *= decay_decrease_max_time_swap;
-      INFO_COND_COLOR(PRINT_DEBUG, OUTPUT_GREEN,
-                      "changed max time axis decay " << min_time_change_decay)
     } else if (num_fixed >= 3) {
+      // decrease decay num fixed == reached boundary condition
       min_time_change_decay *= decay_decrease_three_constrained;
-      INFO_COND_COLOR(PRINT_DEBUG, OUTPUT_GREEN,
-                      "decrease decay num fixed " << min_time_change_decay)
     } else if (tmax - tmax_old > 0) {
+      // decrease decay tmax increased
       min_time_change_decay *= decay_increase_tmax;
-      INFO_COND_COLOR(PRINT_DEBUG, OUTPUT_GREEN,
-                      "decrease decay tmax increased " << min_time_change_decay)
     }
-
 
     thrust_acc = new_thrust_acc;
 
-    if (fabs(thrust_acc.norm() - a_max) > 0.01) {
-      INFO("2!bad thrust_dir_size " << thrust_acc.norm() << " vs " << a_max);
-      INFO_VAR(iter)
-      INFO_VAR(thrust_acc.norm())
-      INFO_VAR(a_max)
+    if (fabs(thrust_acc.norm() - max_acc_norm) > 0.01) {
+      std::cout << "2!bad thrust_dir_size " << thrust_acc.norm() << " vs "
+                << max_acc_norm << std::endl;
       exit(1);
     }
 
 
-    const double max_time_tst = t_times.maxCoeff();
-    const double min_time_tst = t_times.minCoeff();
+    const Scalar max_time_tst = t_times.maxCoeff();
+    const Scalar min_time_tst = t_times.minCoeff();
     if (max_time_tst - min_time_tst > ALLOWED_DIFF_TIMES_RATIO * tmax) {
       converged = false;
     }
 
     if (converged) {
       break;
+    }
+  }
+
+  if (tmax > best_trajectory_tmax) {
+    // std::cout << "better time during optimization " << tmax << " "
+    //           << best_trajectory_tmax << std::endl;
+    // exit(1);
+    x_ = best_trajectory[0];
+    y_ = best_trajectory[1];
+    z_ = best_trajectory[2];
+  }
+
+  if (equalize_time) {
+    const Scalar tr_time = time();
+    for (size_t i = 0; i < 3; i++) {
+      if (get_axis_trajectory(i).time() != tr_time) {
+        PMMTrajectory scaled = PMMTrajectory(get_axis_trajectory(i), tr_time);
+        set_axis_trajectory(i, scaled);
+      }
     }
   }
 }
@@ -563,7 +532,6 @@ QuadState PointMassTrajectory3D::state_in_time(const Scalar time_in_tr) const {
   ds.a(0) = x(2);
   ds.a(1) = y(2);
   ds.a(2) = z(2);
-
   return ds;
 }
 
@@ -605,10 +573,6 @@ Scalar PointMassTrajectory3D::get_length_const_a(const Scalar tfrom,
                                                  const Vector<3> p,
                                                  const Vector<3> v,
                                                  const Vector<3> a) const {
-  // const Scalar &sx = p(0);
-  // const Scalar &sy = p(1);
-  // const Scalar &sz = p(2);
-
   const Scalar ax_pow2 = a(0) * a(0);
   const Scalar ay_pow2 = a(1) * a(1);
   const Scalar az_pow2 = a(2) * a(2);
@@ -672,6 +636,127 @@ Scalar PointMassTrajectory3D::get_length_const_a(const Scalar tfrom,
     return INF;
   }
   return ds;
+}
+
+inline void PointMassTrajectory3D::reproject_to_sphere(
+  Vector<3> &new_thrust_acc, std::vector<bool> &fixed,
+  const Vector<3> &req_thrust_acc_min, const Vector<3> &req_thrust_acc_max,
+  const Vector<3> &acc_req, const Vector<3> &t_times, const Scalar &a_max) {
+  bool within_constrints = false;
+  while (!within_constrints) {
+    within_constrints = true;
+    if (fabs(new_thrust_acc.norm() - a_max) > 0.0001) {
+      within_constrints = false;
+    }
+    Scalar fixed_len_squared = a_max * a_max;
+    Scalar non_fixed_len_squared = 0;
+    for (size_t i = 0; i < 3; i++) {
+      if (t_times(i) == 0) {
+        // t_times(i) == 0 means no acc optimization needed and set to min
+        // required one is possible
+        if (!fixed[i]) {
+          within_constrints = false;
+        }
+        if (acc_req(i) > 0) {
+          new_thrust_acc(i) = req_thrust_acc_min(i);
+          fixed[i] = true;
+          fixed_len_squared -= req_thrust_acc_min(i) * req_thrust_acc_min(i);
+        } else {
+          new_thrust_acc(i) = req_thrust_acc_max(i);
+          fixed[i] = true;
+          fixed_len_squared -= req_thrust_acc_max(i) * req_thrust_acc_max(i);
+        }
+
+      } else {
+        if (acc_req(i) < 0) {
+          if (new_thrust_acc(i) > req_thrust_acc_max(i)) {
+            within_constrints = false;
+          }
+          if (new_thrust_acc(i) > req_thrust_acc_max(i) || fixed[i]) {
+            new_thrust_acc(i) = req_thrust_acc_max(i);
+            fixed[i] = true;
+            fixed_len_squared -= req_thrust_acc_max(i) * req_thrust_acc_max(i);
+            // INFO("fixing acc " << i)
+          } else {
+            non_fixed_len_squared += new_thrust_acc(i) * new_thrust_acc(i);
+          }
+        } else {
+          if (new_thrust_acc(i) < req_thrust_acc_min(i)) {
+            within_constrints = false;
+          }
+          if (new_thrust_acc(i) < req_thrust_acc_min(i) || fixed[i]) {
+            new_thrust_acc(i) = req_thrust_acc_min(i);
+            fixed[i] = true;
+            fixed_len_squared -= req_thrust_acc_min(i) * req_thrust_acc_min(i);
+            //  INFO("fixing acc " << i)
+          } else {
+            non_fixed_len_squared += new_thrust_acc(i) * new_thrust_acc(i);
+          }
+        }
+      }
+    }
+
+    if (non_fixed_len_squared != 0) {
+      Scalar add_acc = 1.0;
+      if (!fixed[2]) {
+        non_fixed_len_squared =
+          non_fixed_len_squared - 2 * (new_thrust_acc(2) - G) * G - G * G;
+
+        const Scalar c = -fixed_len_squared + G * G;
+        const Scalar b = 2 * (new_thrust_acc(2) - G) * G;
+        const Scalar a = non_fixed_len_squared;
+        add_acc = (-b + sqrt(b * b - 4.0 * a * c)) / (2.0 * a);
+      } else {
+        add_acc = sqrt(fixed_len_squared / non_fixed_len_squared);
+      }
+
+      for (size_t i = 0; i < 3; i++) {
+        if (!fixed[i]) {
+          if (i == 2) {
+            new_thrust_acc(i) = (new_thrust_acc(i) - G) * add_acc + G;
+          } else {
+            new_thrust_acc(i) = new_thrust_acc(i) * add_acc;
+          }
+        }
+      }
+    } else {
+      Scalar scale_non_fixed = 1.0;
+      scale_non_fixed =
+        sqrt((a_max * a_max) / ((a_max * a_max) - fixed_len_squared));
+      // INFO("2scale_non_fixed " << scale_non_fixed)
+      for (size_t i = 0; i < 3; i++) {
+        new_thrust_acc(i) = new_thrust_acc(i) * (scale_non_fixed);
+      }
+    }
+  }
+}
+
+inline void PointMassTrajectory3D::get_time_avg_min(
+  Scalar &tavg, Scalar &tmin, int &max_time_idx, int &min_time_idx,
+  const Scalar &tmax, const Vector<3> &t_times,
+  const Vector<3> &gradients_scaled) {
+  tmin = DBL_MAX;
+  tavg = 0;
+  Scalar tavg_num = 0;
+  for (size_t i = 0; i < 3; i++) {
+    if (t_times(i) != 0 && gradients_scaled(i) != 0) {
+      tavg += t_times(i);
+      tavg_num += 1.0;
+      if (t_times(i) < tmin) {
+        tmin = t_times(i);
+        min_time_idx = i;
+      }
+      if (t_times(i) == tmax) {
+        max_time_idx = i;
+      }
+    }
+  }
+  tavg /= tavg_num;
+  if (max_time_idx == -1 || min_time_idx == -1) {
+    std::cout << "wrong max_time_idx or min_time_idx " << max_time_idx << " "
+              << min_time_idx << std::endl;
+    exit(1);
+  }
 }
 
 void PointMassTrajectory3D::set_axis_trajectory(const int i,
