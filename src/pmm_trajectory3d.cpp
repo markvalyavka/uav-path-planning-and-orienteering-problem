@@ -14,7 +14,6 @@ PointMassTrajectory3D::PointMassTrajectory3D(const QuadState &from,
                                              const QuadState &to,
                                              const Vector<3> max_acc,
                                              const bool equalize_time) {
-  std::cout << "without opt " << std::endl;
   x_ = PMMTrajectory(from.p(0), from.v(0), to.p(0), to.v(0), max_acc(0),
                      -max_acc(0), 0);
   y_ = PMMTrajectory(from.p(1), from.v(1), to.p(1), to.v(1), max_acc(1),
@@ -24,16 +23,12 @@ PointMassTrajectory3D::PointMassTrajectory3D(const QuadState &from,
 
   if (equalize_time) {
     const Scalar tr_time = time();
-    std::cout << "equalize time to " << tr_time << std::endl;
     for (size_t i = 0; i < 3; i++) {
       if (get_axis_trajectory(i).time() != tr_time) {
         PMMTrajectory scaled = PMMTrajectory(get_axis_trajectory(i), tr_time);
-        std::cout << "scaled.time() " << scaled.time() << std::endl;
         set_axis_trajectory(i, scaled);
       }
     }
-  } else {
-    std::cout << "not equalizing time" << std::endl;
   }
 }
 
@@ -638,10 +633,13 @@ Scalar PointMassTrajectory3D::get_length_const_a(const Scalar tfrom,
   const Scalar ds = ds_to - ds_from;
 
   if (!std::isfinite(ds) || ds < 0) {
-    std::cout << "non finite ds or bellow zero" << std::endl;
+    std::cout << "non finite ds or bellow zero " << ds << std::endl;
     std::cout << "p " << p.transpose() << std::endl;
     std::cout << "v " << v.transpose() << std::endl;
     std::cout << "a " << a.transpose() << std::endl;
+    std::cout << "ds_to " << ds_to << std::endl;
+    std::cout << "ds_from " << ds_from << std::endl;
+    exit(1);
     return INF;
   }
   return ds;

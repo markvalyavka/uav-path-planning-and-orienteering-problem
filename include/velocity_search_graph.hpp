@@ -43,11 +43,15 @@ class VelocitySearchGraph {
     const std::vector<Scalar>& gates_yaw_deg, const bool end_free,
     const bool use_gd);
 
-  static void save_track_trajectory(const MultiWaypointTrajectory& trajectories,
-
-                                    std::string filename);
-  static void save_track_trajectory_equidistant(
-    const MultiWaypointTrajectory& trajectories, std::string filename);
+  static void saveTrajectoryEquitemporal(
+    const MultiWaypointTrajectory& trajectories, std::string filename,
+    const Scalar dt_desired = 0.01);
+  static void saveTrajectoryEquidistant(
+    const MultiWaypointTrajectory& trajectories, std::string filename,
+    const Scalar desired_ds = 0.250);
+  static std::vector<QuadState> getTrajectoryEquidistantStates(
+    const MultiWaypointTrajectory& trajectories,
+    const Scalar desired_ds = 0.250);
 
   static std::vector<Vector<3>> sampleTrajectory(
     const MultiWaypointTrajectory& trajectory, const Scalar ds_desired);

@@ -20,7 +20,7 @@ void signal_callback(int sig) {
 }
 
 
-int test_pmm(int argc, char **argv) {
+int test_pmm(int argc, char** argv) {
   // register singal for killing
   std::signal(SIGINT, signal_callback);
   std::cout << "Testing PMM trajectories " << std::endl;
@@ -82,8 +82,8 @@ int test_pmm(int argc, char **argv) {
   std::cout << "gates_yaw_deg.size() " << gates_yaw_deg.size() << std::endl;
 
 
-  // gates_waypoints.resize(3);
-  // gates_yaw_deg.resize(3);
+  gates_waypoints.resize(3);
+  gates_yaw_deg.resize(3);
   Scalar sum_times = 0;
   MultiWaypointTrajectory tr = vel_search_graph.find_velocities_in_positions(
     gates_waypoints, start_velocity, end_velocity, gates_yaw_deg, end_free,
@@ -92,20 +92,92 @@ int test_pmm(int argc, char **argv) {
   for (size_t i = 0; i < tr.size(); i++) {
     std::cout << i << " vel " << tr[i].get_end_state().v.transpose()
               << std::endl;
-    std::cout << tr[i] << std::endl;
+    // std::cout << tr[i] << std::endl;
     sum_times += tr[i].time();
+    if (tr[i].time() - tr[i].time_min() > PRECISION_PMM_VALUES) {
+      std::cout << "bad time!!!!!!" << std::endl;
+    }
   }
   std::cout << "total time " << sum_times << std::endl;
+  std::vector<QuadState> samples =
+    VelocitySearchGraph::getTrajectoryEquidistantStates(tr, 0.8);
 
-  VelocitySearchGraph::save_track_trajectory(tr, "samples_pmm.csv");
+  // A*x = b
+  // x coefficients
+  // A polynomial coefficients
+  // b = [p0,p1,v0,v1,a0,a1]
+  std::vector<std::vector<Vector<6>>> polynomials;
+  std::cout << "samples.size() " << samples.size() << std::endl;
+  polynomials.resize(samples.size() - 1);
+  for (size_t i = 1; i < samples.size(); i++) {
+    QuadState& from = samples[i - 1];
+    QuadState& to = samples[i];
+    Scalar dt = to.t - from.t;
+    // x = [a5,a4,a3,a2,a1,a0]
+    for (size_t axi = 0; axi < 3; axi++) {
+      Vector<6> b;
+      b << from.p(axi), to.p(axi), from.v(axi), to.v(axi), from.a(axi),
+        to.a(axi);
+      Matrix<6, 6> A;
+      Vector<6> tau = Vector<6>::Ones();
+      for (int i = 1; i < 6; i++) {
+        tau(i) = tau(i - 1) * dt;
+      }
+      std::cout << "tau " << tau.transpose() << std::endl;
+      A.row(0) << 0.0, 0.0, 0.0, 0.0, 0.0, 1.0;                    // p0
+      A.row(1) << tau(5), tau(4), tau(3), tau(2), tau(1), tau(0);  // p1
+      A.row(2) << 0.0, 0.0, 0.0, 0.0, 1.0, 0.0;                    // v0
+      A.row(3) << 5.0 * tau(4), 4.0 * tau(3), 3.0 * tau(2), 2.0 * tau(1),
+        1.0 * tau(0), 0.0;                       // v1
+      A.row(4) << 0.0, 0.0, 0.0, 1.0, 0.0, 0.0;  // a0
+      A.row(5) << 20.0 * tau(3), 12.0 * tau(2), 6.0 * tau(1), 2.0 * tau(0), 0.0,
+        0.0;  // a1
 
-  // VelocitySearchGraph::save_track_trajectory_equidistant(
-  //   tr, "samples_equidistant.csv");
+      std::cout << "solve" << std::endl;
+      Vector<6> p = A.colPivHouseholderQr().solve(b);
+      polynomials[i - 1].push_back(p);
+      std::cout << "solved" << std::endl;
+      std::cout << "p" << i << "[" << axi << "] " << p.transpose() << std::endl;
+    }
+  }
+
+  std::ofstream myfile;
+  myfile.open("polynomials.csv");
+  if (myfile.is_open()) {
+    if (samples.size() > 0 && samples[0].size() > 0) {
+      myfile << "i,axi,tfrom,tto,a5,a4,a3,a2,a1,a0" << std::endl;
+    }
+
+    for (int var1 = 0; var1 < polynomials.size(); ++var1) {
+      const Scalar tfrom = samples[var1].t;
+      const Scalar tto = samples[var1 + 1].t;
+      for (size_t axi = 0; axi < 3; axi++) {
+        const Vector<6>& p = polynomials[var1][axi];
+        myfile << var1 << "," << axi << "," << tfrom << "," << tto << ","
+               << p(0) << "," << p(1) << "," << p(2) << "," << p(3) << ","
+               << p(4) << "," << p(5);
+        myfile << std::endl;
+      }
+    }
+
+    myfile.close();
+  }
+
+  std::cout << "out" << std::endl;
+
+  VelocitySearchGraph::saveTrajectoryEquitemporal(tr, "samples_pmm.csv");
+
+  std::cout << "saved equitemporal" << std::endl;
+  VelocitySearchGraph::saveTrajectoryEquidistant(tr, "samples_equidistant.csv");
+  std::cout << "saved equidistant" << std::endl;
+  VelocitySearchGraph::saveTrajectoryEquidistant(
+    tr, "samples_equidistant_08.csv", 0.8);
+  std::cout << "saved equidistant 0.8" << std::endl;
 
   return 0;
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   test_pmm(argc, argv);
   return 0;
 }

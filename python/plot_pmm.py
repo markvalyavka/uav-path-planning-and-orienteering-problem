@@ -48,10 +48,12 @@ with open('../config.yaml') as file:
 
 
 trajectory_file_pmm = '../samples_pmm.csv'
+trajectory_file_pmm_equidistant = '../samples_equidistant.csv'
 pmm = load_trajectory_samples_pmm(trajectory_file_pmm)
+pmm_equidistant = load_trajectory_samples_pmm(trajectory_file_pmm_equidistant)
 
 
-fig, axs = plt.subplots(8)
+fig, axs = plt.subplots(7)
 # ax = fig.add_subplot(111, projection='3d')
 
 colors = ['k','c','r','b']
@@ -65,24 +67,17 @@ min_ax=0
 for i in range(6):
     label_pmm = 'pmm p(%i)'%(i)
     axs[i].plot(pmm[:,0]/pmm[-1,0],pmm[:,i+1],'g',label=label_pmm)
+    if i < 3:
+        axs[i].plot(pmm_equidistant[:,0]/pmm_equidistant[-1,0],pmm_equidistant[:,i+1],'.k',label=label_pmm)
     
+for i in range(1,pmm_equidistant.shape[0]):
+    d = np.linalg.norm(pmm_equidistant[i,1:4]-pmm_equidistant[i-1,1:4])
+    axs[6].plot(pmm_equidistant[i,0]/pmm_equidistant[-1,0],d,'.')
 
-min_distances = []
-min_distances_pos = []
-
-    
-md_max = 0;
-for md in min_distances:
-    if md > md_max:
-        md_max = md
-
-md_pos_max = 0;
-for mdp in min_distances_pos:
-    if mdp > md_pos_max:
-        md_pos_max = mdp
-
-print("md_max ",md_max)
-print("md_pos_max ",md_pos_max)
+fig2 = plt.figure()
+ax3d = fig2.add_subplot(111, projection='3d')
+ax3d.plot(pmm[:,1],pmm[:,2],pmm[:,3])
+ax3d.plot(pmm_equidistant[:,1],pmm_equidistant[:,2],pmm_equidistant[:,3],'.k')
 
 plt.legend()
 
