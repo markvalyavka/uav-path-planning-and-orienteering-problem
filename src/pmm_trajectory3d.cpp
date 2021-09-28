@@ -14,6 +14,7 @@ PointMassTrajectory3D::PointMassTrajectory3D(const QuadState &from,
                                              const QuadState &to,
                                              const Vector<3> max_acc,
                                              const bool equalize_time) {
+  std::cout << "without opt " << std::endl;
   x_ = PMMTrajectory(from.p(0), from.v(0), to.p(0), to.v(0), max_acc(0),
                      -max_acc(0), 0);
   y_ = PMMTrajectory(from.p(1), from.v(1), to.p(1), to.v(1), max_acc(1),
@@ -23,12 +24,16 @@ PointMassTrajectory3D::PointMassTrajectory3D(const QuadState &from,
 
   if (equalize_time) {
     const Scalar tr_time = time();
+    std::cout << "equalize time to " << tr_time << std::endl;
     for (size_t i = 0; i < 3; i++) {
       if (get_axis_trajectory(i).time() != tr_time) {
         PMMTrajectory scaled = PMMTrajectory(get_axis_trajectory(i), tr_time);
+        std::cout << "scaled.time() " << scaled.time() << std::endl;
         set_axis_trajectory(i, scaled);
       }
     }
+  } else {
+    std::cout << "not equalizing time" << std::endl;
   }
 }
 
@@ -36,6 +41,7 @@ PointMassTrajectory3D::PointMassTrajectory3D(const QuadState &from,
                                              const QuadState &to,
                                              Scalar max_acc_norm,
                                              const bool equalize_time) {
+  std::cout << "gd optimization " << std::endl;
   static const Scalar ALLOWED_DIFF_TIMES_RATIO{0.0001};
   static const Scalar NUM_ITERS{10};
 
@@ -505,12 +511,15 @@ PointMassTrajectory3D::PointMassTrajectory3D(const QuadState &from,
 
   if (equalize_time) {
     const Scalar tr_time = time();
+    std::cout << "equalize time to " << tr_time << std::endl;
     for (size_t i = 0; i < 3; i++) {
       if (get_axis_trajectory(i).time() != tr_time) {
         PMMTrajectory scaled = PMMTrajectory(get_axis_trajectory(i), tr_time);
         set_axis_trajectory(i, scaled);
       }
     }
+  } else {
+    std::cout << "not equalizing time " << std::endl;
   }
 }
 
@@ -772,7 +781,7 @@ void PointMassTrajectory3D::set_axis_trajectory(const int i,
       z_ = tr;
       break;
     default:
-      exit(1);
+      std::cout << "bad axis index " << i << std::endl;
   }
 }
 PMMTrajectory &PointMassTrajectory3D::get_axis_trajectory(const int i) {
@@ -784,7 +793,8 @@ PMMTrajectory &PointMassTrajectory3D::get_axis_trajectory(const int i) {
     case 2:
       return z_;
     default:
-      exit(1);
+      std::cout << "bad axis index " << i << std::endl;
+      return x_;
   }
 }
 

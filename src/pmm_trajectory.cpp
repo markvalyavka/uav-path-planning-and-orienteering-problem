@@ -206,19 +206,23 @@ PMMTrajectory::PMMTrajectory(const PMMTrajectory &in, const Scalar total_time)
     (2 * a1 * a2 * pow_tot2);
 
   // std::cout << "exists" << exists_ << std::endl;
-  // std::cout << "scale1 " << scale1 << std::endl;
-  // std::cout << "scale2 " << scale2 << std::endl;
-
+  std::cout << "scale1 " << scale1 << std::endl;
+  std::cout << "scale2 " << scale2 << std::endl;
+  std::cout << "in.time() " << in.time() << std::endl;
+  exists_ = false;
   if (scale1 < 1.0 && scale1 > -1.0) {
     PMMTrajectory scaled = PMMTrajectory(ps, vs, pe, ve, a1 * scale1,
                                          a2 * scale1, i, true, false, false);
-    if (scaled.exists_) {
+    std::cout << "1scaled.time() " << scaled.time() << std::endl;
+    if (scaled.exists_ and
+        fabs(scaled.time() - total_time) <= PRECISION_PMM_VALUES) {
       copy_trajectory(scaled);
     }
   }
   if (!exists_ && scale2 < 1.0 && scale2 > -1.0) {
     PMMTrajectory scaled = PMMTrajectory(ps, vs, pe, ve, a1 * scale2,
                                          a2 * scale2, i, true, false, false);
+    std::cout << "2scaled.time() " << scaled.time() << std::endl;
     if (scaled.exists_) {
       copy_trajectory(scaled);
     }

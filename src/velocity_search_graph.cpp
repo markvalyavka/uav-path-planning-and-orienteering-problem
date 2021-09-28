@@ -418,7 +418,7 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
     }
 
     trajectories.push_back(tr_max_between);
-
+    std::cout << "use_gd " << use_gd << std::endl;
     time_sum += tr_max_between.time();
     if (!tr_max_between.exists()) {
       // this trajectory does not exists
@@ -429,6 +429,12 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
 
 
       return MultiWaypointTrajectory();
+    }
+    if (fabs(tr_max_between.time_min() - tr_max_between.time()) >=
+        PRECISION_PMM_VALUES) {
+      std::cout << tr_max_between << std::endl;
+      std::cout << "not equal time " << std::endl;
+      exit(1);
     }
   }
 
@@ -455,7 +461,11 @@ void VelocitySearchGraph::save_track_trajectory_equidistant(
     const Scalar traj_length =
       trajectories[i].get_length_between_times(0, ttime);
     trajectory_length += traj_length;
+    std::cout << "traj_length " << traj_length << std::endl;
   }
+
+  std::cout << "trajectory_length " << trajectory_length << std::endl;
+
 
   int num_samples = ceil(trajectory_length / desired_ds);
   Scalar ds = trajectory_length / ((Scalar)(num_samples - 1));
@@ -478,11 +488,12 @@ void VelocitySearchGraph::save_track_trajectory_equidistant(
   for (size_t i = 1; i <= num_samples; i++) {
     const Scalar s = i * ds;
     Scalar target_ds = s - accumulated_s;
-
+    std::cout << "target_ds " << target_ds << std::endl;
     Scalar dist_to_end =
       trajectories[tr_id].get_length_between_times(t_current, tr_end_time);
+    std::cout << "dist_to_end " << dist_to_end << std::endl;
 
-    if (dist_to_end < target_ds) {
+    while (dist_to_end < target_ds) {
       tr_id++;
       if (tr_id >= trajectories.size()) {
         break;
@@ -492,6 +503,8 @@ void VelocitySearchGraph::save_track_trajectory_equidistant(
       tr_end_time = trajectories[tr_id].time_min();
       target_ds -= dist_to_end;
       accumulated_s += dist_to_end;
+      dist_to_end =
+        trajectories[tr_id].get_length_between_times(t_current, tr_end_time);
     }
 
     lower_time = t_current;
@@ -510,7 +523,7 @@ void VelocitySearchGraph::save_track_trajectory_equidistant(
         lower_time = time_middle;
       }
     } while (fabs(dist_first - target_ds) > 0.0000000001);
-
+    std::cout << "dist_first " << dist_first << std::endl;
     // add also samples of acc switch
     std::vector<Scalar> acc_switch_times;
     for (size_t axi = 0; axi < 3; axi++) {
@@ -538,9 +551,10 @@ void VelocitySearchGraph::save_track_trajectory_equidistant(
     dronestate.t = t_from_start + t_current;
 
     const Scalar dist_to_last = (samples.back().p - dronestate.p).norm();
-    if (fabs(dist_to_last - ds) > 0.01) {
+    if (fabs(dist_to_last - ds) > 0.10 * ds) {
       std::cout << "bad distance change in save_track_trajectory_equidistant "
                 << dist_to_last << std::endl;
+      std::cout << "ds " << ds << std::endl;
       std::cout << "sample " << i << " out of " << num_samples << std::endl;
       return;
     }

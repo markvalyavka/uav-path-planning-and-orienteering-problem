@@ -92,15 +92,15 @@ int test_pmm(int argc, char **argv) {
   for (size_t i = 0; i < tr.size(); i++) {
     std::cout << i << " vel " << tr[i].get_end_state().v.transpose()
               << std::endl;
+    std::cout << tr[i] << std::endl;
     sum_times += tr[i].time();
   }
   std::cout << "total time " << sum_times << std::endl;
 
-  // save_track_trajectory(trajectories, shortest_time,
-  //                       output_folder_ + "samples_pmm.csv");
+  VelocitySearchGraph::save_track_trajectory(tr, "samples_pmm.csv");
 
-  // save_track_trajectory_equidistant(single, trajectories[0].time(),
-  //                                   "samples_equidistant.csv");
+  // VelocitySearchGraph::save_track_trajectory_equidistant(
+  //   tr, "samples_equidistant.csv");
 
   return 0;
 }

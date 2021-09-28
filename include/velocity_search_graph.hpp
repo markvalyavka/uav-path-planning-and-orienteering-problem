@@ -43,17 +43,18 @@ class VelocitySearchGraph {
     const std::vector<Scalar>& gates_yaw_deg, const bool end_free,
     const bool use_gd);
 
-  void save_track_trajectory(const MultiWaypointTrajectory& trajectories,
+  static void save_track_trajectory(const MultiWaypointTrajectory& trajectories,
 
-                             std::string filename);
-  void save_track_trajectory_equidistant(
+                                    std::string filename);
+  static void save_track_trajectory_equidistant(
     const MultiWaypointTrajectory& trajectories, std::string filename);
 
   static std::vector<Vector<3>> sampleTrajectory(
     const MultiWaypointTrajectory& trajectory, const Scalar ds_desired);
-  void saveSamplesToFile(std::string filename, std::vector<QuadState> samples);
-  std::string stateToStringHeader(const QuadState& s);
-  std::string stateToString(const QuadState& s);
+  static void saveSamplesToFile(std::string filename,
+                                std::vector<QuadState> samples);
+  static std::string stateToStringHeader(const QuadState& s);
+  static std::string stateToString(const QuadState& s);
 
  private:
   const Scalar max_acc_;
