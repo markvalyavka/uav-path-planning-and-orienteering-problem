@@ -115,10 +115,10 @@ int test_pmm(int argc, char** argv) {
     Scalar dt = to.t - from.t;
     // x = [a5,a4,a3,a2,a1,a0]
     for (size_t axi = 0; axi < 3; axi++) {
-      Vector<6> b;
+      Vector<8> b;
       b << from.p(axi), to.p(axi), from.v(axi), to.v(axi), from.a(axi),
-        to.a(axi);
-      Matrix<6, 6> A;
+        to.a(axi), 0, 0;
+      Matrix<8, 6> A;
       Vector<6> tau = Vector<6>::Ones();
       for (int i = 1; i < 6; i++) {
         tau(i) = tau(i - 1) * dt;
@@ -129,9 +129,15 @@ int test_pmm(int argc, char** argv) {
       A.row(2) << 0.0, 0.0, 0.0, 0.0, 1.0, 0.0;                    // v0
       A.row(3) << 5.0 * tau(4), 4.0 * tau(3), 3.0 * tau(2), 2.0 * tau(1),
         1.0 * tau(0), 0.0;                       // v1
-      A.row(4) << 0.0, 0.0, 0.0, 1.0, 0.0, 0.0;  // a0
+      A.row(4) << 0.0, 0.0, 0.0, 2.0, 0.0, 0.0;  // a0
       A.row(5) << 20.0 * tau(3), 12.0 * tau(2), 6.0 * tau(1), 2.0 * tau(0), 0.0,
-        0.0;  // a1
+        0.0;                                     // a1
+      A.row(6) << 0.0, 0.0, 6.0, 0.0, 0.0, 0.0;  // j0
+      A.row(7) << 60.0 * tau(2), 24.0 * tau(1), 6.0 * tau(0), 0, 0.0,
+        0.0;  // j1
+      // A.row(6) << 0.0, 24.0, 0.0, 0.0, 0.0, 0.0;  // j0
+      // A.row(7) << 120.0 * tau(1), 24.0 * tau(0), 0.0, 0.0, 0.0,
+      //   0.0;  // j1
 
       std::cout << "solve" << std::endl;
       Vector<6> p = A.colPivHouseholderQr().solve(b);
