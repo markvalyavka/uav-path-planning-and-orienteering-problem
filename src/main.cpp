@@ -5,10 +5,14 @@
 
 #include <csignal>
 #include <fstream>
+#include <functional>
 #include <iostream>
+#include <queue>
 #include <string>
 
+#include "agilib/math/gravity.hpp"
 #include "pmm_trajectory3d.hpp"
+#include "tuples_hash.hpp"
 #include "velocity_search_graph.hpp"
 #include "yaml-cpp/yaml.h"
 
@@ -19,9 +23,29 @@ void signal_callback(int sig) {
   exit(sig);
 }
 
+struct node {
+  QuadState state;
+  Scalar g = 0;  // current cost
+  Scalar h = 0;  // heuristic
+  int sample_index;
+  node* parent;
+  Scalar f() { return g + h; };
+};
+
+typedef std::tuple<short, short, short, short, short, short, short, short,
+                   short>
+  dist_state;
+
+dist_state make_diststate(QuadState state) {
+  return std::make_tuple((short)(state.p(0) * 5.0), (short)(state.p(1) * 5.0),
+                         (short)(state.p(2) * 5.0), (short)(state.v(0) * 2.0),
+                         (short)(state.v(1) * 2.0), (short)(state.v(2) * 2.0),
+                         (short)(state.a(0) / 3.0), (short)(state.a(1) / 3.0),
+                         (short)(state.a(2) / 3.0));
+}
 
 int test_pmm(int argc, char** argv) {
-  // register singal for killing
+  // register singal for killingcm
   std::signal(SIGINT, signal_callback);
   std::cout << "Testing PMM trajectories " << std::endl;
 
@@ -98,7 +122,158 @@ int test_pmm(int argc, char** argv) {
       std::cout << "bad time!!!!!!" << std::endl;
     }
   }
-  std::cout << "total time " << sum_times << std::endl;
+
+  auto cmp_node = [](node* l, node* r) { return l->f() > r->f(); };
+  std::priority_queue<node*, std::vector<node*>, decltype(cmp_node)> open_set(
+    cmp_node);
+  std::vector<QuadState> samples_dense =
+    VelocitySearchGraph::getTrajectoryEquidistantStates(tr, 0.4);
+  Scalar time_to_end = samples_dense.back().t;
+  node* root = new node();
+  root->state = samples_dense[0];
+  root->state.a = Vector<3>(0, 0, 0);
+  root->g = 0;
+  root->h = time_to_end;
+  root->sample_index = 0;
+  root->parent = NULL;
+  open_set.push(root);
+  std::unordered_map<dist_state, node*> graph;
+  graph[make_diststate(root->state)] = root;
+
+  Scalar ds = 0.2;
+  Scalar max_thrust = 28;
+  int iter = 0;
+  Scalar furthest = 0;
+  node* solution = NULL;
+  while (open_set.size() > 0) {
+    iter++;
+    node* cbest = open_set.top();
+
+    if (cbest->g > furthest) {
+      furthest = cbest->g;
+      std::cout << "best f " << cbest->f() << " time " << cbest->state.t
+                << std::endl;
+    }
+    Scalar dist = (cbest->state.p - samples_dense.back().p).norm();
+    // std::cout << "best dist " << dist << std::endl;
+    if (dist < 0.4) {
+      std::cout << "reached final state" << std::endl;
+      solution = cbest;
+      break;
+    }
+    open_set.pop();
+
+    Scalar t = ds / cbest->state.v.norm();
+    Scalar t_a = sqrt(2 * ds / max_thrust);
+    if (!std::isfinite(t)) {
+      t = t_a;
+    }
+
+    // std::cout << "sim for " << t << std::endl;
+    Scalar t_pow2 = t * t;
+    Scalar t_pow3 = t_pow2 * t;
+    QuadState cbest_sample = samples_dense[cbest->sample_index];
+    QuadState cbest_sample_next = samples_dense[std::min(
+      cbest->sample_index + 1, (int)samples_dense.size() - 1)];
+
+    for (auto jx : {300.0, 150.0, 0.0, -150.0, -300.0}) {
+      for (auto jy : {300.0, 150.0, 0.0, -150.0, -300.0}) {
+        for (auto jz : {300.0, 150.0, 0.0, -150.0, -300.0}) {
+          Vector<3> j(jx, jy, jz);
+          Vector<3> new_a = cbest->state.a + j * t;
+          Vector<3> thrust = new_a - GVEC;
+          if (thrust.norm() > max_thrust) {
+            // std::cout << "above" << std::endl;
+            continue;
+          }
+
+
+          Vector<3> new_p = cbest->state.p + cbest->state.v * t +
+                            0.5 * cbest->state.a * t_pow2 +
+                            (1.0 / 6.0) * j * t_pow3;
+          Vector<3> new_v =
+            cbest->state.v + cbest->state.a * t + 0.5 * j * t_pow2;
+          Scalar dist_cur = (new_p - cbest_sample.p).norm();
+          Scalar dist_next = (new_p - cbest_sample_next.p).norm();
+          Scalar dist_cur_v = (new_v - cbest_sample.v).norm();
+          Scalar dist_next_v = (new_v - cbest_sample_next.v).norm();
+
+          if (dist_cur + dist_next > 1.5) {
+            // std::cout << "too far" << std::endl;
+            continue;
+          }
+          if (dist_cur_v + dist_next_v > 5.0) {
+            // std::cout << "too far" << std::endl;
+            continue;
+          }
+          std::cout << "ceck if the expanded one is in closed list!!!!"
+                    << std::endl;
+          exit(1);
+
+          Scalar new_g = cbest->g + t;
+          QuadState new_state;
+          new_state.p = new_p;
+          new_state.v = new_v;
+          new_state.a = new_a;
+          new_state.j = j;
+          new_state.t = cbest->g + t;
+          dist_state new_state_dist = make_diststate(new_state);
+          auto search = graph.find(new_state_dist);
+          if (search != graph.end()) {
+            // found
+            if (new_g < search->second->g) {
+              // better new
+              delete search->second;
+              graph[make_diststate(new_state)] = NULL;
+            } else {
+              continue;
+            }
+          }
+
+          node* newnode = new node();
+          newnode->state = new_state;
+          newnode->g = new_g;
+          newnode->h = time_to_end - cbest_sample.t -
+                       dist_cur / (dist_cur + dist_next) *
+                         (cbest_sample_next.t - cbest_sample.t);
+
+          // move sample index if appropriate
+          newnode->sample_index = dist_cur > dist_next ? cbest->sample_index + 1
+                                                       : cbest->sample_index;
+          newnode->parent = cbest;
+          // std::cout << "add node " << newnode->f() << " p "
+          //           << new_state.p.transpose() << " v "
+          //           << new_state.v.transpose() << " a "
+          //           << new_state.a.transpose() << " j "
+          //           << new_state.j.transpose() << std::endl;
+          open_set.push(newnode);
+          graph[make_diststate(new_state)] = newnode;
+        }
+      }
+    }
+    // if (iter >= 10) exit(1);
+    // std::cout << "loop" << std::endl;
+  }
+
+  std::vector<node*> traj;
+  node* cur = solution;
+  while (cur != NULL) {
+    traj.push_back(cur);
+    cur = cur->parent;
+  }
+
+  if (traj.size() > 0) {
+    std::reverse(traj.begin(), traj.end());
+
+    std::cout << "trajectory:" << std::endl;
+    for (size_t i = 0; i < traj.size(); i++) {
+      std::cout << traj[i]->state.p.transpose() << std::endl;
+    }
+
+    std::cout << "total time sampling " << traj.back()->state.t << std::endl;
+  }
+
+  std::cout << "total time pmm " << sum_times << std::endl;
   std::vector<QuadState> samples =
     VelocitySearchGraph::getTrajectoryEquidistantStates(tr, 0.8);
 
@@ -123,7 +298,7 @@ int test_pmm(int argc, char** argv) {
       for (int i = 1; i < 6; i++) {
         tau(i) = tau(i - 1) * dt;
       }
-      std::cout << "tau " << tau.transpose() << std::endl;
+      // std::cout << "tau " << tau.transpose() << std::endl;
       A.row(0) << 0.0, 0.0, 0.0, 0.0, 0.0, 1.0;                    // p0
       A.row(1) << tau(5), tau(4), tau(3), tau(2), tau(1), tau(0);  // p1
       A.row(2) << 0.0, 0.0, 0.0, 0.0, 1.0, 0.0;                    // v0
@@ -139,11 +314,12 @@ int test_pmm(int argc, char** argv) {
       // A.row(7) << 120.0 * tau(1), 24.0 * tau(0), 0.0, 0.0, 0.0,
       //   0.0;  // j1
 
-      std::cout << "solve" << std::endl;
+      // std::cout << "solve" << std::endl;
       Vector<6> p = A.colPivHouseholderQr().solve(b);
       polynomials[i - 1].push_back(p);
-      std::cout << "solved" << std::endl;
-      std::cout << "p" << i << "[" << axi << "] " << p.transpose() << std::endl;
+      // std::cout << "solved" << std::endl;
+      // std::cout << "p" << i << "[" << axi << "] " << p.transpose() <<
+      // std::endl;
     }
   }
 

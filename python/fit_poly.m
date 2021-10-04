@@ -18,6 +18,8 @@ zasam = samples(:,17);
 plot3(xsam,ysam,zsam,'*')
 hold on
 
+p = quadprog()
+
 P = [];
 V = [];
 A = [];
@@ -59,6 +61,8 @@ for i=1:3:size(poly)
        T = [T;t+tfrom];
    end
 end
+
+
 
 
 plot3(P(:,1),P(:,2),P(:,3))

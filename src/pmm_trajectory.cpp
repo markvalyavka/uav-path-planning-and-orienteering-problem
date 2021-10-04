@@ -275,6 +275,7 @@ PMMTrajectory::PMMTrajectory(const PMMTrajectory &in, const Scalar total_time)
   // std::cout << "scale1 " << scale1 << std::endl;
   // std::cout << "scale2 " << scale2 << std::endl;
   // std::cout << "in.time() " << in.time() << std::endl;
+  
   exists_ = false;
   if (scale1 < 1.0 && scale1 > -1.0) {
     PMMTrajectory scaled = PMMTrajectory(ps, vs, pe, ve, a1 * scale1,
