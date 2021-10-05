@@ -4,6 +4,7 @@
 #include <cfloat>
 #include <fstream>
 
+#include "agilib/math/gravity.hpp"
 #include "agilib/utils/timer.hpp"
 
 namespace agi {
@@ -32,9 +33,16 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
   const int gates_size = gates_waypoints.size();
 
   Scalar pow_max_acc_2 = max_acc_ * max_acc_;
-  Scalar single_axis = sqrt(pow_max_acc_2 / 3.0);
+  // Scalar single_axis = sqrt(pow_max_acc_2 / 3.0);
+  // solution to a_s^2 + a_s^2 + (a_s+g)^2 = thrust^2
+  Scalar single_axis =
+    (-2 * G + sqrt(4 * G * G - 12 * (G * G - pow_max_acc_2))) / 6.0;
+  // Scalar single_axis_b =
+  // (-2 * G - sqrt(4 * G * G - 12 * (G * G - pow_max_acc_2))) / 6.0;
   Vector<3> max_acc_per_axis = Vector<3>::Constant(single_axis);
   std::cout << "single_axis " << single_axis << std::endl;
+  // std::cout << "single_axis_a " << single_axis_a << std::endl;
+  // std::cout << "single_axis_b " << single_axis_b << std::endl;
 
   std::vector<Vector<3>> found_gates_speeds;
   std::vector<Scalar> found_gates_times;

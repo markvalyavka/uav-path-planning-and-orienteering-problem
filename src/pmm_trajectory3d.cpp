@@ -21,6 +21,31 @@ PointMassTrajectory3D::PointMassTrajectory3D(const QuadState &from,
   z_ = PMMTrajectory(from.p(2), from.v(2), to.p(2), to.v(2), max_acc(2),
                      -max_acc(2), 2);
 
+
+  if (equalize_time) {
+    const Scalar tr_time = time();
+    for (size_t i = 0; i < 3; i++) {
+      if (get_axis_trajectory(i).time() != tr_time) {
+        PMMTrajectory scaled = PMMTrajectory(get_axis_trajectory(i), tr_time);
+        set_axis_trajectory(i, scaled);
+      }
+    }
+  }
+}
+
+PointMassTrajectory3D::PointMassTrajectory3D(const QuadState &from,
+                                             const QuadState &to,
+                                             const Vector<3> max_acc1,
+                                             const Vector<3> max_acc2,
+                                             const bool equalize_time) {
+  x_ = PMMTrajectory(from.p(0), from.v(0), to.p(0), to.v(0), max_acc1(0),
+                     max_acc2(0), 0);
+  y_ = PMMTrajectory(from.p(1), from.v(1), to.p(1), to.v(1), max_acc1(1),
+                     max_acc2(1), 1);
+  z_ = PMMTrajectory(from.p(2), from.v(2), to.p(2), to.v(2), max_acc1(2),
+                     max_acc2(2), 2);
+
+
   if (equalize_time) {
     const Scalar tr_time = time();
     for (size_t i = 0; i < 3; i++) {

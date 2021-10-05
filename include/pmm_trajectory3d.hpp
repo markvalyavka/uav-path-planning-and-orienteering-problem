@@ -19,6 +19,9 @@ class PointMassTrajectory3D {
   PointMassTrajectory3D(const QuadState &from, const QuadState &to,
                         const Vector<3> max_acc,
                         const bool equalize_time = true);
+  PointMassTrajectory3D(const QuadState &from, const QuadState &to,
+                        const Vector<3> max_acc1, const Vector<3> max_acc2,
+                        const bool equalize_time = true);
   /*
   version of norm acceleration limits, using GD to distribute acc
   */
