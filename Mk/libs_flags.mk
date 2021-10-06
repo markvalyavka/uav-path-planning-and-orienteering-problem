@@ -11,7 +11,7 @@ CPPFLAGS+=$(LOCAL_CFLAGS)
 LDFLAGS+=$(LOCAL_LDFLAGS)
 
 AGILICIOUS_CFFLAGS=-I./agilicious/agilib/externals/eigen/eigen3 -I./agilicious/agilib/include 
-AGILICIOUS_LDFLAGS=-L./agilicious/agilib/build -lagilib -pthread -lyaml-cpp 
+AGILICIOUS_LDFLAGS=-L./agilicious/agilib/build -lgtest -lpthread -lagilib -lyaml-cpp 
 
 # CPPFLAGS+=-I./include 
 CPPFLAGS+=-I./include $(AGILICIOUS_CFFLAGS) 

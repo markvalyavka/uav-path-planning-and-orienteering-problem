@@ -10,14 +10,16 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       158,          7]
-NotebookDataLength[     13007,        260]
-NotebookOptionsPosition[     12577,        245]
-NotebookOutlinePosition[     12948,        261]
-CellTagsIndexPosition[     12905,        258]
+NotebookDataLength[    109172,       2565]
+NotebookOptionsPosition[    108606,       2547]
+NotebookOutlinePosition[    108976,       2563]
+CellTagsIndexPosition[    108933,       2560]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
 Notebook[{
+
+Cell[CellGroupData[{
 Cell[BoxData[
  RowBox[{"\[IndentingNewLine]", 
   RowBox[{"(*", " ", 
@@ -235,15 +237,2315 @@ vel_three_parts.txt\>\"", ",",
    3.842424222285523*^9, 3.842424261650497*^9}, {3.842424363123267*^9, 
    3.842424373172402*^9}, 3.842424734343536*^9, {3.842425258147224*^9, 
    3.8424252663366337`*^9}, {3.842428044844028*^9, 3.842428053026413*^9}, 
-   3.842430817708706*^9},ExpressionUUID->"6d0cba35-176b-4a40-acb8-\
-e3e5e1835302"],
+   3.842430817708706*^9},
+ CellLabel->"In[1]:=",ExpressionUUID->"6d0cba35-176b-4a40-acb8-e3e5e1835302"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"t1", "\[Rule]", 
+      RowBox[{
+       FractionBox["1", 
+        RowBox[{"a1", "-", "a2"}]], 
+       RowBox[{"(", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"-", "a2"}], " ", "tswitch"}], "+", 
+         FractionBox[
+          RowBox[{"a1", " ", 
+           SuperscriptBox["a2", "2"], " ", 
+           SuperscriptBox["scale", "2"], " ", "tswitch"}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "+", "ve", "-", 
+         FractionBox[
+          RowBox[{"a1", " ", "a2", " ", "scale", " ", "ve"}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "+", 
+         FractionBox[
+          RowBox[{
+           SuperscriptBox["a2", "2"], " ", "scale", " ", "ve"}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "-", 
+         FractionBox[
+          RowBox[{
+           SuperscriptBox["a2", "2"], " ", 
+           SuperscriptBox["scale", "2"], " ", "ve"}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "-", "vs", "+", 
+         FractionBox[
+          RowBox[{
+           SuperscriptBox["a2", "2"], " ", 
+           SuperscriptBox["scale", "2"], " ", "vs"}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "+", 
+         RowBox[{
+          RowBox[{"(", 
+           RowBox[{"a2", " ", "scale", " ", 
+            RowBox[{"\[Sqrt]", 
+             RowBox[{"(", 
+              RowBox[{
+               SuperscriptBox[
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{
+                  "2", " ", "a1", " ", "a2", " ", "scale", " ", "tswitch"}], 
+                  "-", 
+                  RowBox[{"2", " ", "a1", " ", "ve"}], "+", 
+                  RowBox[{"2", " ", "a2", " ", "ve"}], "-", 
+                  RowBox[{"2", " ", "a2", " ", "scale", " ", "ve"}], "+", 
+                  RowBox[{"2", " ", "a2", " ", "scale", " ", "vs"}]}], ")"}], 
+                "2"], "-", 
+               RowBox[{"4", " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+                  RowBox[{
+                   SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+                  RowBox[{
+                   SuperscriptBox["a2", "2"], " ", 
+                   SuperscriptBox["scale", "2"]}]}], ")"}], " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"2", " ", "a1", " ", "pe"}], "-", 
+                  RowBox[{"2", " ", "a2", " ", "pe"}], "-", 
+                  RowBox[{"2", " ", "a1", " ", "ps"}], "+", 
+                  RowBox[{"2", " ", "a2", " ", "ps"}], "+", 
+                  RowBox[{"a1", " ", "a2", " ", 
+                   SuperscriptBox["tswitch", "2"]}], "-", 
+                  RowBox[{"2", " ", "a1", " ", "tswitch", " ", "ve"}], "+", 
+                  SuperscriptBox["ve", "2"], "+", 
+                  RowBox[{"2", " ", "a2", " ", "tswitch", " ", "vs"}], "-", 
+                  RowBox[{"2", " ", "ve", " ", "vs"}], "+", 
+                  SuperscriptBox["vs", "2"]}], ")"}]}]}], ")"}]}]}], ")"}], 
+          "/", 
+          RowBox[{"(", 
+           RowBox[{"2", " ", 
+            RowBox[{"(", 
+             RowBox[{
+              RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+              RowBox[{
+               SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+              RowBox[{
+               SuperscriptBox["a2", "2"], " ", 
+               SuperscriptBox["scale", "2"]}]}], ")"}]}], ")"}]}]}], 
+        ")"}]}]}], ",", 
+     RowBox[{"t2", "\[Rule]", 
+      RowBox[{
+       FractionBox["1", 
+        RowBox[{"a1", "-", "a2"}]], 
+       RowBox[{"(", 
+        RowBox[{
+         RowBox[{"a1", " ", "tswitch"}], "-", 
+         FractionBox[
+          RowBox[{"a1", " ", 
+           SuperscriptBox["a2", "2"], " ", 
+           SuperscriptBox["scale", "2"], " ", "tswitch"}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "-", "ve", "+", 
+         FractionBox[
+          RowBox[{"a1", " ", "a2", " ", "scale", " ", "ve"}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "-", 
+         FractionBox[
+          RowBox[{
+           SuperscriptBox["a2", "2"], " ", "scale", " ", "ve"}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "+", 
+         FractionBox[
+          RowBox[{
+           SuperscriptBox["a2", "2"], " ", 
+           SuperscriptBox["scale", "2"], " ", "ve"}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "+", "vs", "-", 
+         FractionBox[
+          RowBox[{
+           SuperscriptBox["a2", "2"], " ", 
+           SuperscriptBox["scale", "2"], " ", "vs"}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "-", 
+         RowBox[{
+          RowBox[{"(", 
+           RowBox[{"a2", " ", "scale", " ", 
+            RowBox[{"\[Sqrt]", 
+             RowBox[{"(", 
+              RowBox[{
+               SuperscriptBox[
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{
+                  "2", " ", "a1", " ", "a2", " ", "scale", " ", "tswitch"}], 
+                  "-", 
+                  RowBox[{"2", " ", "a1", " ", "ve"}], "+", 
+                  RowBox[{"2", " ", "a2", " ", "ve"}], "-", 
+                  RowBox[{"2", " ", "a2", " ", "scale", " ", "ve"}], "+", 
+                  RowBox[{"2", " ", "a2", " ", "scale", " ", "vs"}]}], ")"}], 
+                "2"], "-", 
+               RowBox[{"4", " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+                  RowBox[{
+                   SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+                  RowBox[{
+                   SuperscriptBox["a2", "2"], " ", 
+                   SuperscriptBox["scale", "2"]}]}], ")"}], " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"2", " ", "a1", " ", "pe"}], "-", 
+                  RowBox[{"2", " ", "a2", " ", "pe"}], "-", 
+                  RowBox[{"2", " ", "a1", " ", "ps"}], "+", 
+                  RowBox[{"2", " ", "a2", " ", "ps"}], "+", 
+                  RowBox[{"a1", " ", "a2", " ", 
+                   SuperscriptBox["tswitch", "2"]}], "-", 
+                  RowBox[{"2", " ", "a1", " ", "tswitch", " ", "ve"}], "+", 
+                  SuperscriptBox["ve", "2"], "+", 
+                  RowBox[{"2", " ", "a2", " ", "tswitch", " ", "vs"}], "-", 
+                  RowBox[{"2", " ", "ve", " ", "vs"}], "+", 
+                  SuperscriptBox["vs", "2"]}], ")"}]}]}], ")"}]}]}], ")"}], 
+          "/", 
+          RowBox[{"(", 
+           RowBox[{"2", " ", 
+            RowBox[{"(", 
+             RowBox[{
+              RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+              RowBox[{
+               SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+              RowBox[{
+               SuperscriptBox["a2", "2"], " ", 
+               SuperscriptBox["scale", "2"]}]}], ")"}]}], ")"}]}]}], 
+        ")"}]}]}], ",", 
+     RowBox[{"t3", "\[Rule]", 
+      RowBox[{
+       RowBox[{"(", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"-", "2"}], " ", "a1", " ", "a2", " ", "scale", " ", 
+          "tswitch"}], "+", 
+         RowBox[{"2", " ", "a1", " ", "ve"}], "-", 
+         RowBox[{"2", " ", "a2", " ", "ve"}], "+", 
+         RowBox[{"2", " ", "a2", " ", "scale", " ", "ve"}], "-", 
+         RowBox[{"2", " ", "a2", " ", "scale", " ", "vs"}], "-", 
+         RowBox[{"\[Sqrt]", 
+          RowBox[{"(", 
+           RowBox[{
+            SuperscriptBox[
+             RowBox[{"(", 
+              RowBox[{
+               RowBox[{
+               "2", " ", "a1", " ", "a2", " ", "scale", " ", "tswitch"}], "-", 
+               RowBox[{"2", " ", "a1", " ", "ve"}], "+", 
+               RowBox[{"2", " ", "a2", " ", "ve"}], "-", 
+               RowBox[{"2", " ", "a2", " ", "scale", " ", "ve"}], "+", 
+               RowBox[{"2", " ", "a2", " ", "scale", " ", "vs"}]}], ")"}], 
+             "2"], "-", 
+            RowBox[{"4", " ", 
+             RowBox[{"(", 
+              RowBox[{
+               RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+               RowBox[{
+                SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+               RowBox[{
+                SuperscriptBox["a2", "2"], " ", 
+                SuperscriptBox["scale", "2"]}]}], ")"}], " ", 
+             RowBox[{"(", 
+              RowBox[{
+               RowBox[{"2", " ", "a1", " ", "pe"}], "-", 
+               RowBox[{"2", " ", "a2", " ", "pe"}], "-", 
+               RowBox[{"2", " ", "a1", " ", "ps"}], "+", 
+               RowBox[{"2", " ", "a2", " ", "ps"}], "+", 
+               RowBox[{"a1", " ", "a2", " ", 
+                SuperscriptBox["tswitch", "2"]}], "-", 
+               RowBox[{"2", " ", "a1", " ", "tswitch", " ", "ve"}], "+", 
+               SuperscriptBox["ve", "2"], "+", 
+               RowBox[{"2", " ", "a2", " ", "tswitch", " ", "vs"}], "-", 
+               RowBox[{"2", " ", "ve", " ", "vs"}], "+", 
+               SuperscriptBox["vs", "2"]}], ")"}]}]}], ")"}]}]}], ")"}], "/", 
+       
+       RowBox[{"(", 
+        RowBox[{"2", " ", 
+         RowBox[{"(", 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}], ")"}]}], ")"}]}]}], ",", 
+     RowBox[{"v1", "\[Rule]", 
+      RowBox[{
+       FractionBox["1", 
+        RowBox[{"a1", "-", "a2"}]], 
+       RowBox[{"(", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"-", "a1"}], " ", "a2", " ", "tswitch"}], "+", 
+         FractionBox[
+          RowBox[{
+           SuperscriptBox["a1", "2"], " ", 
+           SuperscriptBox["a2", "2"], " ", 
+           SuperscriptBox["scale", "2"], " ", "tswitch"}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "+", 
+         RowBox[{"a1", " ", "ve"}], "-", 
+         FractionBox[
+          RowBox[{
+           SuperscriptBox["a1", "2"], " ", "a2", " ", "scale", " ", "ve"}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "+", 
+         FractionBox[
+          RowBox[{"a1", " ", 
+           SuperscriptBox["a2", "2"], " ", "scale", " ", "ve"}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "-", 
+         FractionBox[
+          RowBox[{"a1", " ", 
+           SuperscriptBox["a2", "2"], " ", 
+           SuperscriptBox["scale", "2"], " ", "ve"}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "-", 
+         RowBox[{"a2", " ", "vs"}], "+", 
+         FractionBox[
+          RowBox[{"a1", " ", 
+           SuperscriptBox["a2", "2"], " ", 
+           SuperscriptBox["scale", "2"], " ", "vs"}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "+", 
+         RowBox[{
+          RowBox[{"(", 
+           RowBox[{"a1", " ", "a2", " ", "scale", " ", 
+            RowBox[{"\[Sqrt]", 
+             RowBox[{"(", 
+              RowBox[{
+               SuperscriptBox[
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{
+                  "2", " ", "a1", " ", "a2", " ", "scale", " ", "tswitch"}], 
+                  "-", 
+                  RowBox[{"2", " ", "a1", " ", "ve"}], "+", 
+                  RowBox[{"2", " ", "a2", " ", "ve"}], "-", 
+                  RowBox[{"2", " ", "a2", " ", "scale", " ", "ve"}], "+", 
+                  RowBox[{"2", " ", "a2", " ", "scale", " ", "vs"}]}], ")"}], 
+                "2"], "-", 
+               RowBox[{"4", " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+                  RowBox[{
+                   SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+                  RowBox[{
+                   SuperscriptBox["a2", "2"], " ", 
+                   SuperscriptBox["scale", "2"]}]}], ")"}], " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"2", " ", "a1", " ", "pe"}], "-", 
+                  RowBox[{"2", " ", "a2", " ", "pe"}], "-", 
+                  RowBox[{"2", " ", "a1", " ", "ps"}], "+", 
+                  RowBox[{"2", " ", "a2", " ", "ps"}], "+", 
+                  RowBox[{"a1", " ", "a2", " ", 
+                   SuperscriptBox["tswitch", "2"]}], "-", 
+                  RowBox[{"2", " ", "a1", " ", "tswitch", " ", "ve"}], "+", 
+                  SuperscriptBox["ve", "2"], "+", 
+                  RowBox[{"2", " ", "a2", " ", "tswitch", " ", "vs"}], "-", 
+                  RowBox[{"2", " ", "ve", " ", "vs"}], "+", 
+                  SuperscriptBox["vs", "2"]}], ")"}]}]}], ")"}]}]}], ")"}], 
+          "/", 
+          RowBox[{"(", 
+           RowBox[{"2", " ", 
+            RowBox[{"(", 
+             RowBox[{
+              RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+              RowBox[{
+               SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+              RowBox[{
+               SuperscriptBox["a2", "2"], " ", 
+               SuperscriptBox["scale", "2"]}]}], ")"}]}], ")"}]}]}], 
+        ")"}]}]}], ",", 
+     RowBox[{"v2", "\[Rule]", 
+      RowBox[{
+       FractionBox[
+        RowBox[{"a1", " ", 
+         SuperscriptBox["a2", "2"], " ", 
+         SuperscriptBox["scale", "2"], " ", "tswitch"}], 
+        RowBox[{
+         RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+         RowBox[{
+          SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+         RowBox[{
+          SuperscriptBox["a2", "2"], " ", 
+          SuperscriptBox["scale", "2"]}]}]], "+", "ve", "-", 
+       FractionBox[
+        RowBox[{"a1", " ", "a2", " ", "scale", " ", "ve"}], 
+        RowBox[{
+         RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+         RowBox[{
+          SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+         RowBox[{
+          SuperscriptBox["a2", "2"], " ", 
+          SuperscriptBox["scale", "2"]}]}]], "+", 
+       FractionBox[
+        RowBox[{
+         SuperscriptBox["a2", "2"], " ", "scale", " ", "ve"}], 
+        RowBox[{
+         RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+         RowBox[{
+          SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+         RowBox[{
+          SuperscriptBox["a2", "2"], " ", 
+          SuperscriptBox["scale", "2"]}]}]], "-", 
+       FractionBox[
+        RowBox[{
+         SuperscriptBox["a2", "2"], " ", 
+         SuperscriptBox["scale", "2"], " ", "ve"}], 
+        RowBox[{
+         RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+         RowBox[{
+          SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+         RowBox[{
+          SuperscriptBox["a2", "2"], " ", 
+          SuperscriptBox["scale", "2"]}]}]], "+", 
+       FractionBox[
+        RowBox[{
+         SuperscriptBox["a2", "2"], " ", 
+         SuperscriptBox["scale", "2"], " ", "vs"}], 
+        RowBox[{
+         RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+         RowBox[{
+          SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+         RowBox[{
+          SuperscriptBox["a2", "2"], " ", 
+          SuperscriptBox["scale", "2"]}]}]], "+", 
+       RowBox[{
+        RowBox[{"(", 
+         RowBox[{"a2", " ", "scale", " ", 
+          RowBox[{"\[Sqrt]", 
+           RowBox[{"(", 
+            RowBox[{
+             SuperscriptBox[
+              RowBox[{"(", 
+               RowBox[{
+                RowBox[{
+                "2", " ", "a1", " ", "a2", " ", "scale", " ", "tswitch"}], 
+                "-", 
+                RowBox[{"2", " ", "a1", " ", "ve"}], "+", 
+                RowBox[{"2", " ", "a2", " ", "ve"}], "-", 
+                RowBox[{"2", " ", "a2", " ", "scale", " ", "ve"}], "+", 
+                RowBox[{"2", " ", "a2", " ", "scale", " ", "vs"}]}], ")"}], 
+              "2"], "-", 
+             RowBox[{"4", " ", 
+              RowBox[{"(", 
+               RowBox[{
+                RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+                RowBox[{
+                 SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+                RowBox[{
+                 SuperscriptBox["a2", "2"], " ", 
+                 SuperscriptBox["scale", "2"]}]}], ")"}], " ", 
+              RowBox[{"(", 
+               RowBox[{
+                RowBox[{"2", " ", "a1", " ", "pe"}], "-", 
+                RowBox[{"2", " ", "a2", " ", "pe"}], "-", 
+                RowBox[{"2", " ", "a1", " ", "ps"}], "+", 
+                RowBox[{"2", " ", "a2", " ", "ps"}], "+", 
+                RowBox[{"a1", " ", "a2", " ", 
+                 SuperscriptBox["tswitch", "2"]}], "-", 
+                RowBox[{"2", " ", "a1", " ", "tswitch", " ", "ve"}], "+", 
+                SuperscriptBox["ve", "2"], "+", 
+                RowBox[{"2", " ", "a2", " ", "tswitch", " ", "vs"}], "-", 
+                RowBox[{"2", " ", "ve", " ", "vs"}], "+", 
+                SuperscriptBox["vs", "2"]}], ")"}]}]}], ")"}]}]}], ")"}], "/", 
+        RowBox[{"(", 
+         RowBox[{"2", " ", 
+          RowBox[{"(", 
+           RowBox[{
+            RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+            RowBox[{
+             SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+            RowBox[{
+             SuperscriptBox["a2", "2"], " ", 
+             SuperscriptBox["scale", "2"]}]}], ")"}]}], ")"}]}]}]}], ",", 
+     RowBox[{"p1", "\[Rule]", 
+      RowBox[{
+       RowBox[{"(", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"-", "2"}], " ", 
+          SuperscriptBox["a1", "2"], " ", "ps"}], "+", 
+         RowBox[{"4", " ", "a1", " ", "a2", " ", "ps"}], "-", 
+         RowBox[{"2", " ", 
+          SuperscriptBox["a2", "2"], " ", "ps"}], "+", 
+         RowBox[{"2", " ", "a1", " ", "a2", " ", "pe", " ", "scale"}], "-", 
+         RowBox[{"4", " ", "a1", " ", "a2", " ", "ps", " ", "scale"}], "+", 
+         RowBox[{"2", " ", 
+          SuperscriptBox["a2", "2"], " ", "ps", " ", "scale"}], "-", 
+         RowBox[{"a1", " ", 
+          SuperscriptBox["a2", "2"], " ", 
+          SuperscriptBox["tswitch", "2"]}], "+", 
+         RowBox[{"a1", " ", 
+          SuperscriptBox["a2", "2"], " ", "scale", " ", 
+          SuperscriptBox["tswitch", "2"]}], "+", 
+         FractionBox[
+          RowBox[{"2", " ", 
+           SuperscriptBox["a1", "2"], " ", 
+           SuperscriptBox["a2", "3"], " ", 
+           SuperscriptBox["scale", "2"], " ", 
+           SuperscriptBox["tswitch", "2"]}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "-", 
+         FractionBox[
+          RowBox[{"2", " ", 
+           SuperscriptBox["a1", "2"], " ", 
+           SuperscriptBox["a2", "3"], " ", 
+           SuperscriptBox["scale", "3"], " ", 
+           SuperscriptBox["tswitch", "2"]}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "+", 
+         RowBox[{"2", " ", "a1", " ", "a2", " ", "tswitch", " ", "ve"}], "-", 
+         
+         RowBox[{
+         "2", " ", "a1", " ", "a2", " ", "scale", " ", "tswitch", " ", "ve"}],
+          "-", 
+         FractionBox[
+          RowBox[{"2", " ", 
+           SuperscriptBox["a1", "2"], " ", 
+           SuperscriptBox["a2", "2"], " ", "scale", " ", "tswitch", " ", 
+           "ve"}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "+", 
+         FractionBox[
+          RowBox[{"2", " ", "a1", " ", 
+           SuperscriptBox["a2", "3"], " ", "scale", " ", "tswitch", " ", 
+           "ve"}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "+", 
+         FractionBox[
+          RowBox[{"2", " ", 
+           SuperscriptBox["a1", "2"], " ", 
+           SuperscriptBox["a2", "2"], " ", 
+           SuperscriptBox["scale", "2"], " ", "tswitch", " ", "ve"}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "-", 
+         FractionBox[
+          RowBox[{"4", " ", "a1", " ", 
+           SuperscriptBox["a2", "3"], " ", 
+           SuperscriptBox["scale", "2"], " ", "tswitch", " ", "ve"}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "+", 
+         FractionBox[
+          RowBox[{"2", " ", "a1", " ", 
+           SuperscriptBox["a2", "3"], " ", 
+           SuperscriptBox["scale", "3"], " ", "tswitch", " ", "ve"}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "-", 
+         RowBox[{"a1", " ", 
+          SuperscriptBox["ve", "2"]}], "-", 
+         RowBox[{"2", " ", 
+          SuperscriptBox["a2", "2"], " ", "tswitch", " ", "vs"}], "+", 
+         RowBox[{"2", " ", 
+          SuperscriptBox["a2", "2"], " ", "scale", " ", "tswitch", " ", 
+          "vs"}], "+", 
+         FractionBox[
+          RowBox[{"4", " ", "a1", " ", 
+           SuperscriptBox["a2", "3"], " ", 
+           SuperscriptBox["scale", "2"], " ", "tswitch", " ", "vs"}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "-", 
+         FractionBox[
+          RowBox[{"4", " ", "a1", " ", 
+           SuperscriptBox["a2", "3"], " ", 
+           SuperscriptBox["scale", "3"], " ", "tswitch", " ", "vs"}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "+", 
+         RowBox[{"2", " ", "a2", " ", "ve", " ", "vs"}], "-", 
+         RowBox[{"2", " ", "a2", " ", "scale", " ", "ve", " ", "vs"}], "-", 
+         FractionBox[
+          RowBox[{"2", " ", "a1", " ", 
+           SuperscriptBox["a2", "2"], " ", "scale", " ", "ve", " ", "vs"}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "+", 
+         FractionBox[
+          RowBox[{"2", " ", 
+           SuperscriptBox["a2", "3"], " ", "scale", " ", "ve", " ", "vs"}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "+", 
+         FractionBox[
+          RowBox[{"2", " ", "a1", " ", 
+           SuperscriptBox["a2", "2"], " ", 
+           SuperscriptBox["scale", "2"], " ", "ve", " ", "vs"}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "-", 
+         FractionBox[
+          RowBox[{"4", " ", 
+           SuperscriptBox["a2", "3"], " ", 
+           SuperscriptBox["scale", "2"], " ", "ve", " ", "vs"}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "+", 
+         FractionBox[
+          RowBox[{"2", " ", 
+           SuperscriptBox["a2", "3"], " ", 
+           SuperscriptBox["scale", "3"], " ", "ve", " ", "vs"}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "+", 
+         RowBox[{"a1", " ", 
+          SuperscriptBox["vs", "2"]}], "-", 
+         RowBox[{"2", " ", "a2", " ", 
+          SuperscriptBox["vs", "2"]}], "+", 
+         RowBox[{"2", " ", "a2", " ", "scale", " ", 
+          SuperscriptBox["vs", "2"]}], "+", 
+         FractionBox[
+          RowBox[{"2", " ", 
+           SuperscriptBox["a2", "3"], " ", 
+           SuperscriptBox["scale", "2"], " ", 
+           SuperscriptBox["vs", "2"]}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "-", 
+         FractionBox[
+          RowBox[{"2", " ", 
+           SuperscriptBox["a2", "3"], " ", 
+           SuperscriptBox["scale", "3"], " ", 
+           SuperscriptBox["vs", "2"]}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "+", 
+         RowBox[{
+          RowBox[{"(", 
+           RowBox[{"a1", " ", 
+            SuperscriptBox["a2", "2"], " ", "scale", " ", "tswitch", " ", 
+            RowBox[{"\[Sqrt]", 
+             RowBox[{"(", 
+              RowBox[{
+               SuperscriptBox[
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{
+                  "2", " ", "a1", " ", "a2", " ", "scale", " ", "tswitch"}], 
+                  "-", 
+                  RowBox[{"2", " ", "a1", " ", "ve"}], "+", 
+                  RowBox[{"2", " ", "a2", " ", "ve"}], "-", 
+                  RowBox[{"2", " ", "a2", " ", "scale", " ", "ve"}], "+", 
+                  RowBox[{"2", " ", "a2", " ", "scale", " ", "vs"}]}], ")"}], 
+                "2"], "-", 
+               RowBox[{"4", " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+                  RowBox[{
+                   SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+                  RowBox[{
+                   SuperscriptBox["a2", "2"], " ", 
+                   SuperscriptBox["scale", "2"]}]}], ")"}], " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"2", " ", "a1", " ", "pe"}], "-", 
+                  RowBox[{"2", " ", "a2", " ", "pe"}], "-", 
+                  RowBox[{"2", " ", "a1", " ", "ps"}], "+", 
+                  RowBox[{"2", " ", "a2", " ", "ps"}], "+", 
+                  RowBox[{"a1", " ", "a2", " ", 
+                   SuperscriptBox["tswitch", "2"]}], "-", 
+                  RowBox[{"2", " ", "a1", " ", "tswitch", " ", "ve"}], "+", 
+                  SuperscriptBox["ve", "2"], "+", 
+                  RowBox[{"2", " ", "a2", " ", "tswitch", " ", "vs"}], "-", 
+                  RowBox[{"2", " ", "ve", " ", "vs"}], "+", 
+                  SuperscriptBox["vs", "2"]}], ")"}]}]}], ")"}]}]}], ")"}], 
+          "/", 
+          RowBox[{"(", 
+           RowBox[{
+            RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+            RowBox[{
+             SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+            RowBox[{
+             SuperscriptBox["a2", "2"], " ", 
+             SuperscriptBox["scale", "2"]}]}], ")"}]}], "-", 
+         RowBox[{
+          RowBox[{"(", 
+           RowBox[{"a1", " ", 
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"], " ", "tswitch", " ", 
+            RowBox[{"\[Sqrt]", 
+             RowBox[{"(", 
+              RowBox[{
+               SuperscriptBox[
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{
+                  "2", " ", "a1", " ", "a2", " ", "scale", " ", "tswitch"}], 
+                  "-", 
+                  RowBox[{"2", " ", "a1", " ", "ve"}], "+", 
+                  RowBox[{"2", " ", "a2", " ", "ve"}], "-", 
+                  RowBox[{"2", " ", "a2", " ", "scale", " ", "ve"}], "+", 
+                  RowBox[{"2", " ", "a2", " ", "scale", " ", "vs"}]}], ")"}], 
+                "2"], "-", 
+               RowBox[{"4", " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+                  RowBox[{
+                   SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+                  RowBox[{
+                   SuperscriptBox["a2", "2"], " ", 
+                   SuperscriptBox["scale", "2"]}]}], ")"}], " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"2", " ", "a1", " ", "pe"}], "-", 
+                  RowBox[{"2", " ", "a2", " ", "pe"}], "-", 
+                  RowBox[{"2", " ", "a1", " ", "ps"}], "+", 
+                  RowBox[{"2", " ", "a2", " ", "ps"}], "+", 
+                  RowBox[{"a1", " ", "a2", " ", 
+                   SuperscriptBox["tswitch", "2"]}], "-", 
+                  RowBox[{"2", " ", "a1", " ", "tswitch", " ", "ve"}], "+", 
+                  SuperscriptBox["ve", "2"], "+", 
+                  RowBox[{"2", " ", "a2", " ", "tswitch", " ", "vs"}], "-", 
+                  RowBox[{"2", " ", "ve", " ", "vs"}], "+", 
+                  SuperscriptBox["vs", "2"]}], ")"}]}]}], ")"}]}]}], ")"}], 
+          "/", 
+          RowBox[{"(", 
+           RowBox[{
+            RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+            RowBox[{
+             SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+            RowBox[{
+             SuperscriptBox["a2", "2"], " ", 
+             SuperscriptBox["scale", "2"]}]}], ")"}]}], "+", 
+         RowBox[{
+          RowBox[{"(", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale", " ", "vs", " ", 
+            RowBox[{"\[Sqrt]", 
+             RowBox[{"(", 
+              RowBox[{
+               SuperscriptBox[
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{
+                  "2", " ", "a1", " ", "a2", " ", "scale", " ", "tswitch"}], 
+                  "-", 
+                  RowBox[{"2", " ", "a1", " ", "ve"}], "+", 
+                  RowBox[{"2", " ", "a2", " ", "ve"}], "-", 
+                  RowBox[{"2", " ", "a2", " ", "scale", " ", "ve"}], "+", 
+                  RowBox[{"2", " ", "a2", " ", "scale", " ", "vs"}]}], ")"}], 
+                "2"], "-", 
+               RowBox[{"4", " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+                  RowBox[{
+                   SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+                  RowBox[{
+                   SuperscriptBox["a2", "2"], " ", 
+                   SuperscriptBox["scale", "2"]}]}], ")"}], " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"2", " ", "a1", " ", "pe"}], "-", 
+                  RowBox[{"2", " ", "a2", " ", "pe"}], "-", 
+                  RowBox[{"2", " ", "a1", " ", "ps"}], "+", 
+                  RowBox[{"2", " ", "a2", " ", "ps"}], "+", 
+                  RowBox[{"a1", " ", "a2", " ", 
+                   SuperscriptBox["tswitch", "2"]}], "-", 
+                  RowBox[{"2", " ", "a1", " ", "tswitch", " ", "ve"}], "+", 
+                  SuperscriptBox["ve", "2"], "+", 
+                  RowBox[{"2", " ", "a2", " ", "tswitch", " ", "vs"}], "-", 
+                  RowBox[{"2", " ", "ve", " ", "vs"}], "+", 
+                  SuperscriptBox["vs", "2"]}], ")"}]}]}], ")"}]}]}], ")"}], 
+          "/", 
+          RowBox[{"(", 
+           RowBox[{
+            RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+            RowBox[{
+             SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+            RowBox[{
+             SuperscriptBox["a2", "2"], " ", 
+             SuperscriptBox["scale", "2"]}]}], ")"}]}], "-", 
+         RowBox[{
+          RowBox[{"(", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"], " ", "vs", " ", 
+            RowBox[{"\[Sqrt]", 
+             RowBox[{"(", 
+              RowBox[{
+               SuperscriptBox[
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{
+                  "2", " ", "a1", " ", "a2", " ", "scale", " ", "tswitch"}], 
+                  "-", 
+                  RowBox[{"2", " ", "a1", " ", "ve"}], "+", 
+                  RowBox[{"2", " ", "a2", " ", "ve"}], "-", 
+                  RowBox[{"2", " ", "a2", " ", "scale", " ", "ve"}], "+", 
+                  RowBox[{"2", " ", "a2", " ", "scale", " ", "vs"}]}], ")"}], 
+                "2"], "-", 
+               RowBox[{"4", " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+                  RowBox[{
+                   SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+                  RowBox[{
+                   SuperscriptBox["a2", "2"], " ", 
+                   SuperscriptBox["scale", "2"]}]}], ")"}], " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"2", " ", "a1", " ", "pe"}], "-", 
+                  RowBox[{"2", " ", "a2", " ", "pe"}], "-", 
+                  RowBox[{"2", " ", "a1", " ", "ps"}], "+", 
+                  RowBox[{"2", " ", "a2", " ", "ps"}], "+", 
+                  RowBox[{"a1", " ", "a2", " ", 
+                   SuperscriptBox["tswitch", "2"]}], "-", 
+                  RowBox[{"2", " ", "a1", " ", "tswitch", " ", "ve"}], "+", 
+                  SuperscriptBox["ve", "2"], "+", 
+                  RowBox[{"2", " ", "a2", " ", "tswitch", " ", "vs"}], "-", 
+                  RowBox[{"2", " ", "ve", " ", "vs"}], "+", 
+                  SuperscriptBox["vs", "2"]}], ")"}]}]}], ")"}]}]}], ")"}], 
+          "/", 
+          RowBox[{"(", 
+           RowBox[{
+            RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+            RowBox[{
+             SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+            RowBox[{
+             SuperscriptBox["a2", "2"], " ", 
+             SuperscriptBox["scale", "2"]}]}], ")"}]}]}], ")"}], "/", 
+       RowBox[{"(", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"-", "2"}], " ", 
+          SuperscriptBox["a1", "2"]}], "+", 
+         RowBox[{"4", " ", "a1", " ", "a2"}], "-", 
+         RowBox[{"2", " ", 
+          SuperscriptBox["a2", "2"]}], "-", 
+         RowBox[{"2", " ", "a1", " ", "a2", " ", "scale"}], "+", 
+         RowBox[{"2", " ", 
+          SuperscriptBox["a2", "2"], " ", "scale"}]}], ")"}]}]}], ",", 
+     RowBox[{"p2", "\[Rule]", 
+      RowBox[{
+       FractionBox["1", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"-", "2"}], " ", "a1"}], "+", 
+         RowBox[{"2", " ", "a2"}], "-", 
+         RowBox[{"2", " ", "a2", " ", "scale"}]}]], 
+       RowBox[{"(", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"-", "2"}], " ", "a1", " ", "ps"}], "+", 
+         RowBox[{"2", " ", "a2", " ", "ps"}], "-", 
+         RowBox[{"2", " ", "a2", " ", "pe", " ", "scale"}], "+", 
+         RowBox[{"a1", " ", "a2", " ", 
+          SuperscriptBox["tswitch", "2"]}], "-", 
+         FractionBox[
+          RowBox[{"2", " ", 
+           SuperscriptBox["a1", "2"], " ", 
+           SuperscriptBox["a2", "2"], " ", 
+           SuperscriptBox["scale", "2"], " ", 
+           SuperscriptBox["tswitch", "2"]}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "-", 
+         RowBox[{"2", " ", "a1", " ", "tswitch", " ", "ve"}], "+", 
+         FractionBox[
+          RowBox[{"2", " ", 
+           SuperscriptBox["a1", "2"], " ", "a2", " ", "scale", " ", "tswitch",
+            " ", "ve"}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "-", 
+         FractionBox[
+          RowBox[{"2", " ", "a1", " ", 
+           SuperscriptBox["a2", "2"], " ", "scale", " ", "tswitch", " ", 
+           "ve"}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "+", 
+         FractionBox[
+          RowBox[{"2", " ", "a1", " ", 
+           SuperscriptBox["a2", "2"], " ", 
+           SuperscriptBox["scale", "2"], " ", "tswitch", " ", "ve"}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "+", 
+         SuperscriptBox["ve", "2"], "+", 
+         RowBox[{"2", " ", "a2", " ", "tswitch", " ", "vs"}], "-", 
+         FractionBox[
+          RowBox[{"4", " ", "a1", " ", 
+           SuperscriptBox["a2", "2"], " ", 
+           SuperscriptBox["scale", "2"], " ", "tswitch", " ", "vs"}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "-", 
+         RowBox[{"2", " ", "ve", " ", "vs"}], "+", 
+         FractionBox[
+          RowBox[{
+          "2", " ", "a1", " ", "a2", " ", "scale", " ", "ve", " ", "vs"}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "-", 
+         FractionBox[
+          RowBox[{"2", " ", 
+           SuperscriptBox["a2", "2"], " ", "scale", " ", "ve", " ", "vs"}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "+", 
+         FractionBox[
+          RowBox[{"2", " ", 
+           SuperscriptBox["a2", "2"], " ", 
+           SuperscriptBox["scale", "2"], " ", "ve", " ", "vs"}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "+", 
+         SuperscriptBox["vs", "2"], "-", 
+         FractionBox[
+          RowBox[{"2", " ", 
+           SuperscriptBox["a2", "2"], " ", 
+           SuperscriptBox["scale", "2"], " ", 
+           SuperscriptBox["vs", "2"]}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "-", 
+         RowBox[{
+          RowBox[{"(", 
+           RowBox[{"a1", " ", "a2", " ", "scale", " ", "tswitch", " ", 
+            RowBox[{"\[Sqrt]", 
+             RowBox[{"(", 
+              RowBox[{
+               SuperscriptBox[
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{
+                  "2", " ", "a1", " ", "a2", " ", "scale", " ", "tswitch"}], 
+                  "-", 
+                  RowBox[{"2", " ", "a1", " ", "ve"}], "+", 
+                  RowBox[{"2", " ", "a2", " ", "ve"}], "-", 
+                  RowBox[{"2", " ", "a2", " ", "scale", " ", "ve"}], "+", 
+                  RowBox[{"2", " ", "a2", " ", "scale", " ", "vs"}]}], ")"}], 
+                "2"], "-", 
+               RowBox[{"4", " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+                  RowBox[{
+                   SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+                  RowBox[{
+                   SuperscriptBox["a2", "2"], " ", 
+                   SuperscriptBox["scale", "2"]}]}], ")"}], " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"2", " ", "a1", " ", "pe"}], "-", 
+                  RowBox[{"2", " ", "a2", " ", "pe"}], "-", 
+                  RowBox[{"2", " ", "a1", " ", "ps"}], "+", 
+                  RowBox[{"2", " ", "a2", " ", "ps"}], "+", 
+                  RowBox[{"a1", " ", "a2", " ", 
+                   SuperscriptBox["tswitch", "2"]}], "-", 
+                  RowBox[{"2", " ", "a1", " ", "tswitch", " ", "ve"}], "+", 
+                  SuperscriptBox["ve", "2"], "+", 
+                  RowBox[{"2", " ", "a2", " ", "tswitch", " ", "vs"}], "-", 
+                  RowBox[{"2", " ", "ve", " ", "vs"}], "+", 
+                  SuperscriptBox["vs", "2"]}], ")"}]}]}], ")"}]}]}], ")"}], 
+          "/", 
+          RowBox[{"(", 
+           RowBox[{
+            RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+            RowBox[{
+             SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+            RowBox[{
+             SuperscriptBox["a2", "2"], " ", 
+             SuperscriptBox["scale", "2"]}]}], ")"}]}], "-", 
+         RowBox[{
+          RowBox[{"(", 
+           RowBox[{"a2", " ", "scale", " ", "vs", " ", 
+            RowBox[{"\[Sqrt]", 
+             RowBox[{"(", 
+              RowBox[{
+               SuperscriptBox[
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{
+                  "2", " ", "a1", " ", "a2", " ", "scale", " ", "tswitch"}], 
+                  "-", 
+                  RowBox[{"2", " ", "a1", " ", "ve"}], "+", 
+                  RowBox[{"2", " ", "a2", " ", "ve"}], "-", 
+                  RowBox[{"2", " ", "a2", " ", "scale", " ", "ve"}], "+", 
+                  RowBox[{"2", " ", "a2", " ", "scale", " ", "vs"}]}], ")"}], 
+                "2"], "-", 
+               RowBox[{"4", " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+                  RowBox[{
+                   SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+                  RowBox[{
+                   SuperscriptBox["a2", "2"], " ", 
+                   SuperscriptBox["scale", "2"]}]}], ")"}], " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"2", " ", "a1", " ", "pe"}], "-", 
+                  RowBox[{"2", " ", "a2", " ", "pe"}], "-", 
+                  RowBox[{"2", " ", "a1", " ", "ps"}], "+", 
+                  RowBox[{"2", " ", "a2", " ", "ps"}], "+", 
+                  RowBox[{"a1", " ", "a2", " ", 
+                   SuperscriptBox["tswitch", "2"]}], "-", 
+                  RowBox[{"2", " ", "a1", " ", "tswitch", " ", "ve"}], "+", 
+                  SuperscriptBox["ve", "2"], "+", 
+                  RowBox[{"2", " ", "a2", " ", "tswitch", " ", "vs"}], "-", 
+                  RowBox[{"2", " ", "ve", " ", "vs"}], "+", 
+                  SuperscriptBox["vs", "2"]}], ")"}]}]}], ")"}]}]}], ")"}], 
+          "/", 
+          RowBox[{"(", 
+           RowBox[{
+            RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+            RowBox[{
+             SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+            RowBox[{
+             SuperscriptBox["a2", "2"], " ", 
+             SuperscriptBox["scale", "2"]}]}], ")"}]}]}], ")"}]}]}]}], "}"}], 
+   ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"t1", "\[Rule]", 
+      RowBox[{
+       FractionBox["1", 
+        RowBox[{"a1", "-", "a2"}]], 
+       RowBox[{"(", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"-", "a2"}], " ", "tswitch"}], "+", 
+         FractionBox[
+          RowBox[{"a1", " ", 
+           SuperscriptBox["a2", "2"], " ", 
+           SuperscriptBox["scale", "2"], " ", "tswitch"}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "+", "ve", "-", 
+         FractionBox[
+          RowBox[{"a1", " ", "a2", " ", "scale", " ", "ve"}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "+", 
+         FractionBox[
+          RowBox[{
+           SuperscriptBox["a2", "2"], " ", "scale", " ", "ve"}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "-", 
+         FractionBox[
+          RowBox[{
+           SuperscriptBox["a2", "2"], " ", 
+           SuperscriptBox["scale", "2"], " ", "ve"}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "-", "vs", "+", 
+         FractionBox[
+          RowBox[{
+           SuperscriptBox["a2", "2"], " ", 
+           SuperscriptBox["scale", "2"], " ", "vs"}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "-", 
+         RowBox[{
+          RowBox[{"(", 
+           RowBox[{"a2", " ", "scale", " ", 
+            RowBox[{"\[Sqrt]", 
+             RowBox[{"(", 
+              RowBox[{
+               SuperscriptBox[
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{
+                  "2", " ", "a1", " ", "a2", " ", "scale", " ", "tswitch"}], 
+                  "-", 
+                  RowBox[{"2", " ", "a1", " ", "ve"}], "+", 
+                  RowBox[{"2", " ", "a2", " ", "ve"}], "-", 
+                  RowBox[{"2", " ", "a2", " ", "scale", " ", "ve"}], "+", 
+                  RowBox[{"2", " ", "a2", " ", "scale", " ", "vs"}]}], ")"}], 
+                "2"], "-", 
+               RowBox[{"4", " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+                  RowBox[{
+                   SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+                  RowBox[{
+                   SuperscriptBox["a2", "2"], " ", 
+                   SuperscriptBox["scale", "2"]}]}], ")"}], " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"2", " ", "a1", " ", "pe"}], "-", 
+                  RowBox[{"2", " ", "a2", " ", "pe"}], "-", 
+                  RowBox[{"2", " ", "a1", " ", "ps"}], "+", 
+                  RowBox[{"2", " ", "a2", " ", "ps"}], "+", 
+                  RowBox[{"a1", " ", "a2", " ", 
+                   SuperscriptBox["tswitch", "2"]}], "-", 
+                  RowBox[{"2", " ", "a1", " ", "tswitch", " ", "ve"}], "+", 
+                  SuperscriptBox["ve", "2"], "+", 
+                  RowBox[{"2", " ", "a2", " ", "tswitch", " ", "vs"}], "-", 
+                  RowBox[{"2", " ", "ve", " ", "vs"}], "+", 
+                  SuperscriptBox["vs", "2"]}], ")"}]}]}], ")"}]}]}], ")"}], 
+          "/", 
+          RowBox[{"(", 
+           RowBox[{"2", " ", 
+            RowBox[{"(", 
+             RowBox[{
+              RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+              RowBox[{
+               SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+              RowBox[{
+               SuperscriptBox["a2", "2"], " ", 
+               SuperscriptBox["scale", "2"]}]}], ")"}]}], ")"}]}]}], 
+        ")"}]}]}], ",", 
+     RowBox[{"t2", "\[Rule]", 
+      RowBox[{
+       FractionBox["1", 
+        RowBox[{"a1", "-", "a2"}]], 
+       RowBox[{"(", 
+        RowBox[{
+         RowBox[{"a1", " ", "tswitch"}], "-", 
+         FractionBox[
+          RowBox[{"a1", " ", 
+           SuperscriptBox["a2", "2"], " ", 
+           SuperscriptBox["scale", "2"], " ", "tswitch"}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "-", "ve", "+", 
+         FractionBox[
+          RowBox[{"a1", " ", "a2", " ", "scale", " ", "ve"}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "-", 
+         FractionBox[
+          RowBox[{
+           SuperscriptBox["a2", "2"], " ", "scale", " ", "ve"}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "+", 
+         FractionBox[
+          RowBox[{
+           SuperscriptBox["a2", "2"], " ", 
+           SuperscriptBox["scale", "2"], " ", "ve"}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "+", "vs", "-", 
+         FractionBox[
+          RowBox[{
+           SuperscriptBox["a2", "2"], " ", 
+           SuperscriptBox["scale", "2"], " ", "vs"}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "+", 
+         RowBox[{
+          RowBox[{"(", 
+           RowBox[{"a2", " ", "scale", " ", 
+            RowBox[{"\[Sqrt]", 
+             RowBox[{"(", 
+              RowBox[{
+               SuperscriptBox[
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{
+                  "2", " ", "a1", " ", "a2", " ", "scale", " ", "tswitch"}], 
+                  "-", 
+                  RowBox[{"2", " ", "a1", " ", "ve"}], "+", 
+                  RowBox[{"2", " ", "a2", " ", "ve"}], "-", 
+                  RowBox[{"2", " ", "a2", " ", "scale", " ", "ve"}], "+", 
+                  RowBox[{"2", " ", "a2", " ", "scale", " ", "vs"}]}], ")"}], 
+                "2"], "-", 
+               RowBox[{"4", " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+                  RowBox[{
+                   SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+                  RowBox[{
+                   SuperscriptBox["a2", "2"], " ", 
+                   SuperscriptBox["scale", "2"]}]}], ")"}], " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"2", " ", "a1", " ", "pe"}], "-", 
+                  RowBox[{"2", " ", "a2", " ", "pe"}], "-", 
+                  RowBox[{"2", " ", "a1", " ", "ps"}], "+", 
+                  RowBox[{"2", " ", "a2", " ", "ps"}], "+", 
+                  RowBox[{"a1", " ", "a2", " ", 
+                   SuperscriptBox["tswitch", "2"]}], "-", 
+                  RowBox[{"2", " ", "a1", " ", "tswitch", " ", "ve"}], "+", 
+                  SuperscriptBox["ve", "2"], "+", 
+                  RowBox[{"2", " ", "a2", " ", "tswitch", " ", "vs"}], "-", 
+                  RowBox[{"2", " ", "ve", " ", "vs"}], "+", 
+                  SuperscriptBox["vs", "2"]}], ")"}]}]}], ")"}]}]}], ")"}], 
+          "/", 
+          RowBox[{"(", 
+           RowBox[{"2", " ", 
+            RowBox[{"(", 
+             RowBox[{
+              RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+              RowBox[{
+               SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+              RowBox[{
+               SuperscriptBox["a2", "2"], " ", 
+               SuperscriptBox["scale", "2"]}]}], ")"}]}], ")"}]}]}], 
+        ")"}]}]}], ",", 
+     RowBox[{"t3", "\[Rule]", 
+      RowBox[{
+       RowBox[{"(", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"-", "2"}], " ", "a1", " ", "a2", " ", "scale", " ", 
+          "tswitch"}], "+", 
+         RowBox[{"2", " ", "a1", " ", "ve"}], "-", 
+         RowBox[{"2", " ", "a2", " ", "ve"}], "+", 
+         RowBox[{"2", " ", "a2", " ", "scale", " ", "ve"}], "-", 
+         RowBox[{"2", " ", "a2", " ", "scale", " ", "vs"}], "+", 
+         RowBox[{"\[Sqrt]", 
+          RowBox[{"(", 
+           RowBox[{
+            SuperscriptBox[
+             RowBox[{"(", 
+              RowBox[{
+               RowBox[{
+               "2", " ", "a1", " ", "a2", " ", "scale", " ", "tswitch"}], "-", 
+               RowBox[{"2", " ", "a1", " ", "ve"}], "+", 
+               RowBox[{"2", " ", "a2", " ", "ve"}], "-", 
+               RowBox[{"2", " ", "a2", " ", "scale", " ", "ve"}], "+", 
+               RowBox[{"2", " ", "a2", " ", "scale", " ", "vs"}]}], ")"}], 
+             "2"], "-", 
+            RowBox[{"4", " ", 
+             RowBox[{"(", 
+              RowBox[{
+               RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+               RowBox[{
+                SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+               RowBox[{
+                SuperscriptBox["a2", "2"], " ", 
+                SuperscriptBox["scale", "2"]}]}], ")"}], " ", 
+             RowBox[{"(", 
+              RowBox[{
+               RowBox[{"2", " ", "a1", " ", "pe"}], "-", 
+               RowBox[{"2", " ", "a2", " ", "pe"}], "-", 
+               RowBox[{"2", " ", "a1", " ", "ps"}], "+", 
+               RowBox[{"2", " ", "a2", " ", "ps"}], "+", 
+               RowBox[{"a1", " ", "a2", " ", 
+                SuperscriptBox["tswitch", "2"]}], "-", 
+               RowBox[{"2", " ", "a1", " ", "tswitch", " ", "ve"}], "+", 
+               SuperscriptBox["ve", "2"], "+", 
+               RowBox[{"2", " ", "a2", " ", "tswitch", " ", "vs"}], "-", 
+               RowBox[{"2", " ", "ve", " ", "vs"}], "+", 
+               SuperscriptBox["vs", "2"]}], ")"}]}]}], ")"}]}]}], ")"}], "/", 
+       
+       RowBox[{"(", 
+        RowBox[{"2", " ", 
+         RowBox[{"(", 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}], ")"}]}], ")"}]}]}], ",", 
+     RowBox[{"v1", "\[Rule]", 
+      RowBox[{
+       FractionBox["1", 
+        RowBox[{"a1", "-", "a2"}]], 
+       RowBox[{"(", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"-", "a1"}], " ", "a2", " ", "tswitch"}], "+", 
+         FractionBox[
+          RowBox[{
+           SuperscriptBox["a1", "2"], " ", 
+           SuperscriptBox["a2", "2"], " ", 
+           SuperscriptBox["scale", "2"], " ", "tswitch"}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "+", 
+         RowBox[{"a1", " ", "ve"}], "-", 
+         FractionBox[
+          RowBox[{
+           SuperscriptBox["a1", "2"], " ", "a2", " ", "scale", " ", "ve"}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "+", 
+         FractionBox[
+          RowBox[{"a1", " ", 
+           SuperscriptBox["a2", "2"], " ", "scale", " ", "ve"}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "-", 
+         FractionBox[
+          RowBox[{"a1", " ", 
+           SuperscriptBox["a2", "2"], " ", 
+           SuperscriptBox["scale", "2"], " ", "ve"}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "-", 
+         RowBox[{"a2", " ", "vs"}], "+", 
+         FractionBox[
+          RowBox[{"a1", " ", 
+           SuperscriptBox["a2", "2"], " ", 
+           SuperscriptBox["scale", "2"], " ", "vs"}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "-", 
+         RowBox[{
+          RowBox[{"(", 
+           RowBox[{"a1", " ", "a2", " ", "scale", " ", 
+            RowBox[{"\[Sqrt]", 
+             RowBox[{"(", 
+              RowBox[{
+               SuperscriptBox[
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{
+                  "2", " ", "a1", " ", "a2", " ", "scale", " ", "tswitch"}], 
+                  "-", 
+                  RowBox[{"2", " ", "a1", " ", "ve"}], "+", 
+                  RowBox[{"2", " ", "a2", " ", "ve"}], "-", 
+                  RowBox[{"2", " ", "a2", " ", "scale", " ", "ve"}], "+", 
+                  RowBox[{"2", " ", "a2", " ", "scale", " ", "vs"}]}], ")"}], 
+                "2"], "-", 
+               RowBox[{"4", " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+                  RowBox[{
+                   SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+                  RowBox[{
+                   SuperscriptBox["a2", "2"], " ", 
+                   SuperscriptBox["scale", "2"]}]}], ")"}], " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"2", " ", "a1", " ", "pe"}], "-", 
+                  RowBox[{"2", " ", "a2", " ", "pe"}], "-", 
+                  RowBox[{"2", " ", "a1", " ", "ps"}], "+", 
+                  RowBox[{"2", " ", "a2", " ", "ps"}], "+", 
+                  RowBox[{"a1", " ", "a2", " ", 
+                   SuperscriptBox["tswitch", "2"]}], "-", 
+                  RowBox[{"2", " ", "a1", " ", "tswitch", " ", "ve"}], "+", 
+                  SuperscriptBox["ve", "2"], "+", 
+                  RowBox[{"2", " ", "a2", " ", "tswitch", " ", "vs"}], "-", 
+                  RowBox[{"2", " ", "ve", " ", "vs"}], "+", 
+                  SuperscriptBox["vs", "2"]}], ")"}]}]}], ")"}]}]}], ")"}], 
+          "/", 
+          RowBox[{"(", 
+           RowBox[{"2", " ", 
+            RowBox[{"(", 
+             RowBox[{
+              RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+              RowBox[{
+               SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+              RowBox[{
+               SuperscriptBox["a2", "2"], " ", 
+               SuperscriptBox["scale", "2"]}]}], ")"}]}], ")"}]}]}], 
+        ")"}]}]}], ",", 
+     RowBox[{"v2", "\[Rule]", 
+      RowBox[{
+       FractionBox[
+        RowBox[{"a1", " ", 
+         SuperscriptBox["a2", "2"], " ", 
+         SuperscriptBox["scale", "2"], " ", "tswitch"}], 
+        RowBox[{
+         RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+         RowBox[{
+          SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+         RowBox[{
+          SuperscriptBox["a2", "2"], " ", 
+          SuperscriptBox["scale", "2"]}]}]], "+", "ve", "-", 
+       FractionBox[
+        RowBox[{"a1", " ", "a2", " ", "scale", " ", "ve"}], 
+        RowBox[{
+         RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+         RowBox[{
+          SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+         RowBox[{
+          SuperscriptBox["a2", "2"], " ", 
+          SuperscriptBox["scale", "2"]}]}]], "+", 
+       FractionBox[
+        RowBox[{
+         SuperscriptBox["a2", "2"], " ", "scale", " ", "ve"}], 
+        RowBox[{
+         RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+         RowBox[{
+          SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+         RowBox[{
+          SuperscriptBox["a2", "2"], " ", 
+          SuperscriptBox["scale", "2"]}]}]], "-", 
+       FractionBox[
+        RowBox[{
+         SuperscriptBox["a2", "2"], " ", 
+         SuperscriptBox["scale", "2"], " ", "ve"}], 
+        RowBox[{
+         RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+         RowBox[{
+          SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+         RowBox[{
+          SuperscriptBox["a2", "2"], " ", 
+          SuperscriptBox["scale", "2"]}]}]], "+", 
+       FractionBox[
+        RowBox[{
+         SuperscriptBox["a2", "2"], " ", 
+         SuperscriptBox["scale", "2"], " ", "vs"}], 
+        RowBox[{
+         RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+         RowBox[{
+          SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+         RowBox[{
+          SuperscriptBox["a2", "2"], " ", 
+          SuperscriptBox["scale", "2"]}]}]], "-", 
+       RowBox[{
+        RowBox[{"(", 
+         RowBox[{"a2", " ", "scale", " ", 
+          RowBox[{"\[Sqrt]", 
+           RowBox[{"(", 
+            RowBox[{
+             SuperscriptBox[
+              RowBox[{"(", 
+               RowBox[{
+                RowBox[{
+                "2", " ", "a1", " ", "a2", " ", "scale", " ", "tswitch"}], 
+                "-", 
+                RowBox[{"2", " ", "a1", " ", "ve"}], "+", 
+                RowBox[{"2", " ", "a2", " ", "ve"}], "-", 
+                RowBox[{"2", " ", "a2", " ", "scale", " ", "ve"}], "+", 
+                RowBox[{"2", " ", "a2", " ", "scale", " ", "vs"}]}], ")"}], 
+              "2"], "-", 
+             RowBox[{"4", " ", 
+              RowBox[{"(", 
+               RowBox[{
+                RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+                RowBox[{
+                 SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+                RowBox[{
+                 SuperscriptBox["a2", "2"], " ", 
+                 SuperscriptBox["scale", "2"]}]}], ")"}], " ", 
+              RowBox[{"(", 
+               RowBox[{
+                RowBox[{"2", " ", "a1", " ", "pe"}], "-", 
+                RowBox[{"2", " ", "a2", " ", "pe"}], "-", 
+                RowBox[{"2", " ", "a1", " ", "ps"}], "+", 
+                RowBox[{"2", " ", "a2", " ", "ps"}], "+", 
+                RowBox[{"a1", " ", "a2", " ", 
+                 SuperscriptBox["tswitch", "2"]}], "-", 
+                RowBox[{"2", " ", "a1", " ", "tswitch", " ", "ve"}], "+", 
+                SuperscriptBox["ve", "2"], "+", 
+                RowBox[{"2", " ", "a2", " ", "tswitch", " ", "vs"}], "-", 
+                RowBox[{"2", " ", "ve", " ", "vs"}], "+", 
+                SuperscriptBox["vs", "2"]}], ")"}]}]}], ")"}]}]}], ")"}], "/", 
+        RowBox[{"(", 
+         RowBox[{"2", " ", 
+          RowBox[{"(", 
+           RowBox[{
+            RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+            RowBox[{
+             SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+            RowBox[{
+             SuperscriptBox["a2", "2"], " ", 
+             SuperscriptBox["scale", "2"]}]}], ")"}]}], ")"}]}]}]}], ",", 
+     RowBox[{"p1", "\[Rule]", 
+      RowBox[{
+       RowBox[{"(", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"-", "2"}], " ", 
+          SuperscriptBox["a1", "2"], " ", "ps"}], "+", 
+         RowBox[{"4", " ", "a1", " ", "a2", " ", "ps"}], "-", 
+         RowBox[{"2", " ", 
+          SuperscriptBox["a2", "2"], " ", "ps"}], "+", 
+         RowBox[{"2", " ", "a1", " ", "a2", " ", "pe", " ", "scale"}], "-", 
+         RowBox[{"4", " ", "a1", " ", "a2", " ", "ps", " ", "scale"}], "+", 
+         RowBox[{"2", " ", 
+          SuperscriptBox["a2", "2"], " ", "ps", " ", "scale"}], "-", 
+         RowBox[{"a1", " ", 
+          SuperscriptBox["a2", "2"], " ", 
+          SuperscriptBox["tswitch", "2"]}], "+", 
+         RowBox[{"a1", " ", 
+          SuperscriptBox["a2", "2"], " ", "scale", " ", 
+          SuperscriptBox["tswitch", "2"]}], "+", 
+         FractionBox[
+          RowBox[{"2", " ", 
+           SuperscriptBox["a1", "2"], " ", 
+           SuperscriptBox["a2", "3"], " ", 
+           SuperscriptBox["scale", "2"], " ", 
+           SuperscriptBox["tswitch", "2"]}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "-", 
+         FractionBox[
+          RowBox[{"2", " ", 
+           SuperscriptBox["a1", "2"], " ", 
+           SuperscriptBox["a2", "3"], " ", 
+           SuperscriptBox["scale", "3"], " ", 
+           SuperscriptBox["tswitch", "2"]}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "+", 
+         RowBox[{"2", " ", "a1", " ", "a2", " ", "tswitch", " ", "ve"}], "-", 
+         
+         RowBox[{
+         "2", " ", "a1", " ", "a2", " ", "scale", " ", "tswitch", " ", "ve"}],
+          "-", 
+         FractionBox[
+          RowBox[{"2", " ", 
+           SuperscriptBox["a1", "2"], " ", 
+           SuperscriptBox["a2", "2"], " ", "scale", " ", "tswitch", " ", 
+           "ve"}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "+", 
+         FractionBox[
+          RowBox[{"2", " ", "a1", " ", 
+           SuperscriptBox["a2", "3"], " ", "scale", " ", "tswitch", " ", 
+           "ve"}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "+", 
+         FractionBox[
+          RowBox[{"2", " ", 
+           SuperscriptBox["a1", "2"], " ", 
+           SuperscriptBox["a2", "2"], " ", 
+           SuperscriptBox["scale", "2"], " ", "tswitch", " ", "ve"}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "-", 
+         FractionBox[
+          RowBox[{"4", " ", "a1", " ", 
+           SuperscriptBox["a2", "3"], " ", 
+           SuperscriptBox["scale", "2"], " ", "tswitch", " ", "ve"}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "+", 
+         FractionBox[
+          RowBox[{"2", " ", "a1", " ", 
+           SuperscriptBox["a2", "3"], " ", 
+           SuperscriptBox["scale", "3"], " ", "tswitch", " ", "ve"}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "-", 
+         RowBox[{"a1", " ", 
+          SuperscriptBox["ve", "2"]}], "-", 
+         RowBox[{"2", " ", 
+          SuperscriptBox["a2", "2"], " ", "tswitch", " ", "vs"}], "+", 
+         RowBox[{"2", " ", 
+          SuperscriptBox["a2", "2"], " ", "scale", " ", "tswitch", " ", 
+          "vs"}], "+", 
+         FractionBox[
+          RowBox[{"4", " ", "a1", " ", 
+           SuperscriptBox["a2", "3"], " ", 
+           SuperscriptBox["scale", "2"], " ", "tswitch", " ", "vs"}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "-", 
+         FractionBox[
+          RowBox[{"4", " ", "a1", " ", 
+           SuperscriptBox["a2", "3"], " ", 
+           SuperscriptBox["scale", "3"], " ", "tswitch", " ", "vs"}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "+", 
+         RowBox[{"2", " ", "a2", " ", "ve", " ", "vs"}], "-", 
+         RowBox[{"2", " ", "a2", " ", "scale", " ", "ve", " ", "vs"}], "-", 
+         FractionBox[
+          RowBox[{"2", " ", "a1", " ", 
+           SuperscriptBox["a2", "2"], " ", "scale", " ", "ve", " ", "vs"}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "+", 
+         FractionBox[
+          RowBox[{"2", " ", 
+           SuperscriptBox["a2", "3"], " ", "scale", " ", "ve", " ", "vs"}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "+", 
+         FractionBox[
+          RowBox[{"2", " ", "a1", " ", 
+           SuperscriptBox["a2", "2"], " ", 
+           SuperscriptBox["scale", "2"], " ", "ve", " ", "vs"}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "-", 
+         FractionBox[
+          RowBox[{"4", " ", 
+           SuperscriptBox["a2", "3"], " ", 
+           SuperscriptBox["scale", "2"], " ", "ve", " ", "vs"}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "+", 
+         FractionBox[
+          RowBox[{"2", " ", 
+           SuperscriptBox["a2", "3"], " ", 
+           SuperscriptBox["scale", "3"], " ", "ve", " ", "vs"}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "+", 
+         RowBox[{"a1", " ", 
+          SuperscriptBox["vs", "2"]}], "-", 
+         RowBox[{"2", " ", "a2", " ", 
+          SuperscriptBox["vs", "2"]}], "+", 
+         RowBox[{"2", " ", "a2", " ", "scale", " ", 
+          SuperscriptBox["vs", "2"]}], "+", 
+         FractionBox[
+          RowBox[{"2", " ", 
+           SuperscriptBox["a2", "3"], " ", 
+           SuperscriptBox["scale", "2"], " ", 
+           SuperscriptBox["vs", "2"]}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "-", 
+         FractionBox[
+          RowBox[{"2", " ", 
+           SuperscriptBox["a2", "3"], " ", 
+           SuperscriptBox["scale", "3"], " ", 
+           SuperscriptBox["vs", "2"]}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "-", 
+         RowBox[{
+          RowBox[{"(", 
+           RowBox[{"a1", " ", 
+            SuperscriptBox["a2", "2"], " ", "scale", " ", "tswitch", " ", 
+            RowBox[{"\[Sqrt]", 
+             RowBox[{"(", 
+              RowBox[{
+               SuperscriptBox[
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{
+                  "2", " ", "a1", " ", "a2", " ", "scale", " ", "tswitch"}], 
+                  "-", 
+                  RowBox[{"2", " ", "a1", " ", "ve"}], "+", 
+                  RowBox[{"2", " ", "a2", " ", "ve"}], "-", 
+                  RowBox[{"2", " ", "a2", " ", "scale", " ", "ve"}], "+", 
+                  RowBox[{"2", " ", "a2", " ", "scale", " ", "vs"}]}], ")"}], 
+                "2"], "-", 
+               RowBox[{"4", " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+                  RowBox[{
+                   SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+                  RowBox[{
+                   SuperscriptBox["a2", "2"], " ", 
+                   SuperscriptBox["scale", "2"]}]}], ")"}], " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"2", " ", "a1", " ", "pe"}], "-", 
+                  RowBox[{"2", " ", "a2", " ", "pe"}], "-", 
+                  RowBox[{"2", " ", "a1", " ", "ps"}], "+", 
+                  RowBox[{"2", " ", "a2", " ", "ps"}], "+", 
+                  RowBox[{"a1", " ", "a2", " ", 
+                   SuperscriptBox["tswitch", "2"]}], "-", 
+                  RowBox[{"2", " ", "a1", " ", "tswitch", " ", "ve"}], "+", 
+                  SuperscriptBox["ve", "2"], "+", 
+                  RowBox[{"2", " ", "a2", " ", "tswitch", " ", "vs"}], "-", 
+                  RowBox[{"2", " ", "ve", " ", "vs"}], "+", 
+                  SuperscriptBox["vs", "2"]}], ")"}]}]}], ")"}]}]}], ")"}], 
+          "/", 
+          RowBox[{"(", 
+           RowBox[{
+            RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+            RowBox[{
+             SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+            RowBox[{
+             SuperscriptBox["a2", "2"], " ", 
+             SuperscriptBox["scale", "2"]}]}], ")"}]}], "+", 
+         RowBox[{
+          RowBox[{"(", 
+           RowBox[{"a1", " ", 
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"], " ", "tswitch", " ", 
+            RowBox[{"\[Sqrt]", 
+             RowBox[{"(", 
+              RowBox[{
+               SuperscriptBox[
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{
+                  "2", " ", "a1", " ", "a2", " ", "scale", " ", "tswitch"}], 
+                  "-", 
+                  RowBox[{"2", " ", "a1", " ", "ve"}], "+", 
+                  RowBox[{"2", " ", "a2", " ", "ve"}], "-", 
+                  RowBox[{"2", " ", "a2", " ", "scale", " ", "ve"}], "+", 
+                  RowBox[{"2", " ", "a2", " ", "scale", " ", "vs"}]}], ")"}], 
+                "2"], "-", 
+               RowBox[{"4", " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+                  RowBox[{
+                   SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+                  RowBox[{
+                   SuperscriptBox["a2", "2"], " ", 
+                   SuperscriptBox["scale", "2"]}]}], ")"}], " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"2", " ", "a1", " ", "pe"}], "-", 
+                  RowBox[{"2", " ", "a2", " ", "pe"}], "-", 
+                  RowBox[{"2", " ", "a1", " ", "ps"}], "+", 
+                  RowBox[{"2", " ", "a2", " ", "ps"}], "+", 
+                  RowBox[{"a1", " ", "a2", " ", 
+                   SuperscriptBox["tswitch", "2"]}], "-", 
+                  RowBox[{"2", " ", "a1", " ", "tswitch", " ", "ve"}], "+", 
+                  SuperscriptBox["ve", "2"], "+", 
+                  RowBox[{"2", " ", "a2", " ", "tswitch", " ", "vs"}], "-", 
+                  RowBox[{"2", " ", "ve", " ", "vs"}], "+", 
+                  SuperscriptBox["vs", "2"]}], ")"}]}]}], ")"}]}]}], ")"}], 
+          "/", 
+          RowBox[{"(", 
+           RowBox[{
+            RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+            RowBox[{
+             SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+            RowBox[{
+             SuperscriptBox["a2", "2"], " ", 
+             SuperscriptBox["scale", "2"]}]}], ")"}]}], "-", 
+         RowBox[{
+          RowBox[{"(", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale", " ", "vs", " ", 
+            RowBox[{"\[Sqrt]", 
+             RowBox[{"(", 
+              RowBox[{
+               SuperscriptBox[
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{
+                  "2", " ", "a1", " ", "a2", " ", "scale", " ", "tswitch"}], 
+                  "-", 
+                  RowBox[{"2", " ", "a1", " ", "ve"}], "+", 
+                  RowBox[{"2", " ", "a2", " ", "ve"}], "-", 
+                  RowBox[{"2", " ", "a2", " ", "scale", " ", "ve"}], "+", 
+                  RowBox[{"2", " ", "a2", " ", "scale", " ", "vs"}]}], ")"}], 
+                "2"], "-", 
+               RowBox[{"4", " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+                  RowBox[{
+                   SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+                  RowBox[{
+                   SuperscriptBox["a2", "2"], " ", 
+                   SuperscriptBox["scale", "2"]}]}], ")"}], " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"2", " ", "a1", " ", "pe"}], "-", 
+                  RowBox[{"2", " ", "a2", " ", "pe"}], "-", 
+                  RowBox[{"2", " ", "a1", " ", "ps"}], "+", 
+                  RowBox[{"2", " ", "a2", " ", "ps"}], "+", 
+                  RowBox[{"a1", " ", "a2", " ", 
+                   SuperscriptBox["tswitch", "2"]}], "-", 
+                  RowBox[{"2", " ", "a1", " ", "tswitch", " ", "ve"}], "+", 
+                  SuperscriptBox["ve", "2"], "+", 
+                  RowBox[{"2", " ", "a2", " ", "tswitch", " ", "vs"}], "-", 
+                  RowBox[{"2", " ", "ve", " ", "vs"}], "+", 
+                  SuperscriptBox["vs", "2"]}], ")"}]}]}], ")"}]}]}], ")"}], 
+          "/", 
+          RowBox[{"(", 
+           RowBox[{
+            RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+            RowBox[{
+             SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+            RowBox[{
+             SuperscriptBox["a2", "2"], " ", 
+             SuperscriptBox["scale", "2"]}]}], ")"}]}], "+", 
+         RowBox[{
+          RowBox[{"(", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"], " ", "vs", " ", 
+            RowBox[{"\[Sqrt]", 
+             RowBox[{"(", 
+              RowBox[{
+               SuperscriptBox[
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{
+                  "2", " ", "a1", " ", "a2", " ", "scale", " ", "tswitch"}], 
+                  "-", 
+                  RowBox[{"2", " ", "a1", " ", "ve"}], "+", 
+                  RowBox[{"2", " ", "a2", " ", "ve"}], "-", 
+                  RowBox[{"2", " ", "a2", " ", "scale", " ", "ve"}], "+", 
+                  RowBox[{"2", " ", "a2", " ", "scale", " ", "vs"}]}], ")"}], 
+                "2"], "-", 
+               RowBox[{"4", " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+                  RowBox[{
+                   SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+                  RowBox[{
+                   SuperscriptBox["a2", "2"], " ", 
+                   SuperscriptBox["scale", "2"]}]}], ")"}], " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"2", " ", "a1", " ", "pe"}], "-", 
+                  RowBox[{"2", " ", "a2", " ", "pe"}], "-", 
+                  RowBox[{"2", " ", "a1", " ", "ps"}], "+", 
+                  RowBox[{"2", " ", "a2", " ", "ps"}], "+", 
+                  RowBox[{"a1", " ", "a2", " ", 
+                   SuperscriptBox["tswitch", "2"]}], "-", 
+                  RowBox[{"2", " ", "a1", " ", "tswitch", " ", "ve"}], "+", 
+                  SuperscriptBox["ve", "2"], "+", 
+                  RowBox[{"2", " ", "a2", " ", "tswitch", " ", "vs"}], "-", 
+                  RowBox[{"2", " ", "ve", " ", "vs"}], "+", 
+                  SuperscriptBox["vs", "2"]}], ")"}]}]}], ")"}]}]}], ")"}], 
+          "/", 
+          RowBox[{"(", 
+           RowBox[{
+            RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+            RowBox[{
+             SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+            RowBox[{
+             SuperscriptBox["a2", "2"], " ", 
+             SuperscriptBox["scale", "2"]}]}], ")"}]}]}], ")"}], "/", 
+       RowBox[{"(", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"-", "2"}], " ", 
+          SuperscriptBox["a1", "2"]}], "+", 
+         RowBox[{"4", " ", "a1", " ", "a2"}], "-", 
+         RowBox[{"2", " ", 
+          SuperscriptBox["a2", "2"]}], "-", 
+         RowBox[{"2", " ", "a1", " ", "a2", " ", "scale"}], "+", 
+         RowBox[{"2", " ", 
+          SuperscriptBox["a2", "2"], " ", "scale"}]}], ")"}]}]}], ",", 
+     RowBox[{"p2", "\[Rule]", 
+      RowBox[{
+       FractionBox["1", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"-", "2"}], " ", "a1"}], "+", 
+         RowBox[{"2", " ", "a2"}], "-", 
+         RowBox[{"2", " ", "a2", " ", "scale"}]}]], 
+       RowBox[{"(", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"-", "2"}], " ", "a1", " ", "ps"}], "+", 
+         RowBox[{"2", " ", "a2", " ", "ps"}], "-", 
+         RowBox[{"2", " ", "a2", " ", "pe", " ", "scale"}], "+", 
+         RowBox[{"a1", " ", "a2", " ", 
+          SuperscriptBox["tswitch", "2"]}], "-", 
+         FractionBox[
+          RowBox[{"2", " ", 
+           SuperscriptBox["a1", "2"], " ", 
+           SuperscriptBox["a2", "2"], " ", 
+           SuperscriptBox["scale", "2"], " ", 
+           SuperscriptBox["tswitch", "2"]}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "-", 
+         RowBox[{"2", " ", "a1", " ", "tswitch", " ", "ve"}], "+", 
+         FractionBox[
+          RowBox[{"2", " ", 
+           SuperscriptBox["a1", "2"], " ", "a2", " ", "scale", " ", "tswitch",
+            " ", "ve"}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "-", 
+         FractionBox[
+          RowBox[{"2", " ", "a1", " ", 
+           SuperscriptBox["a2", "2"], " ", "scale", " ", "tswitch", " ", 
+           "ve"}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "+", 
+         FractionBox[
+          RowBox[{"2", " ", "a1", " ", 
+           SuperscriptBox["a2", "2"], " ", 
+           SuperscriptBox["scale", "2"], " ", "tswitch", " ", "ve"}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "+", 
+         SuperscriptBox["ve", "2"], "+", 
+         RowBox[{"2", " ", "a2", " ", "tswitch", " ", "vs"}], "-", 
+         FractionBox[
+          RowBox[{"4", " ", "a1", " ", 
+           SuperscriptBox["a2", "2"], " ", 
+           SuperscriptBox["scale", "2"], " ", "tswitch", " ", "vs"}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "-", 
+         RowBox[{"2", " ", "ve", " ", "vs"}], "+", 
+         FractionBox[
+          RowBox[{
+          "2", " ", "a1", " ", "a2", " ", "scale", " ", "ve", " ", "vs"}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "-", 
+         FractionBox[
+          RowBox[{"2", " ", 
+           SuperscriptBox["a2", "2"], " ", "scale", " ", "ve", " ", "vs"}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "+", 
+         FractionBox[
+          RowBox[{"2", " ", 
+           SuperscriptBox["a2", "2"], " ", 
+           SuperscriptBox["scale", "2"], " ", "ve", " ", "vs"}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "+", 
+         SuperscriptBox["vs", "2"], "-", 
+         FractionBox[
+          RowBox[{"2", " ", 
+           SuperscriptBox["a2", "2"], " ", 
+           SuperscriptBox["scale", "2"], " ", 
+           SuperscriptBox["vs", "2"]}], 
+          RowBox[{
+           RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+           RowBox[{
+            SuperscriptBox["a2", "2"], " ", 
+            SuperscriptBox["scale", "2"]}]}]], "+", 
+         RowBox[{
+          RowBox[{"(", 
+           RowBox[{"a1", " ", "a2", " ", "scale", " ", "tswitch", " ", 
+            RowBox[{"\[Sqrt]", 
+             RowBox[{"(", 
+              RowBox[{
+               SuperscriptBox[
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{
+                  "2", " ", "a1", " ", "a2", " ", "scale", " ", "tswitch"}], 
+                  "-", 
+                  RowBox[{"2", " ", "a1", " ", "ve"}], "+", 
+                  RowBox[{"2", " ", "a2", " ", "ve"}], "-", 
+                  RowBox[{"2", " ", "a2", " ", "scale", " ", "ve"}], "+", 
+                  RowBox[{"2", " ", "a2", " ", "scale", " ", "vs"}]}], ")"}], 
+                "2"], "-", 
+               RowBox[{"4", " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+                  RowBox[{
+                   SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+                  RowBox[{
+                   SuperscriptBox["a2", "2"], " ", 
+                   SuperscriptBox["scale", "2"]}]}], ")"}], " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"2", " ", "a1", " ", "pe"}], "-", 
+                  RowBox[{"2", " ", "a2", " ", "pe"}], "-", 
+                  RowBox[{"2", " ", "a1", " ", "ps"}], "+", 
+                  RowBox[{"2", " ", "a2", " ", "ps"}], "+", 
+                  RowBox[{"a1", " ", "a2", " ", 
+                   SuperscriptBox["tswitch", "2"]}], "-", 
+                  RowBox[{"2", " ", "a1", " ", "tswitch", " ", "ve"}], "+", 
+                  SuperscriptBox["ve", "2"], "+", 
+                  RowBox[{"2", " ", "a2", " ", "tswitch", " ", "vs"}], "-", 
+                  RowBox[{"2", " ", "ve", " ", "vs"}], "+", 
+                  SuperscriptBox["vs", "2"]}], ")"}]}]}], ")"}]}]}], ")"}], 
+          "/", 
+          RowBox[{"(", 
+           RowBox[{
+            RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+            RowBox[{
+             SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+            RowBox[{
+             SuperscriptBox["a2", "2"], " ", 
+             SuperscriptBox["scale", "2"]}]}], ")"}]}], "+", 
+         RowBox[{
+          RowBox[{"(", 
+           RowBox[{"a2", " ", "scale", " ", "vs", " ", 
+            RowBox[{"\[Sqrt]", 
+             RowBox[{"(", 
+              RowBox[{
+               SuperscriptBox[
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{
+                  "2", " ", "a1", " ", "a2", " ", "scale", " ", "tswitch"}], 
+                  "-", 
+                  RowBox[{"2", " ", "a1", " ", "ve"}], "+", 
+                  RowBox[{"2", " ", "a2", " ", "ve"}], "-", 
+                  RowBox[{"2", " ", "a2", " ", "scale", " ", "ve"}], "+", 
+                  RowBox[{"2", " ", "a2", " ", "scale", " ", "vs"}]}], ")"}], 
+                "2"], "-", 
+               RowBox[{"4", " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+                  RowBox[{
+                   SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+                  RowBox[{
+                   SuperscriptBox["a2", "2"], " ", 
+                   SuperscriptBox["scale", "2"]}]}], ")"}], " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"2", " ", "a1", " ", "pe"}], "-", 
+                  RowBox[{"2", " ", "a2", " ", "pe"}], "-", 
+                  RowBox[{"2", " ", "a1", " ", "ps"}], "+", 
+                  RowBox[{"2", " ", "a2", " ", "ps"}], "+", 
+                  RowBox[{"a1", " ", "a2", " ", 
+                   SuperscriptBox["tswitch", "2"]}], "-", 
+                  RowBox[{"2", " ", "a1", " ", "tswitch", " ", "ve"}], "+", 
+                  SuperscriptBox["ve", "2"], "+", 
+                  RowBox[{"2", " ", "a2", " ", "tswitch", " ", "vs"}], "-", 
+                  RowBox[{"2", " ", "ve", " ", "vs"}], "+", 
+                  SuperscriptBox["vs", "2"]}], ")"}]}]}], ")"}]}]}], ")"}], 
+          "/", 
+          RowBox[{"(", 
+           RowBox[{
+            RowBox[{"a1", " ", "a2", " ", "scale"}], "-", 
+            RowBox[{
+             SuperscriptBox["a2", "2"], " ", "scale"}], "+", 
+            RowBox[{
+             SuperscriptBox["a2", "2"], " ", 
+             SuperscriptBox["scale", "2"]}]}], ")"}]}]}], ")"}]}]}]}], 
+    "}"}]}], "}"}]], "Output",
+ CellChangeTimes->{3.842430823514578*^9},
+ CellLabel->"Out[8]=",ExpressionUUID->"7711e14a-d88b-464c-b50d-082764a64e26"]
+}, Open  ]],
 
 Cell[BoxData[""], "Input",
- CellChangeTimes->{{3.842428074626012*^9, 
-  3.8424280746282167`*^9}},ExpressionUUID->"ca95c164-4e56-451b-9178-\
-840444c6fe12"]
+ CellChangeTimes->{{3.842428074626012*^9, 3.8424280746282167`*^9}},
+ CellLabel->"In[14]:=",ExpressionUUID->"ca95c164-4e56-451b-9178-840444c6fe12"]
 },
-WindowSize->{1200, 1883},
+WindowSize->{900, 1043},
 WindowMargins->{{Automatic, -1200}, {Automatic, -195}},
 Magnification:>1.2 Inherited,
 FrontEndVersion->"12.0 for Linux x86 (64-bit) (April 8, 2019)",
@@ -260,8 +2562,11 @@ CellTagsIndex->{}
 *)
 (*NotebookFileOutline
 Notebook[{
-Cell[558, 20, 11858, 218, 851, "Input",ExpressionUUID->"6d0cba35-176b-4a40-acb8-e3e5e1835302"],
-Cell[12419, 240, 154, 3, 38, InheritFromParent,ExpressionUUID->"ca95c164-4e56-451b-9178-840444c6fe12"]
+Cell[CellGroupData[{
+Cell[580, 22, 11879, 218, 907, "Input",ExpressionUUID->"6d0cba35-176b-4a40-acb8-e3e5e1835302"],
+Cell[12462, 242, 95952, 2298, 8510, "Output",ExpressionUUID->"7711e14a-d88b-464c-b50d-082764a64e26"]
+}, Open  ]],
+Cell[108429, 2543, 173, 2, 38, InheritFromParent,ExpressionUUID->"ca95c164-4e56-451b-9178-840444c6fe12"]
 }
 ]
 *)

@@ -12,6 +12,7 @@
 #include <unordered_set>
 
 #include "agilib/math/gravity.hpp"
+#include "agilib/utils/timer.hpp"
 #include "pmm_trajectory3d.hpp"
 #include "three_acc.hpp"
 #include "tuples_hash.hpp"
@@ -299,6 +300,18 @@ int test_pmm(int argc, char** argv) {
   std::cout << pmm3d << std::endl;
   QuadState from_pmm3d = pmm3d.get_start_state();
   QuadState to_pmm3d = pmm3d.get_end_state();
+
+  Timer t_new("new pmm thrust");
+  t_new.tic();
+  for (size_t i = 0; i < 1000; i++) {
+    PointMassTrajectory3D tr(from_pmm3d, to_pmm3d, max_acc_norm, 10);
+  }
+  t_new.toc();
+  t_new.print();
+
+  PointMassTrajectory3D tstpmm3d(from_pmm3d, to_pmm3d, max_acc_norm, 10);
+  std::cout << "tstpmm3d " << tstpmm3d << std::endl;
+  /*
   std::cout << "pmm start acc" << pmm3d.get_start_state().a.norm() << std::endl;
   std::cout << "pmm end acc" << pmm3d.get_end_state().a.norm() << std::endl;
   int iter = 0;
@@ -341,9 +354,17 @@ int test_pmm(int argc, char** argv) {
               << std::endl;
   }
 
-
+*/
   // PointMassTrajectory3D pmm_gd(from_pmm3d, to_pmm3d, 26.29);
   // std::cout << "pmm_gd " << pmm_gd << std::endl;
+
+  Timer t_gd("pmm gd");
+  t_gd.tic();
+  for (size_t i = 0; i < 1000; i++) {
+    PointMassTrajectory3D tr(from_pmm3d, to_pmm3d, max_acc_norm);
+  }
+  t_gd.toc();
+  t_gd.print();
 
   PointMassTrajectory3D pmm_gd2(from_pmm3d, to_pmm3d, max_acc_norm);
   std::cout << "pmm_gd2 " << pmm_gd2 << std::endl;

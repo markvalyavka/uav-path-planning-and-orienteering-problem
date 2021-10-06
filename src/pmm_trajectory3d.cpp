@@ -10,27 +10,175 @@
 namespace agi {
 PointMassTrajectory3D::PointMassTrajectory3D() {}
 
+/*
+basic version with simetric acc limits in axis
+*/
 PointMassTrajectory3D::PointMassTrajectory3D(const QuadState &from,
                                              const QuadState &to,
                                              const Vector<3> max_acc,
-                                             const bool equalize_time) {
-  x_ = PMMTrajectory(from.p(0), from.v(0), to.p(0), to.v(0), max_acc(0),
-                     -max_acc(0), 0);
-  y_ = PMMTrajectory(from.p(1), from.v(1), to.p(1), to.v(1), max_acc(1),
-                     -max_acc(1), 1);
-  z_ = PMMTrajectory(from.p(2), from.v(2), to.p(2), to.v(2), max_acc(2),
-                     -max_acc(2), 2);
+                                             const bool equalize_time)
+  : PointMassTrajectory3D(from, to, max_acc, -max_acc, equalize_time) {}
 
 
-  if (equalize_time) {
-    const Scalar tr_time = time();
-    for (size_t i = 0; i < 3; i++) {
-      if (get_axis_trajectory(i).time() != tr_time) {
-        PMMTrajectory scaled = PMMTrajectory(get_axis_trajectory(i), tr_time);
-        set_axis_trajectory(i, scaled);
-      }
-    }
+//                                              {
+//   x_ = PMMTrajectory(from.p(0), from.v(0), to.p(0), to.v(0), max_acc(0),
+//                      -max_acc(0), 0);
+//   y_ = PMMTrajectory(from.p(1), from.v(1), to.p(1), to.v(1), max_acc(1),
+//                      -max_acc(1), 1);
+//   z_ = PMMTrajectory(from.p(2), from.v(2), to.p(2), to.v(2), max_acc(2),
+//                      -max_acc(2), 2);
+
+
+//   if (equalize_time) {
+//     const Scalar tr_time = time();
+//     for (size_t i = 0; i < 3; i++) {
+//       if (get_axis_trajectory(i).time() != tr_time) {
+//         PMMTrajectory scaled = PMMTrajectory(get_axis_trajectory(i),
+//         tr_time); set_axis_trajectory(i, scaled);
+//       }
+//     }
+//   }
+// }
+
+/*
+version that converges to thust limit by iterative increasing scaled (to mach
+time) to the acc norm
+this version scales time by default
+*/
+PointMassTrajectory3D::PointMassTrajectory3D(const QuadState &from,
+                                             const QuadState &to,
+                                             const Scalar max_acc_norm,
+                                             const int max_iter) {
+  // B = A + GVEC , |A|=max_acc_norm
+  // initially B equal per axis with b_x=b_y=b_z -> |B-GVEC|^2 = |T|^2
+  // -> 3*bs_x^2 + 2*g*a_x + g^2 - |T|^2 = 0 --> roots are the possible acc
+
+
+  const Scalar precision_acc_limit = 0.1;
+
+  const Scalar max_acc_norm_pow2 = max_acc_norm * max_acc_norm;
+  const Scalar a_equal_acc = 3;
+  const Scalar b_equal_acc = 2 * G;
+  const Scalar c_equal_acc = G * G - max_acc_norm_pow2;
+  const Scalar equal_acc_1 =
+    (-b_equal_acc +
+     sqrt(b_equal_acc * b_equal_acc - 4 * a_equal_acc * c_equal_acc)) /
+    (2 * a_equal_acc);
+  // const Scalar equal_acc_2 =
+  //   (-b_equal_acc -
+  //    sqrt(b_equal_acc * b_equal_acc - 4 * a_equal_acc * c_equal_acc)) /
+  //   (2 * a_equal_acc);
+  // std::cout << "equal_acc_1 " << equal_acc_1 << std::endl;
+  // std::cout << "equal_acc_2 " << equal_acc_2 << std::endl;
+  // Vector<3> T1_1 = Vector<3>::Constant(equal_acc_1) - GVEC;
+  // Vector<3> T1_2 = Vector<3>::Constant(-equal_acc_1) - GVEC;
+  // Vector<3> T2_1 = Vector<3>::Constant(equal_acc_2) - GVEC;
+  // Vector<3> T2_2 = Vector<3>::Constant(-equal_acc_2) - GVEC;
+  // std::cout << "T1_1 " << T1_1.transpose() << " norm " << T1_1.norm()
+  //           << std::endl;
+  // std::cout << "T1_2 " << T1_2.transpose() << " norm " << T1_2.norm()
+  //           << std::endl;
+  // std::cout << "T2_1 " << T2_1.transpose() << " norm " << T2_1.norm()
+  //           << std::endl;
+  // std::cout << "T2_2 " << T2_2.transpose() << " norm " << T2_2.norm()
+  //           << std::endl;
+
+
+  Vector<3> equal_acc;
+  if ((Vector<3>::Constant(-equal_acc_1) - GVEC).norm() < max_acc_norm) {
+    equal_acc = Vector<3>::Constant(equal_acc_1);
+  } else {
+    const Scalar equal_acc_2 =
+      (-b_equal_acc -
+       sqrt(b_equal_acc * b_equal_acc - 4 * a_equal_acc * c_equal_acc)) /
+      (2 * a_equal_acc);
+    equal_acc = Vector<3>::Constant(equal_acc_2);
+    std::cout << "that is happening ever?" << std::endl;
   }
+
+
+  PointMassTrajectory3D pmm3d(from, to, equal_acc, true);
+  Vector<3> start_acc = pmm3d.start_acc();
+  Vector<3> end_acc = pmm3d.end_acc();
+  Scalar start_thrust = (start_acc - GVEC).norm();
+  Scalar end_thrust = (end_acc - GVEC).norm();
+
+  Vector<3> bigger_acc = start_thrust > end_thrust ? start_acc : end_acc;
+  Scalar larger_thrus = std::max(start_thrust, end_thrust);
+  int iter = 0;
+
+  // std::cout << "start_acc " << start_acc.transpose() << std::endl;
+  // std::cout << "end_acc " << end_acc.transpose() << std::endl;
+  // std::cout << "start_thrust " << (start_acc - GVEC).transpose() <<
+  // std::endl; std::cout << "end_thrust " << (end_acc - GVEC).transpose() <<
+  // std::endl;
+
+  while (fabs(larger_thrus - max_acc_norm) > precision_acc_limit and
+         iter < max_iter) {
+    iter++;
+    // B = T + GVEC , |T|=max_acc_norm
+    // scale the A parts by same factor k ->
+    // k^2*b_x^2 + k^2*b_y^2 + (k*b_z + g)^2 - |T|^2 = 0 -> find k
+    // (b_x^2 + b_y^2 + b_z^2) * k^2 + (2*g*b_z)*k
+
+
+    const Scalar a_dis = bigger_acc.squaredNorm();
+    const Scalar b_dis = 2 * bigger_acc(2) * G;
+    const Scalar c_dis = G * G - (max_acc_norm * max_acc_norm);
+    const Scalar k1 =
+      (-b_dis + sqrt(b_dis * b_dis - 4 * a_dis * c_dis)) / (2 * a_dis);
+    const Scalar k2 =
+      (-b_dis - sqrt(b_dis * b_dis - 4 * a_dis * c_dis)) / (2 * a_dis);
+    Vector<3> thrust_acc_new_k1 = k1 * bigger_acc - GVEC;
+    Vector<3> thrust_acc_new_k2 = k2 * bigger_acc - GVEC;
+    Vector<3> max_acc_new1 = thrust_acc_new_k1 + GVEC;
+    Vector<3> max_acc_new2 = -thrust_acc_new_k1 + GVEC;
+
+
+    pmm3d = PointMassTrajectory3D(from, to, max_acc_new1, max_acc_new2);
+    start_acc = pmm3d.start_acc();
+    end_acc = pmm3d.end_acc();
+    start_thrust = (start_acc - GVEC).norm();
+    end_thrust = (end_acc - GVEC).norm();
+    // std::cout << "-----------------------------" << std::endl;
+    // std::cout << "start_acc " << start_acc.transpose() << std::endl;
+    // std::cout << "end_acc " << end_acc.transpose() << std::endl;
+    // std::cout << "start_thrust " << (start_acc - GVEC).transpose() <<
+    // std::endl; std::cout << "end_thrust " << (end_acc - GVEC).transpose() <<
+    // std::endl;
+
+    if (start_thrust > end_thrust) {
+      bigger_acc = start_acc;
+      larger_thrus = start_thrust;
+    } else {
+      bigger_acc = end_acc;
+      larger_thrus = end_thrust;
+    }
+
+    // std::cout << "acc_vec " << acc_vec.transpose() << std::endl;
+    // std::cout << "max_acc_new1 " << max_acc_new1.transpose() << std::endl;
+    // std::cout << "max_acc_new2 " << max_acc_new2.transpose() << std::endl;
+    // std::cout << "k1 " << k1 << " k1 * acc_vec " << (k1 *
+    // acc_vec).transpose()
+    //           << " thrust_acc_new_k1 " << thrust_acc_new_k1.transpose()
+    //           << " norm " << thrust_acc_new_k1.norm() << std::endl;
+    // std::cout << "k2 " << k2 << " k2 * acc_vec " << (k2 *
+    // acc_vec).transpose()
+    //           << " thrust_acc_new_k2 " << thrust_acc_new_k2.transpose()
+    //           << " norm " << thrust_acc_new_k2.norm() << std::endl;
+    // std::cout << "pmm3d iter " << iter << std::endl;
+    // std::cout << pmm3d << std::endl;
+    // std::cout << "pmm start acc" << pmm3d.get_start_state().a.norm()
+    //           << " thrust norm " << (pmm3d.get_start_state().a - GVEC).norm()
+    //           << std::endl;
+    // std::cout << "pmm end acc" << pmm3d.get_end_state().a.norm()
+    //           << " thrust norm " << (pmm3d.get_end_state().a - GVEC).norm()
+    //           << std::endl;
+  }
+
+  x_ = pmm3d.x_;
+  y_ = pmm3d.y_;
+  z_ = pmm3d.z_;
 }
 
 PointMassTrajectory3D::PointMassTrajectory3D(const QuadState &from,
@@ -59,9 +207,9 @@ PointMassTrajectory3D::PointMassTrajectory3D(const QuadState &from,
 
 PointMassTrajectory3D::PointMassTrajectory3D(const QuadState &from,
                                              const QuadState &to,
-                                             Scalar max_acc_norm,
+                                             const Scalar max_acc_norm,
                                              const bool equalize_time) {
-  std::cout << "gd optimization " << std::endl;
+  // std::cout << "gd optimization " << std::endl;
   static const Scalar ALLOWED_DIFF_TIMES_RATIO{0.0001};
   static const Scalar NUM_ITERS{10};
 
@@ -531,7 +679,7 @@ PointMassTrajectory3D::PointMassTrajectory3D(const QuadState &from,
 
   if (equalize_time) {
     const Scalar tr_time = time();
-    std::cout << "equalize time to " << tr_time << std::endl;
+    // std::cout << "equalize time to " << tr_time << std::endl;
     for (size_t i = 0; i < 3; i++) {
       if (get_axis_trajectory(i).time() != tr_time) {
         PMMTrajectory scaled = PMMTrajectory(get_axis_trajectory(i), tr_time);
@@ -539,7 +687,7 @@ PointMassTrajectory3D::PointMassTrajectory3D(const QuadState &from,
       }
     }
   } else {
-    std::cout << "not equalizing time " << std::endl;
+    // std::cout << "not equalizing time " << std::endl;
   }
 }
 
@@ -570,6 +718,14 @@ QuadState PointMassTrajectory3D::get_start_state() const {
 
 QuadState PointMassTrajectory3D::get_end_state() const {
   return state_in_time(time());
+}
+
+Vector<3> PointMassTrajectory3D::start_acc() const {
+  return Vector<3>(x_.a_(0), y_.a_(0), z_.a_(0));
+}
+
+Vector<3> PointMassTrajectory3D::end_acc() const {
+  return Vector<3>(x_.a_(1), y_.a_(1), z_.a_(1));
 }
 
 Scalar PointMassTrajectory3D::get_length_between_times(const Scalar tfrom,

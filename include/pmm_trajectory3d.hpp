@@ -26,7 +26,15 @@ class PointMassTrajectory3D {
   version of norm acceleration limits, using GD to distribute acc
   */
   PointMassTrajectory3D(const QuadState &from, const QuadState &to,
-                        Scalar max_acc_norm, const bool equalize_time = true);
+                        const Scalar max_acc_norm,
+                        const bool equalize_time = true);
+  /*
+  version that limit the thrust by norm using iterative scaling
+  */
+  PointMassTrajectory3D(const QuadState &from, const QuadState &to,
+                        const Scalar max_acc_norm, const int max_iter);
+
+
   bool exists() const { return x_.exists_ && y_.exists_ && z_.exists_; };
   Scalar time() const { return std::max({x_.time(), y_.time(), z_.time()}); };
   Scalar time_min() const {
@@ -35,6 +43,8 @@ class PointMassTrajectory3D {
   QuadState state_in_time(const Scalar time_in_tr) const;
   QuadState get_start_state() const;
   QuadState get_end_state() const;
+  Vector<3> start_acc() const;
+  Vector<3> end_acc() const;
 
   Scalar get_length_between_times(const Scalar tfrom, const Scalar tto) const;
   Scalar get_length_const_a(const Scalar tfrom, const Scalar tto,
