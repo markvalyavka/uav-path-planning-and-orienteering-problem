@@ -183,6 +183,11 @@ PMMTrajectory::PMMTrajectory(const PMMTrajectory &in, const Scalar total_time)
   if (time() == total_time) {
     return;
   }
+  if (total_time < in.time()) {
+    std::cout << "this should never happen" << std::endl;
+    std::cout << "in.time() " << in.time() << std::endl;
+    std::cout << "total_time " << total_time << std::endl;
+  }
   // std::cout << "equalize time" << std::endl;
   const Scalar &ps = in.p_(0);
   const Scalar &pe = in.p_(3);
@@ -275,7 +280,7 @@ PMMTrajectory::PMMTrajectory(const PMMTrajectory &in, const Scalar total_time)
   // std::cout << "scale1 " << scale1 << std::endl;
   // std::cout << "scale2 " << scale2 << std::endl;
   // std::cout << "in.time() " << in.time() << std::endl;
-  
+
   exists_ = false;
   if (scale1 < 1.0 && scale1 > -1.0) {
     PMMTrajectory scaled = PMMTrajectory(ps, vs, pe, ve, a1 * scale1,
@@ -297,8 +302,13 @@ PMMTrajectory::PMMTrajectory(const PMMTrajectory &in, const Scalar total_time)
   }
   if (!exists_) {
     // nummerical issues solution
-    std::cout << "numerical issues" << std::endl;
-    exit(1);
+    // std::cout << "numerical issues scaling" << std::endl;
+    // std::cout << "in " << in << std::endl;
+    // std::cout << "total_time " << total_time << std::endl;
+    // std::cout << "scale1 " << scale1 << std::endl;
+    // std::cout << "scale2 " << scale2 << std::endl;
+    // exit(1);
+    exists_ = false;
     if (fabs(scale1 - 1.0) < 1e-10 || fabs(scale2 - 1.0) < 1e-10) {
       if (t_(0) > 0) {
         t_(0) += total_time - time();

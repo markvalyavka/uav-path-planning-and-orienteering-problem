@@ -268,24 +268,24 @@ int test_pmm(int argc, char** argv) {
   std::cout << "gates_yaw_deg.size() " << gates_yaw_deg.size() << std::endl;
 
 
-  gates_waypoints.resize(3);
-  gates_yaw_deg.resize(3);
+  // gates_waypoints.resize(3);
+  // gates_yaw_deg.resize(3);
   Scalar sum_times = 0;
   MultiWaypointTrajectory tr = vel_search_graph.find_velocities_in_positions(
     gates_waypoints, start_velocity, end_velocity, gates_yaw_deg, end_free,
-    false);
+    true);
   std::cout << "output tr size " << tr.size() << std::endl;
   for (size_t i = 0; i < tr.size(); i++) {
     if (i == 0) {
       std::cout << i << " vel " << tr[i].get_start_state().v.transpose()
                 << " acc " << tr[i].get_start_state().a.transpose()
                 << " thrust norm " << (tr[i].get_start_state().a - GVEC).norm()
-                << std::endl;
+                << " exists " << tr[i].exists() << std::endl;
     }
     std::cout << i + 1 << " vel " << tr[i].get_end_state().v.transpose()
               << " acc " << tr[i].get_end_state().a.transpose()
               << " thrust norm " << (tr[i].get_end_state().a - GVEC).norm()
-              << std::endl;
+              << " exists " << tr[i].exists() << std::endl;
 
     // std::cout << tr[i] << std::endl;
     sum_times += tr[i].time();

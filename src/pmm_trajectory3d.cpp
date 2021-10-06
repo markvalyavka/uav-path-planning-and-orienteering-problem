@@ -53,7 +53,6 @@ PointMassTrajectory3D::PointMassTrajectory3D(const QuadState &from,
   // initially B equal per axis with b_x=b_y=b_z -> |B-GVEC|^2 = |T|^2
   // -> 3*bs_x^2 + 2*g*a_x + g^2 - |T|^2 = 0 --> roots are the possible acc
 
-
   const Scalar precision_acc_limit = 0.1;
 
   const Scalar max_acc_norm_pow2 = max_acc_norm * max_acc_norm;
@@ -174,6 +173,7 @@ PointMassTrajectory3D::PointMassTrajectory3D(const QuadState &from,
     // std::cout << "pmm end acc" << pmm3d.get_end_state().a.norm()
     //           << " thrust norm " << (pmm3d.get_end_state().a - GVEC).norm()
     //           << std::endl;
+    // std::cout << "iter " << iter << std::endl;
   }
 
   x_ = pmm3d.x_;

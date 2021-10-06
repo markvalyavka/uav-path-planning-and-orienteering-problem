@@ -224,8 +224,10 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
           timer_calc_pm.tic();
           PointMassTrajectory3D tr_max_acc;
           if (use_gd) {
+            // tr_max_acc =
+            //   PointMassTrajectory3D(from_state, to_state, max_acc_, false);
             tr_max_acc =
-              PointMassTrajectory3D(from_state, to_state, max_acc_, false);
+              PointMassTrajectory3D(from_state, to_state, max_acc_, 10);
           } else {
             tr_max_acc = PointMassTrajectory3D(from_state, to_state,
                                                max_acc_per_axis, false);
@@ -391,8 +393,10 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
   to_state.v = found_gates_speeds[0];
   PointMassTrajectory3D tr_max_acc_start;
   if (use_gd) {
+    // tr_max_acc_start =
+    //   PointMassTrajectory3D(from_start_state, to_state, max_acc_);
     tr_max_acc_start =
-      PointMassTrajectory3D(from_start_state, to_state, max_acc_);
+      PointMassTrajectory3D(from_start_state, to_state, max_acc_, 10);
   } else {
     tr_max_acc_start =
       PointMassTrajectory3D(from_start_state, to_state, max_acc_per_axis);
@@ -418,8 +422,10 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
 
     PointMassTrajectory3D tr_max_between;
     if (use_gd) {
+      // tr_max_between =
+      //   PointMassTrajectory3D(from_state_b, to_state_b, max_acc_);
       tr_max_between =
-        PointMassTrajectory3D(from_state_b, to_state_b, max_acc_);
+        PointMassTrajectory3D(from_state_b, to_state_b, max_acc_, 10);
     } else {
       tr_max_between =
         PointMassTrajectory3D(from_state_b, to_state_b, max_acc_per_axis);
