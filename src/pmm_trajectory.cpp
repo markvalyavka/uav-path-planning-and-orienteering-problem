@@ -58,6 +58,8 @@ PMMTrajectory::PMMTrajectory(const Scalar ps, const Scalar vs, const Scalar pe,
   Scalar t1 = MAX_SCALAR;
   Scalar t2 = MAX_SCALAR;
   Scalar dt_da = MAX_SCALAR;
+  Scalar dt_dvs = MAX_SCALAR;
+  Scalar dt_dve = MAX_SCALAR;
 
   Scalar used_acc1 = a1_in;
   Scalar used_acc2 = a2_in;
@@ -77,6 +79,7 @@ PMMTrajectory::PMMTrajectory(const Scalar ps, const Scalar vs, const Scalar pe,
       (-a1 + a2) * (2 * a1 * a2 * (pe - ps) - a1 * pow_ve2 + a2 * pow_vs2));
     const Scalar tst2 = sqrt(
       (a1 - a2) * (a1 * (-2 * a2 * pe + 2 * a2 * ps + pow_ve2) - a2 * pow_vs2));
+
 
     // case 1
     const Scalar t1_1 = (-(a1 * vs) + a2 * vs + tst1) / (a1 * (a1 - a2));
@@ -103,6 +106,12 @@ PMMTrajectory::PMMTrajectory(const Scalar ps, const Scalar vs, const Scalar pe,
         const Scalar d_t_da2 = (2 * a1 * (a2 * (-pe + ps) + pow_ve2) -
                                 a2 * (pow_ve2 + pow_vs2) - 2 * ve * tst2) /
                                (2 * pow_a2_2 * tst1);
+
+        const Scalar d_t_dvs = (a1 * vs - a2 * vs - tst1) / (a1 * tst1);
+        const Scalar d_t_dve = (-(a1 * ve) + a2 * ve + tst2) / (a2 * tst1);
+
+        dt_dvs = d_t_dvs;
+        dt_dve = d_t_dve;
 
         if (i < 2) {
           dt_da = std::copysign(d_t_da1, -a1) +
@@ -133,6 +142,12 @@ PMMTrajectory::PMMTrajectory(const Scalar ps, const Scalar vs, const Scalar pe,
                                 a2 * (pow_ve2 + pow_vs2) - 2 * ve * tst2) /
                                (2 * pow_a2_2 * tst1);
 
+
+        const Scalar d_t_dvs = (-(a1 * vs) + a2 * vs - tst1) / (a1 * tst1);
+        const Scalar d_t_dve = (a1 * ve - a2 * ve + tst2) / (a2 * tst1);
+
+        dt_dvs = d_t_dvs;
+        dt_dve = d_t_dve;
         if (i < 2) {
           dt_da = std::copysign(d_t_da1, -a1) +
                   std::copysign(d_t_da2, -a1);  // gradient with respect to a1

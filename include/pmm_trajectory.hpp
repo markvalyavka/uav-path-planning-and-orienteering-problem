@@ -49,6 +49,8 @@ class PMMTrajectory {
   Vector<3> v_;
   Vector<2> a_;
   Scalar dt_da_;
+  Scalar dt_dvs_;
+  Scalar dt_dve_;
   int i_;
 };
 

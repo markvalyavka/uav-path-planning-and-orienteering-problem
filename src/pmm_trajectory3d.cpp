@@ -97,6 +97,7 @@ PointMassTrajectory3D::PointMassTrajectory3D(const QuadState &from,
 
 
   PointMassTrajectory3D pmm3d(from, to, equal_acc, true);
+  // if(!pmm3d.exists())
   Vector<3> start_acc = pmm3d.start_acc();
   Vector<3> end_acc = pmm3d.end_acc();
   Scalar start_thrust = (start_acc - GVEC).norm();

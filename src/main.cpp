@@ -71,7 +71,7 @@ node* test_astar(MultiWaypointTrajectory tr) {
   close_set.insert(root_dist);
 
   Scalar ds = 0.4;
-  Scalar max_thrust = 28;
+  Scalar max_thrust = 32.94;
   int iter = 0;
   Scalar furthest = 0;
   node* solution = NULL;
@@ -140,6 +140,7 @@ node* test_astar(MultiWaypointTrajectory tr) {
             // std::cout << "too far" << std::endl;
             continue;
           }
+
           // std::cout << "ceck if the expanded one is in closed list!!!!"
           //           << std::endl;
           // exit(1);
@@ -204,6 +205,77 @@ node* test_astar(MultiWaypointTrajectory tr) {
     // std::cout << "loop" << std::endl;
   }
   return solution;
+}
+
+
+void test_poly_fiting(std::vector<QuadState>& samples) {
+  // A*x = b
+  // x coefficients
+  // A polynomial coefficients
+  // b = [p0,p1,v0,v1,a0,a1]
+  std::vector<std::vector<Vector<6>>> polynomials;
+  std::cout << "samples.size() " << samples.size() << std::endl;
+  polynomials.resize(samples.size() - 1);
+  for (size_t i = 1; i < samples.size(); i++) {
+    QuadState& from = samples[i - 1];
+    QuadState& to = samples[i];
+    Scalar dt = to.t - from.t;
+    // x = [a5,a4,a3,a2,a1,a0]
+    for (size_t axi = 0; axi < 3; axi++) {
+      Vector<8> b;
+      b << from.p(axi), to.p(axi), from.v(axi), to.v(axi), from.a(axi),
+        to.a(axi), 0, 0;
+      Matrix<8, 6> A;
+      Vector<6> tau = Vector<6>::Ones();
+      for (int i = 1; i < 6; i++) {
+        tau(i) = tau(i - 1) * dt;
+      }
+      // std::cout << "tau " << tau.transpose() << std::endl;
+      A.row(0) << 0.0, 0.0, 0.0, 0.0, 0.0, 1.0;                    // p0
+      A.row(1) << tau(5), tau(4), tau(3), tau(2), tau(1), tau(0);  // p1
+      A.row(2) << 0.0, 0.0, 0.0, 0.0, 1.0, 0.0;                    // v0
+      A.row(3) << 5.0 * tau(4), 4.0 * tau(3), 3.0 * tau(2), 2.0 * tau(1),
+        1.0 * tau(0), 0.0;                       // v1
+      A.row(4) << 0.0, 0.0, 0.0, 2.0, 0.0, 0.0;  // a0
+      A.row(5) << 20.0 * tau(3), 12.0 * tau(2), 6.0 * tau(1), 2.0 * tau(0), 0.0,
+        0.0;                                     // a1
+      A.row(6) << 0.0, 0.0, 6.0, 0.0, 0.0, 0.0;  // j0
+      A.row(7) << 60.0 * tau(2), 24.0 * tau(1), 6.0 * tau(0), 0, 0.0,
+        0.0;  // j1
+      // A.row(6) << 0.0, 24.0, 0.0, 0.0, 0.0, 0.0;  // j0
+      // A.row(7) << 120.0 * tau(1), 24.0 * tau(0), 0.0, 0.0, 0.0,
+      //   0.0;  // j1
+
+      // std::cout << "solve" << std::endl;
+      Vector<6> p = A.colPivHouseholderQr().solve(b);
+      polynomials[i - 1].push_back(p);
+      // std::cout << "solved" << std::endl;
+      // std::cout << "p" << i << "[" << axi << "] " << p.transpose() <<
+      // std::endl;
+    }
+  }
+
+  std::ofstream myfile;
+  myfile.open("polynomials.csv");
+  if (myfile.is_open()) {
+    if (samples.size() > 0 && samples[0].size() > 0) {
+      myfile << "i,axi,tfrom,tto,a5,a4,a3,a2,a1,a0" << std::endl;
+    }
+
+    for (int var1 = 0; var1 < polynomials.size(); ++var1) {
+      const Scalar tfrom = samples[var1].t;
+      const Scalar tto = samples[var1 + 1].t;
+      for (size_t axi = 0; axi < 3; axi++) {
+        const Vector<6>& p = polynomials[var1][axi];
+        myfile << var1 << "," << axi << "," << tfrom << "," << tto << ","
+               << p(0) << "," << p(1) << "," << p(2) << "," << p(3) << ","
+               << p(4) << "," << p(5);
+        myfile << std::endl;
+      }
+    }
+
+    myfile.close();
+  }
 }
 
 int test_pmm(int argc, char** argv) {
@@ -368,112 +440,13 @@ int test_pmm(int argc, char** argv) {
 
   PointMassTrajectory3D pmm_gd2(from_pmm3d, to_pmm3d, max_acc_norm);
   std::cout << "pmm_gd2 " << pmm_gd2 << std::endl;
-  // std::cout << tr[0] << std::endl;
 
-  // std::cout << "case 1" << std::endl;
-  // three_acc(tr[0].y_.p_(0), tr[0].y_.v_(0), tr[0].y_.p_(3), tr[0].y_.v_(2),
-  //           tr[0].y_.a_(0), tr[0].y_.a_(1), 1.5, tr[0].z_.t_(0));
-  // std::cout << "case 2" << std::endl;
-  // three_acc(tr[0].y_.p_(0), tr[0].y_.v_(0), tr[0].y_.p_(3), tr[0].y_.v_(2),
-  //           tr[0].y_.a_(1), tr[0].y_.a_(0), 1.5, tr[0].z_.t_(0));
-  // std::cout << "case 3" << std::endl;
-  // three_acc(tr[0].y_.p_(0), tr[0].y_.v_(0), tr[0].y_.p_(3), tr[0].y_.v_(2),
-  //           tr[0].y_.a_(0), tr[0].y_.a_(1), -1.5, tr[0].z_.t_(0));
-  // std::cout << "case 4" << std::endl;
-  // three_acc(tr[0].y_.p_(0), tr[0].y_.v_(0), tr[0].y_.p_(3), tr[0].y_.v_(2),
-  //           tr[0].y_.a_(1), tr[0].y_.a_(0), -1.5, tr[0].z_.t_(0));
-
-  // node* solution = test_astar(tr);
-
-  // std::vector<node*> traj;
-  // node* cur = solution;
-  // while (cur != NULL) {
-  //   traj.push_back(cur);
-  //   cur = cur->parent;
-  // }
-  // if (traj.size() > 0) {
-  //   std::reverse(traj.begin(), traj.end());
-
-  //   std::cout << "trajectory:" << std::endl;
-  //   for (size_t i = 0; i < traj.size(); i++) {
-  //     std::cout << traj[i]->state.p.transpose() << std::endl;
-  //   }
-
-  //   std::cout << "total time sampling " << traj.back()->state.t << std::endl;
-  // }
 
   std::cout << "total time pmm " << sum_times << std::endl;
   std::vector<QuadState> samples =
     VelocitySearchGraph::getTrajectoryEquidistantStates(tr, 0.8);
 
-  // A*x = b
-  // x coefficients
-  // A polynomial coefficients
-  // b = [p0,p1,v0,v1,a0,a1]
-  std::vector<std::vector<Vector<6>>> polynomials;
-  std::cout << "samples.size() " << samples.size() << std::endl;
-  polynomials.resize(samples.size() - 1);
-  for (size_t i = 1; i < samples.size(); i++) {
-    QuadState& from = samples[i - 1];
-    QuadState& to = samples[i];
-    Scalar dt = to.t - from.t;
-    // x = [a5,a4,a3,a2,a1,a0]
-    for (size_t axi = 0; axi < 3; axi++) {
-      Vector<8> b;
-      b << from.p(axi), to.p(axi), from.v(axi), to.v(axi), from.a(axi),
-        to.a(axi), 0, 0;
-      Matrix<8, 6> A;
-      Vector<6> tau = Vector<6>::Ones();
-      for (int i = 1; i < 6; i++) {
-        tau(i) = tau(i - 1) * dt;
-      }
-      // std::cout << "tau " << tau.transpose() << std::endl;
-      A.row(0) << 0.0, 0.0, 0.0, 0.0, 0.0, 1.0;                    // p0
-      A.row(1) << tau(5), tau(4), tau(3), tau(2), tau(1), tau(0);  // p1
-      A.row(2) << 0.0, 0.0, 0.0, 0.0, 1.0, 0.0;                    // v0
-      A.row(3) << 5.0 * tau(4), 4.0 * tau(3), 3.0 * tau(2), 2.0 * tau(1),
-        1.0 * tau(0), 0.0;                       // v1
-      A.row(4) << 0.0, 0.0, 0.0, 2.0, 0.0, 0.0;  // a0
-      A.row(5) << 20.0 * tau(3), 12.0 * tau(2), 6.0 * tau(1), 2.0 * tau(0), 0.0,
-        0.0;                                     // a1
-      A.row(6) << 0.0, 0.0, 6.0, 0.0, 0.0, 0.0;  // j0
-      A.row(7) << 60.0 * tau(2), 24.0 * tau(1), 6.0 * tau(0), 0, 0.0,
-        0.0;  // j1
-      // A.row(6) << 0.0, 24.0, 0.0, 0.0, 0.0, 0.0;  // j0
-      // A.row(7) << 120.0 * tau(1), 24.0 * tau(0), 0.0, 0.0, 0.0,
-      //   0.0;  // j1
-
-      // std::cout << "solve" << std::endl;
-      Vector<6> p = A.colPivHouseholderQr().solve(b);
-      polynomials[i - 1].push_back(p);
-      // std::cout << "solved" << std::endl;
-      // std::cout << "p" << i << "[" << axi << "] " << p.transpose() <<
-      // std::endl;
-    }
-  }
-
-  std::ofstream myfile;
-  myfile.open("polynomials.csv");
-  if (myfile.is_open()) {
-    if (samples.size() > 0 && samples[0].size() > 0) {
-      myfile << "i,axi,tfrom,tto,a5,a4,a3,a2,a1,a0" << std::endl;
-    }
-
-    for (int var1 = 0; var1 < polynomials.size(); ++var1) {
-      const Scalar tfrom = samples[var1].t;
-      const Scalar tto = samples[var1 + 1].t;
-      for (size_t axi = 0; axi < 3; axi++) {
-        const Vector<6>& p = polynomials[var1][axi];
-        myfile << var1 << "," << axi << "," << tfrom << "," << tto << ","
-               << p(0) << "," << p(1) << "," << p(2) << "," << p(3) << ","
-               << p(4) << "," << p(5);
-        myfile << std::endl;
-      }
-    }
-
-    myfile.close();
-  }
-
+  test_poly_fiting(samples);
   std::cout << "out" << std::endl;
 
   VelocitySearchGraph::saveTrajectoryEquitemporal(tr, "samples_pmm.csv");
