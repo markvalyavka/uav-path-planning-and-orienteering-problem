@@ -193,18 +193,19 @@ PointMassTrajectory3D::PointMassTrajectory3D(const QuadState &from,
                                              const bool equalize_time,
                                              const bool calc_gradient) {
   x_ = PMMTrajectory(from.p(0), from.v(0), to.p(0), to.v(0), max_acc1(0),
-                     max_acc2(0), 0);
+                     max_acc2(0), 0, false, calc_gradient, false);
   y_ = PMMTrajectory(from.p(1), from.v(1), to.p(1), to.v(1), max_acc1(1),
-                     max_acc2(1), 1);
+                     max_acc2(1), 1, false, calc_gradient, false);
   z_ = PMMTrajectory(from.p(2), from.v(2), to.p(2), to.v(2), max_acc1(2),
-                     max_acc2(2), 2);
+                     max_acc2(2), 2, false, calc_gradient, false);
 
 
   if (equalize_time) {
     const Scalar tr_time = time();
     for (size_t i = 0; i < 3; i++) {
       if (get_axis_trajectory(i).time() != tr_time) {
-        PMMTrajectory scaled = PMMTrajectory(get_axis_trajectory(i), tr_time);
+        PMMTrajectory scaled =
+          PMMTrajectory(get_axis_trajectory(i), tr_time, calc_gradient);
         set_axis_trajectory(i, scaled);
       }
     }

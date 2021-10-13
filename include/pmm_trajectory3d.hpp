@@ -49,6 +49,15 @@ class PointMassTrajectory3D {
   QuadState get_end_state() const;
   Vector<3> start_acc() const;
   Vector<3> end_acc() const;
+  Vector<3> dt_da_() const {
+    return Vector<3>(x_.dt_da_, y_.dt_da_, z_.dt_da_);
+  };
+  Vector<3> dt_dvs_() const {
+    return Vector<3>(x_.dt_dvs_, y_.dt_dvs_, z_.dt_dvs_);
+  };
+  Vector<3> dt_dve_() const {
+    return Vector<3>(x_.dt_dve_, y_.dt_dve_, z_.dt_dve_);
+  };
 
   Scalar get_length_between_times(const Scalar tfrom, const Scalar tto) const;
   Scalar get_length_const_a(const Scalar tfrom, const Scalar tto,

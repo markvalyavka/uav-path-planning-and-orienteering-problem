@@ -27,12 +27,12 @@ class PMMTrajectory {
                 const Scalar ve, const Scalar a1_in, const Scalar a2_in,
                 const int i, const bool keep_acc_sign = false,
                 const bool calc_gradient = false,
-                const Scalar check_result = false);
+                const bool check_result = false);
   /*
   one that scales times to given one
   */
   PMMTrajectory(const PMMTrajectory &in, const Scalar total_time,
-                const double calc_gradient = false);
+                const bool calc_gradient = false);
 
   static Scalar minRequiredAcc(const Scalar ps, const Scalar vs,
                                const Scalar pe, const Scalar ve);

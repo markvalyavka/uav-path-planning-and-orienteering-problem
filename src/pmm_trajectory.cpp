@@ -23,7 +23,7 @@ PMMTrajectory::PMMTrajectory(const Scalar ps, const Scalar vs, const Scalar pe,
                              const Scalar ve, const Scalar a1_in,
                              const Scalar a2_in, const int i,
                              const bool keep_acc_sign, const bool calc_gradient,
-                             const Scalar check_result) {
+                             const bool check_result) {
   i_ = i;
   p_(0) = ps;
   p_(3) = pe;
@@ -109,6 +109,8 @@ PMMTrajectory::PMMTrajectory(const Scalar ps, const Scalar vs, const Scalar pe,
 
         const Scalar d_t_dvs = (a1 * vs - a2 * vs - tst1) / (a1 * tst1);
         const Scalar d_t_dve = (-(a1 * ve) + a2 * ve + tst2) / (a2 * tst1);
+        // std::cout << i << " d_t_dvs " << d_t_dvs << std::endl;
+        // std::cout << i << " d_t_dve " << d_t_dve << std::endl;
 
         dt_dvs = d_t_dvs;
         dt_dve = d_t_dve;
@@ -172,6 +174,8 @@ PMMTrajectory::PMMTrajectory(const Scalar ps, const Scalar vs, const Scalar pe,
     a_(0) = used_acc1;
     a_(1) = used_acc2;
     dt_da_ = std::isfinite(dt_da) ? dt_da : 0;
+    dt_dvs_ = dt_dvs;
+    dt_dve_ = dt_dve;
 
     if (check_result) {
       const Scalar ve_tst = v_(1) + a_(1) * t2;
@@ -193,7 +197,7 @@ PMMTrajectory::PMMTrajectory(const Scalar ps, const Scalar vs, const Scalar pe,
 }
 
 PMMTrajectory::PMMTrajectory(const PMMTrajectory &in, const Scalar total_time,
-                             const double calc_gradient)
+                             const bool calc_gradient)
   : PMMTrajectory(in) {
   // recalc the trajectory for known time
   if (time() == total_time) {
@@ -455,6 +459,8 @@ void PMMTrajectory::copy_trajectory(const PMMTrajectory &in) {
   a_ = in.a_;
   i_ = in.i_;
   dt_da_ = in.dt_da_;
+  dt_dvs_ = in.dt_dvs_;
+  dt_dve_ = in.dt_dve_;
 }
 
 void PMMTrajectory::save_to_file(std::string filename) {
