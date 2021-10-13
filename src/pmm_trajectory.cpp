@@ -192,7 +192,8 @@ PMMTrajectory::PMMTrajectory(const Scalar ps, const Scalar vs, const Scalar pe,
   }
 }
 
-PMMTrajectory::PMMTrajectory(const PMMTrajectory &in, const Scalar total_time)
+PMMTrajectory::PMMTrajectory(const PMMTrajectory &in, const Scalar total_time,
+                             const double calc_gradient)
   : PMMTrajectory(in) {
   // recalc the trajectory for known time
   if (time() == total_time) {
@@ -298,8 +299,8 @@ PMMTrajectory::PMMTrajectory(const PMMTrajectory &in, const Scalar total_time)
 
   exists_ = false;
   if (scale1 < 1.0 && scale1 > -1.0) {
-    PMMTrajectory scaled = PMMTrajectory(ps, vs, pe, ve, a1 * scale1,
-                                         a2 * scale1, i, true, false, false);
+    PMMTrajectory scaled = PMMTrajectory(
+      ps, vs, pe, ve, a1 * scale1, a2 * scale1, i, true, calc_gradient, false);
     // std::cout << "1scaled.time() " << scaled.time() << std::endl;
     if (scaled.exists_ and
         fabs(scaled.time() - total_time) <= PRECISION_PMM_VALUES) {
@@ -307,8 +308,8 @@ PMMTrajectory::PMMTrajectory(const PMMTrajectory &in, const Scalar total_time)
     }
   }
   if (!exists_ && scale2 < 1.0 && scale2 > -1.0) {
-    PMMTrajectory scaled = PMMTrajectory(ps, vs, pe, ve, a1 * scale2,
-                                         a2 * scale2, i, true, false, true);
+    PMMTrajectory scaled = PMMTrajectory(
+      ps, vs, pe, ve, a1 * scale2, a2 * scale2, i, true, calc_gradient, false);
     // std::cout << "2scaled.time() " << scaled.time() << std::endl;
     if (scaled.exists_ and
         fabs(scaled.time() - total_time) <= PRECISION_PMM_VALUES) {
@@ -495,13 +496,14 @@ Scalar PMMTrajectory::minRequiredAcc(const Scalar ps, const Scalar vs,
 }
 
 std::ostream &operator<<(std::ostream &o, const PMMTrajectory &f) {
-  o << "maxacc: t1:" << f.t_(0) << ";t2:" << f.t_(1) << ";t3:" << f.t_(2)
-    << ";exists:" << f.exists_ << ";a1:" << f.a_(0) << ";a2:" << f.a_(1)
-    << ";i:" << f.i_ << "\n";
+  o << "maxacc: "
+    << "t_tot:" << (f.time()) << ";t1:" << f.t_(0) << ";t2:" << f.t_(1)
+    << ";t3:" << f.t_(2) << ";exists:" << f.exists_ << ";a1:" << f.a_(0)
+    << ";a2:" << f.a_(1) << ";i:" << f.i_ << "\n";
   o << " \t: p0:" << f.p_(0) << ";p1:" << f.p_(1) << ";p2:" << f.p_(2)
     << ";p3:" << f.p_(3) << "\n";
-  o << " \t: v0:" << f.v_(0) << ";v1:" << f.v_(1) << ";v3:" << f.v_(2)
-    << ";t_tot" << (f.time());
+  o << " \t: v0:" << f.v_(0) << ";v1:" << f.v_(1) << ";v3:" << f.v_(2) << "\n";
+  o << " \t: dt/dvs:" << f.dt_dvs_ << ";dt/dve:" << f.dt_dve_ << "\n";
   return o;
 }
 

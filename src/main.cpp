@@ -438,6 +438,23 @@ int test_pmm(int argc, char** argv) {
   t_gd.toc();
   t_gd.print();
 
+
+  PointMassTrajectory3D pmm3d_1 = tr[0];
+  QuadState from_pmm3d_1 = pmm3d_1.get_start_state();
+  QuadState optimizing_state = pmm3d_1.get_end_state();
+  PointMassTrajectory3D pmm3d_2 = tr[1];
+  QuadState to_pmm3d_2 = pmm3d_2.get_end_state();
+
+  std::cout << "optimizing velocity in gate using gradient " << std::endl;
+  PointMassTrajectory3D tr_opt1(from_pmm3d_1, optimizing_state, max_acc_norm,
+                                10);
+  PointMassTrajectory3D tr_opt2(optimizing_state, to_pmm3d_2, max_acc_norm, 10);
+
+  std::cout << "tr_opt1 " << tr_opt1 << std::endl;
+  std::cout << "tr_opt2 " << tr_opt2 << std::endl;
+
+
+  exit(1);
   PointMassTrajectory3D pmm_gd2(from_pmm3d, to_pmm3d, max_acc_norm);
   std::cout << "pmm_gd2 " << pmm_gd2 << std::endl;
 

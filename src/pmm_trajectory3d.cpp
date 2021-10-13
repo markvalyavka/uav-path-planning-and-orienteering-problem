@@ -16,8 +16,10 @@ basic version with simetric acc limits in axis
 PointMassTrajectory3D::PointMassTrajectory3D(const QuadState &from,
                                              const QuadState &to,
                                              const Vector<3> max_acc,
-                                             const bool equalize_time)
-  : PointMassTrajectory3D(from, to, max_acc, -max_acc, equalize_time) {}
+                                             const bool equalize_time,
+                                             const bool calc_gradient)
+  : PointMassTrajectory3D(from, to, max_acc, -max_acc, equalize_time,
+                          calc_gradient) {}
 
 
 //                                              {
@@ -48,7 +50,8 @@ this version scales time by default
 PointMassTrajectory3D::PointMassTrajectory3D(const QuadState &from,
                                              const QuadState &to,
                                              const Scalar max_acc_norm,
-                                             const int max_iter) {
+                                             const int max_iter,
+                                             const bool calc_gradient) {
   // B = A + GVEC , |A|=max_acc_norm
   // initially B equal per axis with b_x=b_y=b_z -> |B-GVEC|^2 = |T|^2
   // -> 3*bs_x^2 + 2*g*a_x + g^2 - |T|^2 = 0 --> roots are the possible acc
@@ -135,7 +138,8 @@ PointMassTrajectory3D::PointMassTrajectory3D(const QuadState &from,
     Vector<3> max_acc_new2 = -thrust_acc_new_k1 + GVEC;
 
 
-    pmm3d = PointMassTrajectory3D(from, to, max_acc_new1, max_acc_new2);
+    pmm3d = PointMassTrajectory3D(from, to, max_acc_new1, max_acc_new2, true,
+                                  calc_gradient);
     start_acc = pmm3d.start_acc();
     end_acc = pmm3d.end_acc();
     start_thrust = (start_acc - GVEC).norm();
@@ -186,7 +190,8 @@ PointMassTrajectory3D::PointMassTrajectory3D(const QuadState &from,
                                              const QuadState &to,
                                              const Vector<3> max_acc1,
                                              const Vector<3> max_acc2,
-                                             const bool equalize_time) {
+                                             const bool equalize_time,
+                                             const bool calc_gradient) {
   x_ = PMMTrajectory(from.p(0), from.v(0), to.p(0), to.v(0), max_acc1(0),
                      max_acc2(0), 0);
   y_ = PMMTrajectory(from.p(1), from.v(1), to.p(1), to.v(1), max_acc1(1),
@@ -209,7 +214,8 @@ PointMassTrajectory3D::PointMassTrajectory3D(const QuadState &from,
 PointMassTrajectory3D::PointMassTrajectory3D(const QuadState &from,
                                              const QuadState &to,
                                              const Scalar max_acc_norm,
-                                             const bool equalize_time) {
+                                             const bool equalize_time,
+                                             const bool calc_gradient) {
   // std::cout << "gd optimization " << std::endl;
   static const Scalar ALLOWED_DIFF_TIMES_RATIO{0.0001};
   static const Scalar NUM_ITERS{10};

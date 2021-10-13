@@ -31,7 +31,8 @@ class PMMTrajectory {
   /*
   one that scales times to given one
   */
-  PMMTrajectory(const PMMTrajectory &in, const Scalar total_time);
+  PMMTrajectory(const PMMTrajectory &in, const Scalar total_time,
+                const double calc_gradient = false);
 
   static Scalar minRequiredAcc(const Scalar ps, const Scalar vs,
                                const Scalar pe, const Scalar ve);
