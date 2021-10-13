@@ -478,6 +478,22 @@ void PMMTrajectory::save_to_file(std::string filename) {
   }
 }
 
+Scalar PMMTrajectory::max_end_velocity_abs() const {
+  /*what is the end velocity that is when only one acc part is used*/
+  Scalar a = a_(0);
+  if (v_(2) > v_(0)) {
+    if (a < 0) a = a_(1);  // need positive acc
+  } else {
+    if (a > 0) a = a_(1);  // need negative acc
+  }
+  const Scalar vs_pow_2 = v_(0) * v_(0);
+  Scalar max_v_a = 1.0 / (2.0 * a);
+  Scalar max_v_c = p_(0) - p_(3) - vs_pow_2 / (2.0 * a);
+  Scalar max_v_disc_sqrt = sqrt(-4 * max_v_a * max_v_c);
+  Scalar max_v_abs = max_v_disc_sqrt / (2.0 * max_v_a);
+  return max_v_abs;
+}
+
 Scalar PMMTrajectory::minRequiredAcc(const Scalar ps, const Scalar vs,
                                      const Scalar pe, const Scalar ve) {
   // required acc to be able to fulfill the task

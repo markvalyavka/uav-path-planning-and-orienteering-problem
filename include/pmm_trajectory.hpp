@@ -37,7 +37,8 @@ class PMMTrajectory {
   static Scalar minRequiredAcc(const Scalar ps, const Scalar vs,
                                const Scalar pe, const Scalar ve);
 
-  Scalar time() const { return t_.sum(); }
+  Scalar time() const { return t_.sum(); };
+  Scalar max_end_velocity_abs() const;
   Vector<3> state_in_time(const Scalar time_in_tr) const;
   std::tuple<PMMTrajectory, PMMTrajectory> split_in_time(
     const Scalar time_in_tr);

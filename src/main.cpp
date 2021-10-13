@@ -448,31 +448,18 @@ int test_pmm(int argc, char** argv) {
 
   std::cout << "optimizing velocity in gate using gradient " << std::endl;
 
-  Scalar a = 9.60085;
-  Scalar vs = 0.0;
-  Scalar ps = -5;
-  Scalar pe = -0.9;
-  Scalar a_pow_3 = a * a * a;
-  Scalar vs_pow_2 = vs * vs;
-  Scalar max_v_a = 1.0 / (2 * a_pow_3);
-  Scalar max_v_b = vs / a_pow_3 + vs / a;
-  Scalar max_v_c = ps - pe + (vs_pow_2) / (2 * a_pow_3) - vs_pow_2 / a;
-  Scalar max_v_disc_sqrt = sqrt(max_v_b * max_v_b - 4 * max_v_a * max_v_c);
-  Scalar sol1 = (-max_v_b + max_v_disc_sqrt) / (2 * max_v_a);
-  Scalar sol2 = (-max_v_b - max_v_disc_sqrt) / (2 * max_v_a);
-  std::cout << "sol1" << sol1 << std::endl;
-  std::cout << "sol2" << sol2 << std::endl;
 
   for (size_t i = 0; i < 10; i++) {
     PointMassTrajectory3D tr_opt1(from_pmm3d_1, optimizing_state, max_acc_norm,
                                   10, true);
     PointMassTrajectory3D tr_opt2(optimizing_state, to_pmm3d_2, max_acc_norm,
                                   10, true);
-
+    Vector<3> max_end_velocity_abs = tr_opt1.max_end_velocity_abs();
     Vector<3> dt_dve = tr_opt1.dt_dve_();
     Vector<3> dt_dvs = tr_opt2.dt_dvs_();
     std::cout << "tr_opt1 " << tr_opt1 << std::endl;
     std::cout << "tr_opt2 " << tr_opt2 << std::endl;
+    std::cout << "max_end_velocity_abs " << max_end_velocity_abs << std::endl;
     std::cout << "exists " << (tr_opt1.exists() && tr_opt2.exists())
               << std::endl;
     std::cout << "acc1 " << tr_opt1.start_acc().transpose() << std::endl;

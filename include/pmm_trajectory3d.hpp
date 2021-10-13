@@ -59,6 +59,11 @@ class PointMassTrajectory3D {
     return Vector<3>(x_.dt_dve_, y_.dt_dve_, z_.dt_dve_);
   };
 
+  Vector<3> max_end_velocity_abs() const {
+    return Vector<3>(x_.max_end_velocity_abs(), y_.max_end_velocity_abs(),
+                     z_.max_end_velocity_abs());
+  };
+
   Scalar get_length_between_times(const Scalar tfrom, const Scalar tto) const;
   Scalar get_length_const_a(const Scalar tfrom, const Scalar tto,
                             const Vector<3> p, const Vector<3> v,

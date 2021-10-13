@@ -736,6 +736,7 @@ Vector<3> PointMassTrajectory3D::end_acc() const {
   return Vector<3>(x_.a_(1), y_.a_(1), z_.a_(1));
 }
 
+
 Scalar PointMassTrajectory3D::get_length_between_times(const Scalar tfrom,
                                                        const Scalar tto) const {
   // time switches in t1 for x,y,z
