@@ -43,6 +43,8 @@ class VelocitySearchGraph {
     const std::vector<Scalar>& gates_yaw_deg,
     const std::vector<Scalar>& gates_pitch_deg, const bool end_free,
     const bool use_gd);
+  void setYawPitchConeSidesAndPecisiton(const Scalar max_yaw_pitch_ang,
+                                        const Scalar precision_yaw_pitch_ang);
 
   static void saveTrajectoryEquitemporal(
     const MultiWaypointTrajectory& trajectories, std::string filename,
@@ -63,8 +65,8 @@ class VelocitySearchGraph {
 
  private:
   const Scalar max_acc_;
-  const Scalar max_yaw_pitch_ang_;
-  const Scalar precision_yaw_pitch_ang_;
+  Scalar max_yaw_pitch_ang_;
+  Scalar precision_yaw_pitch_ang_;
   const Scalar max_velocity_size_;
   const Scalar min_velocity_size_;
   const Scalar min_velocity_size_boundary_;

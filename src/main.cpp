@@ -296,9 +296,9 @@ int test_pmm(int argc, char** argv) {
   std::cout << test << std::endl;
 
   // -+ value of initial samples
-  const Scalar max_yaw_pitch_ang = 20.0;
+  Scalar max_yaw_pitch_ang = 20.0;
   // distance between initial samples
-  const Scalar precision_yaw_pitch_ang = 20.0;
+  Scalar precision_yaw_pitch_ang = 20.0;
   // maximal values of the samples
   const Scalar yaw_pitch_cone_angle_boundary = 60.0;
 
@@ -314,6 +314,13 @@ int test_pmm(int argc, char** argv) {
     max_acc_norm, max_yaw_pitch_ang, precision_yaw_pitch_ang,
     yaw_pitch_cone_angle_boundary, min_velocity_norm_boundary,
     min_velocity_norm, max_velocity_norm, precision_velocity_norm);
+
+
+  max_yaw_pitch_ang = config["max_yaw_pitch_ang"].as<Scalar>();
+  precision_yaw_pitch_ang = config["precision_yaw_pitch_ang"].as<Scalar>();
+  vel_search_graph.setYawPitchConeSidesAndPecisiton(max_yaw_pitch_ang,
+                                                    precision_yaw_pitch_ang);
+
 
   Vector<3> start_velocity;
   Vector<3> end_velocity;

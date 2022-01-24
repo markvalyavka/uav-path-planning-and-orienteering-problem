@@ -476,6 +476,12 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
   return trajectories;
 }
 
+void VelocitySearchGraph::setYawPitchConeSidesAndPecisiton(
+  const Scalar max_yaw_pitch_ang, const Scalar precision_yaw_pitch_ang) {
+  max_yaw_pitch_ang_ = max_yaw_pitch_ang;
+  precision_yaw_pitch_ang_ = precision_yaw_pitch_ang;
+}
+
 void VelocitySearchGraph::saveTrajectoryEquidistant(
   const MultiWaypointTrajectory& trajectories, std::string filename,
   const Scalar desired_ds) {

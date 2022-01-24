@@ -54,6 +54,7 @@ gates_pitch_orientations: [-27.2011, 22.521, 0.866014]
 # yaw 0 pitch -40
 # yaw -90.5 pitch 0.866014
 
-
+max_yaw_pitch_ang: 10
+precision_yaw_pitch_ang: 10
 
 end_free: True
