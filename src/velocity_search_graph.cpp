@@ -28,7 +28,8 @@ VelocitySearchGraph::VelocitySearchGraph(
 MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
   const std::vector<Vector<3>>& gates_waypoints,
   const Vector<3>& start_velocity, const Vector<3>& end_velocity,
-  const std::vector<Scalar>& gates_yaw_deg, const bool end_free,
+  const std::vector<Scalar>& gates_yaw_deg,
+  const std::vector<Scalar>& gates_pitch_deg, const bool end_free,
   const bool use_gd) {
   const int gates_size = gates_waypoints.size();
 
@@ -40,7 +41,7 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
   // Scalar single_axis_b =
   // (-2 * G - sqrt(4 * G * G - 12 * (G * G - pow_max_acc_2))) / 6.0;
   Vector<3> max_acc_per_axis = Vector<3>::Constant(single_axis);
-  std::cout << "single_axis " << single_axis << std::endl;
+  // std::cout << "single_axis " << single_axis << std::endl;
   // std::cout << "single_axis_a " << single_axis_a << std::endl;
   // std::cout << "single_axis_b " << single_axis_b << std::endl;
 
@@ -88,9 +89,10 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
                                  ((Scalar)(num_vel_samples_size - 1))
                              : 0;
 
-  std::cout << "num_vel_samples_yaw_pitch_ang " << num_vel_samples_yaw_pitch_ang
-            << std::endl;
-  std::cout << "num_vel_samples_size " << num_vel_samples_size << std::endl;
+  // std::cout << "num_vel_samples_yaw_pitch_ang " <<
+  // num_vel_samples_yaw_pitch_ang
+  //           << std::endl;
+  // std::cout << "num_vel_samples_size " << num_vel_samples_size << std::endl;
 
   int sample_num_gates = gates_size - 2;
   if (end_free) {
@@ -139,6 +141,7 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
         ((Scalar)(num_vel_samples_yaw_pitch_ang - 1));
 
       const Scalar gate_yaw = gates_yaw_deg[gid];
+      const Scalar gate_pitch = gates_pitch_deg[gid];
 
       gate_velocity_samples[gid].resize(num_samples_gate);
 
@@ -158,7 +161,8 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
             const Scalar pitch =
               min_max_pitch(0) + y_s * gate_vel_samples_pitch_step;
             Matrix<3, 3> m;
-            m = Eigen::AngleAxisd(pitch * M_PI / 180.0, Vector<3>::UnitY()) *
+            m = Eigen::AngleAxisd((gate_pitch + pitch) * M_PI / 180.0,
+                                  Vector<3>::UnitY()) *
                 Eigen::AngleAxisd((gate_yaw + yaw) * M_PI / 180.0,
                                   Vector<3>::UnitZ());
             const Vector<3> vec = m * Vector<3>::UnitX() * vel_size;
@@ -179,6 +183,7 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
     // now we have the samples, search the shortest time path through the graph
     // loop from the first gate gid_to = 1
     for (size_t gid_to = 1; gid_to < gates_size; gid_to++) {
+      // std::cout << "gid_to " << gid_to << std::endl;
       // get locally the parts
       const std::vector<std::pair<int, Scalar>>& from_shortest_samples_dists =
         shortest_samples_times[gid_to - 1];
@@ -230,7 +235,7 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
               PointMassTrajectory3D(from_state, to_state, max_acc_, 10);
           } else {
             tr_max_acc = PointMassTrajectory3D(from_state, to_state,
-                                               max_acc_per_axis, false);
+                                               max_acc_per_axis, true);
           }
           // const PointMassTrajectory3D tr_max_acc(from_state, to_state,
           // max_acc_,
@@ -275,7 +280,7 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
       }
     }
 
-    std::cout << "shortest_time " << shortest_time << std::endl;
+    std::cout << "shortest_time " << shortest_time << std::endl << std::endl;
     if (shortest_time > 0.99 * last_shortest_time) {
       break;
     }
@@ -289,8 +294,8 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
       found_gates_speeds[g_id - 1] =
         std::get<0>(gate_velocity_samples[g_id][prev_sample_idx]);
 
-      // std::cout << "idx " << g_id << " speed "
-      //           << found_gates_speeds[g_id - 1].transpose() << std::endl;
+      std::cout << "idx " << g_id << " speed "
+                << found_gates_speeds[g_id - 1].transpose() << std::endl;
 
       Vector<3> indexes =
         std::get<2>(gate_velocity_samples[g_id][prev_sample_idx]);
@@ -340,6 +345,9 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
             Vector<2>(current_range(0) + range_size_half / 2.0,
                       current_range(1) - range_size_half / 2.0);
         }
+        std::cout << "g " << (g_id - 1) << " ax " << i << "range"
+                  << gates_yaw_pitch_size_ranges[g_id - 1][i].transpose()
+                  << std::endl;
       }
 
       // traceback previous sample index here
@@ -350,12 +358,12 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
   timer.toc();
 
 
-  std::cout << "timer_samples: ";
-  timer_samples.print();
-  std::cout << "timer_calc_pm: ";
-  timer_calc_pm.print();
+  // std::cout << "timer_samples: ";
+  // timer_samples.print();
+  // std::cout << "timer_calc_pm: ";
+  // timer_calc_pm.print();
 
-  std::cout << "calc time " << timer.last() * 1000 << " ms" << std::endl;
+  // std::cout << "calc time " << timer.last() * 1000 << " ms" << std::endl;
 
   // find the shortest among the end ones
   Scalar shortest_time = DBL_MAX;
@@ -369,7 +377,7 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
     }
   }
 
-  std::cout << "shortest_time " << shortest_time << std::endl;
+  // std::cout << "shortest_time " << shortest_time << std::endl;
 
   int prev_sample_idx = end_best_idx;
   for (int g_id = endi; g_id > 0; g_id--) {
@@ -395,11 +403,14 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
   if (use_gd) {
     // tr_max_acc_start =
     //   PointMassTrajectory3D(from_start_state, to_state, max_acc_);
+
     tr_max_acc_start =
       PointMassTrajectory3D(from_start_state, to_state, max_acc_, 10);
   } else {
+    // std::cout << "from_start_state p " << from_start_state.p.transpose()
+    //           << " v " << from_start_state.v.transpose() << std::endl;
     tr_max_acc_start =
-      PointMassTrajectory3D(from_start_state, to_state, max_acc_per_axis);
+      PointMassTrajectory3D(from_start_state, to_state, max_acc_per_axis, true);
   }
   // PointMassTrajectory3D tr_max_acc_start =
   //   PointMassTrajectory3D(from_start_state, to_state, max_acc_);
@@ -411,7 +422,8 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
     return MultiWaypointTrajectory();
   }
 
-  std::cout << "gates_waypoints size " << gates_waypoints.size() << std::endl;
+  // std::cout << "gates_waypoints size " << gates_waypoints.size() <<
+  // std::endl;
   for (size_t i = 2; i < gates_waypoints.size(); i++) {
     QuadState from_state_b;
     from_state_b.p = gates_waypoints[i - 1];
@@ -428,7 +440,7 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
         PointMassTrajectory3D(from_state_b, to_state_b, max_acc_, 10);
     } else {
       tr_max_between =
-        PointMassTrajectory3D(from_state_b, to_state_b, max_acc_per_axis);
+        PointMassTrajectory3D(from_state_b, to_state_b, max_acc_per_axis, true);
     }
 
     trajectories.push_back(tr_max_between);

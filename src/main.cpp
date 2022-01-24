@@ -296,9 +296,9 @@ int test_pmm(int argc, char** argv) {
   std::cout << test << std::endl;
 
   // -+ value of initial samples
-  const Scalar max_yaw_pitch_ang = 15.0;
+  const Scalar max_yaw_pitch_ang = 20.0;
   // distance between initial samples
-  const Scalar precision_yaw_pitch_ang = 15.0;
+  const Scalar precision_yaw_pitch_ang = 20.0;
   // maximal values of the samples
   const Scalar yaw_pitch_cone_angle_boundary = 60.0;
 
@@ -320,12 +320,14 @@ int test_pmm(int argc, char** argv) {
   Vector<3> start_position;
   Vector<3> end_position;
   config["start"]["velocity"] >> start_velocity;
-  config["end"]["velocity"] >> start_velocity;
+  config["end"]["velocity"] >> end_velocity;
   config["start"]["position"] >> start_position;
   config["end"]["position"] >> end_position;
-  const bool end_free = true;
+  const bool end_free = config["end_free"].as<bool>();
   std::vector<Vector<3>> gates_waypoints;
   std::vector<Scalar> gates_yaw_deg;
+  std::vector<Scalar> gates_pitch_deg;
+  std::cout << "start_velocity " << start_velocity.transpose() << std::endl;
 
   if (!parseArrayParam<Vector<3>>(config, "gates", gates_waypoints))
     std::cerr << "can not load param gates" << std::endl;
@@ -333,31 +335,55 @@ int test_pmm(int argc, char** argv) {
   if (!parseArrayParam<Scalar>(config, "gates_orientations", gates_yaw_deg))
     std::cerr << "can not load param gates_orientations" << std::endl;
 
+  if (!parseArrayParam<Scalar>(config, "gates_pitch_orientations",
+                               gates_pitch_deg))
+    std::cerr << "can not load param gates_pitch_orientations" << std::endl;
+
   gates_waypoints.insert(gates_waypoints.begin(), start_position);
   gates_waypoints.push_back(end_position);
 
   std::cout << "gates_waypoints.size() " << gates_waypoints.size() << std::endl;
   std::cout << "gates_yaw_deg.size() " << gates_yaw_deg.size() << std::endl;
+  std::cout << "gates_pitch_deg.size() " << gates_pitch_deg.size() << std::endl;
 
 
   // gates_waypoints.resize(3);
   // gates_yaw_deg.resize(3);
+  Timer find_vel("find vel");
   Scalar sum_times = 0;
-  MultiWaypointTrajectory tr = vel_search_graph.find_velocities_in_positions(
-    gates_waypoints, start_velocity, end_velocity, gates_yaw_deg, end_free,
-    true);
+  find_vel.tic();
+  MultiWaypointTrajectory tr;
+  // for (int i = 0; i < 1000; i++) {
+  tr = vel_search_graph.find_velocities_in_positions(
+    gates_waypoints, start_velocity, end_velocity, gates_yaw_deg,
+    gates_pitch_deg, end_free, false);
+  find_vel.toc();
+  // }
+  find_vel.print();
+  std::cout << std::endl << std::endl;
+
   std::cout << "output tr size " << tr.size() << std::endl;
   for (size_t i = 0; i < tr.size(); i++) {
     if (i == 0) {
-      std::cout << i << " vel " << tr[i].get_start_state().v.transpose()
-                << " acc " << tr[i].get_start_state().a.transpose()
-                << " thrust norm " << (tr[i].get_start_state().a - GVEC).norm()
-                << " exists " << tr[i].exists() << std::endl;
+      Vector<3> vel_norm = tr[i].get_start_state().v.normalized();
+      Scalar pitch = asin(-vel_norm(2)) * 180 / M_PI;
+      Scalar yaw = atan2(vel_norm(1), vel_norm(0)) * 180 / M_PI;
+      std::cout << i << " pos " << tr[i].get_start_state().p.transpose()
+                << " vel " << tr[i].get_start_state().v.transpose() << " acc "
+                << tr[i].get_start_state().a.transpose() << " thrust norm "
+                << (tr[i].get_start_state().a - GVEC).norm() << " exists "
+                << tr[i].exists() << " yaw " << yaw << " pitch " << pitch
+                << std::endl;
     }
-    std::cout << i + 1 << " vel " << tr[i].get_end_state().v.transpose()
-              << " acc " << tr[i].get_end_state().a.transpose()
-              << " thrust norm " << (tr[i].get_end_state().a - GVEC).norm()
-              << " exists " << tr[i].exists() << std::endl;
+    Vector<3> vel_norm = tr[i].get_end_state().v.normalized();
+    Scalar pitch = asin(-vel_norm(2)) * 180 / M_PI;
+    Scalar yaw = atan2(vel_norm(1), vel_norm(0)) * 180 / M_PI;
+    std::cout << i + 1 << " pos " << tr[i].get_end_state().p.transpose()
+              << " vel " << tr[i].get_end_state().v.transpose() << " acc "
+              << tr[i].get_end_state().a.transpose() << " thrust norm "
+              << (tr[i].get_end_state().a - GVEC).norm() << " exists "
+              << tr[i].exists() << " yaw " << yaw << " pitch " << pitch
+              << std::endl;
 
     // std::cout << tr[i] << std::endl;
     sum_times += tr[i].time();
@@ -367,22 +393,43 @@ int test_pmm(int argc, char** argv) {
   }
 
 
-  PointMassTrajectory3D pmm3d = tr[0];
-  std::cout << "pmm3d" << std::endl;
-  std::cout << pmm3d << std::endl;
-  QuadState from_pmm3d = pmm3d.get_start_state();
-  QuadState to_pmm3d = pmm3d.get_end_state();
+  // PointMassTrajectory3D pmm3d = tr[0];
+  // std::cout << "pmm3d" << std::endl;
+  // std::cout << pmm3d << std::endl;
+  // QuadState from_pmm3d = pmm3d.get_start_state();
+  // QuadState to_pmm3d = pmm3d.get_end_state();
 
-  Timer t_new("new pmm thrust");
-  t_new.tic();
-  for (size_t i = 0; i < 1000; i++) {
-    PointMassTrajectory3D tr(from_pmm3d, to_pmm3d, max_acc_norm, 10);
-  }
-  t_new.toc();
-  t_new.print();
+  // Vector<3> max_acc_vec(max_acc_norm, max_acc_norm, max_acc_norm);
+  // Vector<3> min_acc_vec(-max_acc_norm, -max_acc_norm, -max_acc_norm);
+  // Timer t_tot_perax("tot per axis pmm thrust");
+  // Timer t_perax("per axis pmm thrust");
+  // t_perax.tic();
+  // t_tot_perax.tic();
+  // for (size_t i = 0; i < 100000; i++) {
+  //   PointMassTrajectory3D tr(from_pmm3d, to_pmm3d, max_acc_vec, min_acc_vec,
+  //   3); t_perax.toc();
+  // }
+  // t_tot_perax.toc();
+  // t_perax.print();
+  // t_tot_perax.print();
 
-  PointMassTrajectory3D tstpmm3d(from_pmm3d, to_pmm3d, max_acc_norm, 10);
-  std::cout << "tstpmm3d " << tstpmm3d << std::endl;
+  // std::cout << "" << std::endl;
+  // Timer t_tot("tot new pmm thrust");
+  // Timer t_new("new pmm thrust");
+  // t_new.tic();
+  // t_tot.tic();
+  // for (size_t i = 0; i < 100000; i++) {
+  //   PointMassTrajectory3D tr(from_pmm3d, to_pmm3d, max_acc_norm, 3);
+  //   t_new.toc();
+  // }
+  // t_tot.toc();
+
+  // t_new.print();
+  // t_tot.print();
+
+  // PointMassTrajectory3D tstpmm3d(from_pmm3d, to_pmm3d, max_acc_norm);
+  // std::cout << "tstpmm3d " << tstpmm3d << std::endl;
+  // exit(1);
   /*
   std::cout << "pmm start acc" << pmm3d.get_start_state().a.norm() << std::endl;
   std::cout << "pmm end acc" << pmm3d.get_end_state().a.norm() << std::endl;
@@ -430,72 +477,74 @@ int test_pmm(int argc, char** argv) {
   // PointMassTrajectory3D pmm_gd(from_pmm3d, to_pmm3d, 26.29);
   // std::cout << "pmm_gd " << pmm_gd << std::endl;
 
-  Timer t_gd("pmm gd");
-  t_gd.tic();
-  for (size_t i = 0; i < 1000; i++) {
-    PointMassTrajectory3D tr(from_pmm3d, to_pmm3d, max_acc_norm);
-  }
-  t_gd.toc();
-  t_gd.print();
+  // Timer t_gd("pmm gd");
+  // t_gd.tic();
+  // for (size_t i = 0; i < 1000; i++) {
+  //   PointMassTrajectory3D tr(from_pmm3d, to_pmm3d, max_acc_norm);
+  // }
+  // t_gd.toc();
+  // t_gd.print();
 
 
-  PointMassTrajectory3D pmm3d_1 = tr[0];
-  QuadState from_pmm3d_1 = pmm3d_1.get_start_state();
-  QuadState optimizing_state = pmm3d_1.get_end_state();
-  optimizing_state.v = Vector<3>(0, 0, 0);
-  PointMassTrajectory3D pmm3d_2 = tr[1];
-  QuadState to_pmm3d_2 = pmm3d_2.get_end_state();
+  // PointMassTrajectory3D pmm3d_1 = tr[0];
+  // QuadState from_pmm3d_1 = pmm3d_1.get_start_state();
+  // QuadState optimizing_state = pmm3d_1.get_end_state();
+  // optimizing_state.v = Vector<3>(0, 0, 0);
+  // PointMassTrajectory3D pmm3d_2 = tr[1];
+  // QuadState to_pmm3d_2 = pmm3d_2.get_end_state();
 
-  std::cout << "optimizing velocity in gate using gradient " << std::endl;
-
-
-  for (size_t i = 0; i < 10; i++) {
-    PointMassTrajectory3D tr_opt1(from_pmm3d_1, optimizing_state, max_acc_norm,
-                                  10, true);
-    PointMassTrajectory3D tr_opt2(optimizing_state, to_pmm3d_2, max_acc_norm,
-                                  10, true);
-    Vector<3> max_end_velocity_abs = tr_opt1.max_end_velocity_abs();
-    Vector<3> dt_dve = tr_opt1.dt_dve_();
-    Vector<3> dt_dvs = tr_opt2.dt_dvs_();
-    std::cout << "tr_opt1 " << tr_opt1 << std::endl;
-    std::cout << "tr_opt2 " << tr_opt2 << std::endl;
-    std::cout << "max_end_velocity_abs " << max_end_velocity_abs << std::endl;
-    std::cout << "exists " << (tr_opt1.exists() && tr_opt2.exists())
-              << std::endl;
-    std::cout << "acc1 " << tr_opt1.start_acc().transpose() << std::endl;
-    std::cout << "acc2 " << tr_opt2.start_acc().transpose() << std::endl;
-    std::cout << "dt_dve " << dt_dve.transpose() << std::endl;
-    std::cout << "dt_dvs " << dt_dvs.transpose() << std::endl;
-    std::cout << "optimizing_state.v " << optimizing_state.v.transpose()
-              << std::endl;
-    const Scalar time_both = tr_opt1.time() + tr_opt2.time();
-    std::cout << "time " << time_both << std::endl;
-    const Vector<3> dv = dt_dvs + dt_dve;
-    optimizing_state.v = optimizing_state.v - 10 * dv;
-    std::cout << "------------------------------------------ " << std::endl;
-  }
+  // std::cout << "optimizing velocity in gate using gradient " << std::endl;
 
 
-  exit(1);
-  PointMassTrajectory3D pmm_gd2(from_pmm3d, to_pmm3d, max_acc_norm);
-  std::cout << "pmm_gd2 " << pmm_gd2 << std::endl;
+  // for (size_t i = 0; i < 10; i++) {
+  //   PointMassTrajectory3D tr_opt1(from_pmm3d_1, optimizing_state,
+  //   max_acc_norm,
+  //                                 10, true);
+  //   PointMassTrajectory3D tr_opt2(optimizing_state, to_pmm3d_2, max_acc_norm,
+  //                                 10, true);
+  //   Vector<3> max_end_velocity_abs = tr_opt1.max_end_velocity_abs();
+  //   Vector<3> dt_dve = tr_opt1.dt_dve_();
+  //   Vector<3> dt_dvs = tr_opt2.dt_dvs_();
+  //   std::cout << "tr_opt1 " << tr_opt1 << std::endl;
+  //   std::cout << "tr_opt2 " << tr_opt2 << std::endl;
+  //   std::cout << "max_end_velocity_abs " << max_end_velocity_abs <<
+  //   std::endl; std::cout << "exists " << (tr_opt1.exists() &&
+  //   tr_opt2.exists())
+  //             << std::endl;
+  //   std::cout << "acc1 " << tr_opt1.start_acc().transpose() << std::endl;
+  //   std::cout << "acc2 " << tr_opt2.start_acc().transpose() << std::endl;
+  //   std::cout << "dt_dve " << dt_dve.transpose() << std::endl;
+  //   std::cout << "dt_dvs " << dt_dvs.transpose() << std::endl;
+  //   std::cout << "optimizing_state.v " << optimizing_state.v.transpose()
+  //             << std::endl;
+  //   const Scalar time_both = tr_opt1.time() + tr_opt2.time();
+  //   std::cout << "time " << time_both << std::endl;
+  //   const Vector<3> dv = dt_dvs + dt_dve;
+  //   optimizing_state.v = optimizing_state.v - 10 * dv;
+  //   std::cout << "------------------------------------------ " << std::endl;
+  // }
 
 
-  std::cout << "total time pmm " << sum_times << std::endl;
-  std::vector<QuadState> samples =
-    VelocitySearchGraph::getTrajectoryEquidistantStates(tr, 0.8);
+  // exit(1);
+  // PointMassTrajectory3D pmm_gd2(from_pmm3d, to_pmm3d, max_acc_norm);
+  // std::cout << "pmm_gd2 " << pmm_gd2 << std::endl;
 
-  test_poly_fiting(samples);
-  std::cout << "out" << std::endl;
 
-  VelocitySearchGraph::saveTrajectoryEquitemporal(tr, "samples_pmm.csv");
+  // std::cout << "total time pmm " << sum_times << std::endl;
+  // std::vector<QuadState> samples =
+  //   VelocitySearchGraph::getTrajectoryEquidistantStates(tr, 0.8);
 
-  std::cout << "saved equitemporal" << std::endl;
-  VelocitySearchGraph::saveTrajectoryEquidistant(tr, "samples_equidistant.csv");
-  std::cout << "saved equidistant" << std::endl;
-  VelocitySearchGraph::saveTrajectoryEquidistant(
-    tr, "samples_equidistant_08.csv", 0.8);
-  std::cout << "saved equidistant 0.8" << std::endl;
+  // test_poly_fiting(samples);
+  // std::cout << "out" << std::endl;
+
+  // VelocitySearchGraph::saveTrajectoryEquitemporal(tr, "samples_pmm.csv");
+
+  // std::cout << "saved equitemporal" << std::endl;
+  // VelocitySearchGraph::saveTrajectoryEquidistant(tr,
+  // "samples_equidistant.csv"); std::cout << "saved equidistant" << std::endl;
+  // VelocitySearchGraph::saveTrajectoryEquidistant(
+  //   tr, "samples_equidistant_08.csv", 0.8);
+  // std::cout << "saved equidistant 0.8" << std::endl;
 
   return 0;
 }
