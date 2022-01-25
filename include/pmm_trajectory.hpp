@@ -25,7 +25,8 @@ class PMMTrajectory {
   */
   PMMTrajectory(const Scalar ps, const Scalar vs, const Scalar pe,
                 const Scalar ve, const Scalar a1_in, const Scalar a2_in,
-                const int i, const bool keep_acc_sign = false,
+                const int i, const double desired_time = 0,
+                const bool keep_acc_sign = false,
                 const bool calc_gradient = false,
                 const bool check_result = false);
   /*

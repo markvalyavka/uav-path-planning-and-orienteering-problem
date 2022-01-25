@@ -288,12 +288,20 @@ int test_pmm(int argc, char** argv) {
 
   QuadState from;
   from.setZero();
-  from.p = Vector<3>(0, 0, 1);
+  from.p = Vector<3>(8.34, 6.34, 0.757);
+  from.v = Vector<3>(12.4, 4.53, -2.59);
   QuadState to;
   to.setZero();
-  to.p = Vector<3>(5, 5, 1);
-  PointMassTrajectory3D test(from, to, 25);
+  to.p = Vector<3>(9.09, 6.26, 1.08);
+  to.v = Vector<3>(15.9748, 0, -5.81434);
+  // PointMassTrajectory3D test(from, to, 25);
+  // const Scalar single_axis = 15.1786;
+  const Scalar single_axis = 100.0;
+  Vector<3> max_acc_per_axis = Vector<3>::Constant(single_axis);
+  PointMassTrajectory3D test(from, to, max_acc_per_axis, true);
   std::cout << test << std::endl;
+  // exit(1);
+
 
   // -+ value of initial samples
   Scalar max_yaw_pitch_ang = 20.0;
@@ -303,7 +311,7 @@ int test_pmm(int argc, char** argv) {
   const Scalar yaw_pitch_cone_angle_boundary = 60.0;
 
   // velocity norm samples
-  const Scalar min_velocity_norm = 1.0;
+  const Scalar min_velocity_norm = 5.0;
   const Scalar min_velocity_norm_boundary = 1.0;
   const Scalar max_velocity_norm = 17.0;
   const Scalar precision_velocity_norm = 8.0;
@@ -358,6 +366,9 @@ int test_pmm(int argc, char** argv) {
   gates_vel_norms.resize(gates_pitch_deg.size(),
                          (max_velocity_norm + min_velocity_norm) / 2.0);
 
+  // Vector<3> init_velocity = Vector<3>(cos(yaw), sin(yaw), 0) *
+  //                           (max_velocity_norm + min_velocity_norm) / 2.0;
+
   std::cout << "gates_vel_norms.size() " << gates_vel_norms.size() << std::endl;
   // gates_waypoints.resize(3);
   // gates_yaw_deg.resize(3);
@@ -365,22 +376,22 @@ int test_pmm(int argc, char** argv) {
   Scalar sum_times = 0;
   find_vel.tic();
   MultiWaypointTrajectory tr;
-  for (int impr = 0; impr < 5; impr++) {
-    std::cout << "call " << impr << std::endl;
-    tr = vel_search_graph.find_velocities_in_positions(
-      gates_waypoints, start_velocity, end_velocity, gates_yaw_deg,
-      gates_pitch_deg, gates_vel_norms, end_free, false);
-    for (size_t i = 0; i < tr.size(); i++) {
-      const Vector<3> vel = tr[i].get_end_state().v;
-      const Vector<3> vel_norm = vel.normalized();
-      const Scalar pitch = asin(-vel_norm(2)) * 180 / M_PI;
-      const Scalar yaw = atan2(vel_norm(1), vel_norm(0)) * 180 / M_PI;
-      gates_yaw_deg[i + 1] = yaw;
-      gates_pitch_deg[i + 1] = pitch;
-      gates_vel_norms[i + 1] = vel.norm();
-    }
-    find_vel.toc();
+  // for (int impr = 0; impr < 5; impr++) {
+  //   std::cout << "call " << impr << std::endl;
+  tr = vel_search_graph.find_velocities_in_positions(
+    gates_waypoints, start_velocity, end_velocity, gates_yaw_deg,
+    gates_pitch_deg, gates_vel_norms, end_free, false);
+  for (size_t i = 0; i < tr.size(); i++) {
+    const Vector<3> vel = tr[i].get_end_state().v;
+    const Vector<3> vel_norm = vel.normalized();
+    const Scalar pitch = asin(-vel_norm(2)) * 180 / M_PI;
+    const Scalar yaw = atan2(vel_norm(1), vel_norm(0)) * 180 / M_PI;
+    gates_yaw_deg[i + 1] = yaw;
+    gates_pitch_deg[i + 1] = pitch;
+    gates_vel_norms[i + 1] = vel.norm();
   }
+  find_vel.toc();
+  // }
   find_vel.print();
   std::cout << std::endl << std::endl;
 

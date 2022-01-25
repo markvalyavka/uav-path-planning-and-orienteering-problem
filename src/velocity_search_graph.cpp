@@ -39,10 +39,11 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
   // solution to a_s^2 + a_s^2 + (a_s+g)^2 = thrust^2
   Scalar single_axis =
     (-2 * G + sqrt(4 * G * G - 12 * (G * G - pow_max_acc_2))) / 6.0;
+  // Scalar single_axis = 100;
   // Scalar single_axis_b =
   // (-2 * G - sqrt(4 * G * G - 12 * (G * G - pow_max_acc_2))) / 6.0;
   Vector<3> max_acc_per_axis = Vector<3>::Constant(single_axis);
-  // std::cout << "single_axis " << single_axis << std::endl;
+  std::cout << "single_axis " << single_axis << std::endl;
   // std::cout << "single_axis_a " << single_axis_a << std::endl;
   // std::cout << "single_axis_b " << single_axis_b << std::endl;
 
@@ -117,6 +118,7 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
     // minimal distance from norm boundaries to desired velocity
     Eigen::Vector2f& min_max_norm = gates_yaw_pitch_size_ranges[gid - 1][2];
     const Scalar gate_vel_norm = gates_vel_norms[gid];
+    // std::cout << "gate_vel_norm " << gate_vel_norm << std::endl;
     Scalar min_dist_desired_vel = std::min(gate_vel_norm - min_max_norm(0),
                                            min_max_norm(1) - gate_vel_norm);
     min_dist_desired_vel = std::max(min_dist_desired_vel, 2.0);
@@ -268,6 +270,11 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
           timer_calc_pm.toc();
 
           if (tr_max_acc.exists()) {
+            std::cout << "from " << from_state.p.transpose() << " "
+                      << from_state.v.transpose() << std::endl;
+            std::cout << "to " << to_state.p.transpose() << " "
+                      << to_state.v.transpose() << std::endl;
+            std::cout << tr_max_acc << std::endl;
             const Scalar time_between = tr_max_acc.time();
             const Scalar time_tot = time_between + time_from;
 
@@ -291,6 +298,7 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
         std::cout << to_p.transpose() << std::endl;
         return MultiWaypointTrajectory();
       }
+      exit(1);
     }
 
     // find the shortest-time trajectory among the end samples
@@ -319,8 +327,8 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
       found_gates_speeds[g_id - 1] =
         std::get<0>(gate_velocity_samples[g_id][prev_sample_idx]);
 
-      // std::cout << "idx " << g_id << " speed "
-      //           << found_gates_speeds[g_id - 1].transpose() << std::endl;
+      std::cout << "idx " << g_id << " speed "
+                << found_gates_speeds[g_id - 1].transpose() << std::endl;
 
       Vector<3> indexes =
         std::get<2>(gate_velocity_samples[g_id][prev_sample_idx]);
@@ -370,9 +378,9 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
             Eigen::Vector2f(current_range(0) + range_size_half / 2.0,
                             current_range(1) - range_size_half / 2.0);
         }
-        // std::cout << "g " << (g_id - 1) << " ax " << i << "range"
-        //           << gates_yaw_pitch_size_ranges[g_id - 1][i].transpose()
-        //           << std::endl;
+        std::cout << "g " << (g_id - 1) << " ax " << i << "range"
+                  << gates_yaw_pitch_size_ranges[g_id - 1][i].transpose()
+                  << std::endl;
       }
 
       // traceback previous sample index here

@@ -193,20 +193,46 @@ PointMassTrajectory3D::PointMassTrajectory3D(const QuadState &from,
                                              const bool equalize_time,
                                              const bool calc_gradient) {
   x_ = PMMTrajectory(from.p(0), from.v(0), to.p(0), to.v(0), max_acc1(0),
-                     max_acc2(0), 0, false, calc_gradient, false);
+                     max_acc2(0), 0, 0.0, false, calc_gradient, false);
   y_ = PMMTrajectory(from.p(1), from.v(1), to.p(1), to.v(1), max_acc1(1),
-                     max_acc2(1), 1, false, calc_gradient, false);
+                     max_acc2(1), 1, 0.0, false, calc_gradient, false);
   z_ = PMMTrajectory(from.p(2), from.v(2), to.p(2), to.v(2), max_acc1(2),
-                     max_acc2(2), 2, false, calc_gradient, false);
-
+                     max_acc2(2), 2, 0.0, false, calc_gradient, false);
+  // std::cout << "before scaling" << std::endl;
+  // std::cout << "x_ " << x_ << std::endl;
+  // std::cout << "y_ " << y_ << std::endl;
+  // std::cout << "z_ " << z_ << std::endl << std::endl;
 
   if (equalize_time) {
-    const Scalar tr_time = time();
-    for (size_t i = 0; i < 3; i++) {
+    Scalar tr_time = time();  // * 2.92;
+    // std::cout << tr_time << std::endl;
+    size_t i = 0;
+    size_t reset_count = 0;
+    for (; i < 3; i++) {
       if (get_axis_trajectory(i).time() != tr_time) {
         PMMTrajectory scaled =
           PMMTrajectory(get_axis_trajectory(i), tr_time, calc_gradient);
+        if (!scaled.exists_) {
+          // std::cout << "scaled does not exists" << std::endl;
+          Scalar scale_time = fabs(scaled.a_(0)) / max_acc1(i);
+          // std::cout << "scale_time " << scale_time << std::endl;
+          scaled = PMMTrajectory(
+            from.p(i), from.v(i), to.p(i), to.v(i), max_acc1(i), max_acc2(i), i,
+            tr_time * scale_time, false, calc_gradient, false);
+          // std::cout << "new scaled " << scaled << std::endl;
+        }
+        // exit(1);
         set_axis_trajectory(i, scaled);
+        if (tr_time != scaled.time()) {
+          // std::cout << "scaled time changed" << scaled.time() << std::endl;
+          tr_time = scaled.time();
+          i = 0;
+          reset_count++;
+          if (reset_count > 3) {
+            std::cout << "reset count exceeded" << std::endl;
+            break;
+          }
+        }
       }
     }
   }
@@ -239,7 +265,7 @@ PointMassTrajectory3D::PointMassTrajectory3D(const QuadState &from,
 
 
     PMMTrajectory tr_above(ps, vs, pe, ve, acc_req(i) * 1.1, -acc_req(i) * 1.1,
-                           i, false, true, false);
+                           i, 0.0, false, true, false);
     if (tr_above.exists_) {
       acc_req(i) = std::copysign(acc_req(i), tr_above.a_(0));
       t_times(i) = tr_above.time();
@@ -250,7 +276,7 @@ PointMassTrajectory3D::PointMassTrajectory3D(const QuadState &from,
       exit(1);
     }
     PMMTrajectory tr_bellow(ps, vs, pe, ve, acc_req(i) * 0.9, -acc_req(i) * 0.9,
-                            i, false, true, false);
+                            i, 0.0, false, true, false);
     if (tr_bellow.exists_) {
       acc_req(i) = std::copysign(MIN_ACC_REQ, acc_req(i));
     } else {
@@ -380,8 +406,8 @@ PointMassTrajectory3D::PointMassTrajectory3D(const QuadState &from,
       const Scalar ps = from.p(i);
       const Scalar pe = to.p(i);
 
-      const PMMTrajectory tr(ps, vs, pe, ve, max_acc, min_acc, i, false, true,
-                             false);
+      const PMMTrajectory tr(ps, vs, pe, ve, max_acc, min_acc, i, 0.0, false,
+                             true, false);
       // INFO(i << " dtda " << tr.dt_da)
 
       if (!tr.exists_) {

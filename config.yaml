@@ -33,21 +33,30 @@
 
 
 start:
-  position: [ -3.5 ,    0.00889 , 2]
-  velocity: [8.41 , -7.17 , 5.68 ]
+  position: [ 8.34  ,    6.34  ,    0.757]
+  velocity: [12.4  ,    4.53     , -2.59  ]
 end:
-  position: [ 9.27  ,   -3.46  ,  1.17 ]
-  velocity: [0 , 0 , 0]
-gates: [[ -0.9,     -1.27  ,  3.48],
-      [ 9.09   ,  6.26   ,  1.08  ]]
+  position: [ -4.75 ,    -6.12    , 2.81  ]
+  velocity: [-11    ,  0 , 0 ]
+gates: [[ 9.09 ,     6.26   ,   1.08],
+      [ 9.27   ,   -3.46   ,  1.17 ]]
 
 # #added start orientation 0 which is not fulfilled!!!
 # gates_orientations: [-43, 0,-20,-126]   
 # # # gates_pitch_orientations: [-20,20,0,0]
 # gates_pitch_orientations: [0,0,0,0]
 
-gates_orientations: [ -40.4495, 69.6394 ,0,-90.5]   
-gates_pitch_orientations: [-27.2011, 22.521, -40, 0.866014]
+# 8.34      6.34      0.757     12.4      4.53      -2.59    
+# 9.09      6.26      1.08      10.3      -3.76     0        
+# 9.27      -3.46     1.17      -6.47     -8.9      0        
+# -4.75     -6.12     2.81      -11       -1.35e-15 0 
+
+# yaw 20.1 -20 -126 -180 
+# pitch 11.1 -0 -0 -0 
+# norm 13.4 11 11 11 
+
+gates_orientations: [ 20.1 , -20, -126 , -180 ]   
+gates_pitch_orientations: [11.1 ,-0 ,-0 ,-0 ]
 # output tr size 3
 #  yaw -40.4495 pitch -27.2011
 # yaw 69.6394 pitch 22.521
