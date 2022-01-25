@@ -318,8 +318,8 @@ int test_pmm(int argc, char** argv) {
 
   max_yaw_pitch_ang = config["max_yaw_pitch_ang"].as<Scalar>();
   precision_yaw_pitch_ang = config["precision_yaw_pitch_ang"].as<Scalar>();
-  vel_search_graph.setYawPitchConeSidesAndPecisiton(max_yaw_pitch_ang,
-                                                    precision_yaw_pitch_ang);
+  // vel_search_graph.setYawPitchConeSidesAndPecisiton(max_yaw_pitch_ang,
+  //                                                   precision_yaw_pitch_ang);
 
 
   Vector<3> start_velocity;
@@ -334,6 +334,8 @@ int test_pmm(int argc, char** argv) {
   std::vector<Vector<3>> gates_waypoints;
   std::vector<Scalar> gates_yaw_deg;
   std::vector<Scalar> gates_pitch_deg;
+  std::vector<Scalar> gates_vel_norms;
+
   std::cout << "start_velocity " << start_velocity.transpose() << std::endl;
 
   if (!parseArrayParam<Vector<3>>(config, "gates", gates_waypoints))
@@ -353,19 +355,32 @@ int test_pmm(int argc, char** argv) {
   std::cout << "gates_yaw_deg.size() " << gates_yaw_deg.size() << std::endl;
   std::cout << "gates_pitch_deg.size() " << gates_pitch_deg.size() << std::endl;
 
+  gates_vel_norms.resize(gates_pitch_deg.size(),
+                         (max_velocity_norm + min_velocity_norm) / 2.0);
 
+  std::cout << "gates_vel_norms.size() " << gates_vel_norms.size() << std::endl;
   // gates_waypoints.resize(3);
   // gates_yaw_deg.resize(3);
   Timer find_vel("find vel");
   Scalar sum_times = 0;
   find_vel.tic();
   MultiWaypointTrajectory tr;
-  // for (int i = 0; i < 1000; i++) {
-  tr = vel_search_graph.find_velocities_in_positions(
-    gates_waypoints, start_velocity, end_velocity, gates_yaw_deg,
-    gates_pitch_deg, end_free, false);
-  find_vel.toc();
-  // }
+  for (int impr = 0; impr < 3; impr++) {
+    std::cout << "call " << impr << std::endl;
+    tr = vel_search_graph.find_velocities_in_positions(
+      gates_waypoints, start_velocity, end_velocity, gates_yaw_deg,
+      gates_pitch_deg, gates_vel_norms, end_free, false);
+    for (size_t i = 0; i < tr.size(); i++) {
+      const Vector<3> vel = tr[i].get_end_state().v;
+      const Vector<3> vel_norm = vel.normalized();
+      const Scalar pitch = asin(-vel_norm(2)) * 180 / M_PI;
+      const Scalar yaw = atan2(vel_norm(1), vel_norm(0)) * 180 / M_PI;
+      gates_yaw_deg[i + 1] = yaw;
+      gates_pitch_deg[i + 1] = pitch;
+      gates_vel_norms[i + 1] = vel.norm();
+    }
+    find_vel.toc();
+  }
   find_vel.print();
   std::cout << std::endl << std::endl;
 

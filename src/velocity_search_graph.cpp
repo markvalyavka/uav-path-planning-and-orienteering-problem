@@ -29,7 +29,8 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
   const std::vector<Vector<3>>& gates_waypoints,
   const Vector<3>& start_velocity, const Vector<3>& end_velocity,
   const std::vector<Scalar>& gates_yaw_deg,
-  const std::vector<Scalar>& gates_pitch_deg, const bool end_free,
+  const std::vector<Scalar>& gates_pitch_deg,
+  const std::vector<Scalar>& gates_vel_norms, const bool end_free,
   const bool use_gd) {
   const int gates_size = gates_waypoints.size();
 
@@ -45,17 +46,23 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
   // std::cout << "single_axis_a " << single_axis_a << std::endl;
   // std::cout << "single_axis_b " << single_axis_b << std::endl;
 
+  if (gates_waypoints.size() != gates_yaw_deg.size() ||
+      gates_yaw_deg.size() != gates_pitch_deg.size() ||
+      gates_pitch_deg.size() != gates_vel_norms.size()) {
+    std::cout << "wrong size of gates/yaw/pitch/norm vectors" << std::endl;
+    return MultiWaypointTrajectory();
+  }
   std::vector<Vector<3>> found_gates_speeds;
   std::vector<Scalar> found_gates_times;
   // also allow optimizing the end but omit the start
   found_gates_speeds.resize(gates_size - 1);
   found_gates_times.resize(gates_size - 1);
 
-  std::vector<std::vector<Vector<2>>> gates_yaw_pitch_size_ranges;
+  std::vector<std::vector<Eigen::Vector2f>> gates_yaw_pitch_size_ranges;
   gates_yaw_pitch_size_ranges.resize(
-    gates_size - 1, {Vector<2>(-max_yaw_pitch_ang_, max_yaw_pitch_ang_),
-                     Vector<2>(-max_yaw_pitch_ang_, max_yaw_pitch_ang_),
-                     Vector<2>(min_velocity_size_, max_velocity_size_)});
+    gates_size - 1, {Eigen::Vector2f(-max_yaw_pitch_ang_, max_yaw_pitch_ang_),
+                     Eigen::Vector2f(-max_yaw_pitch_ang_, max_yaw_pitch_ang_),
+                     Eigen::Vector2f(min_velocity_size_, max_velocity_size_)});
 
 
   // samles have [gateid][sampleid][{velocity,(yaw, pitch,
@@ -104,6 +111,19 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
       {-1, DBL_MAX});  // add end
   }
 
+  // change the velocity norm range based on current velocity in the
+  // gates_vel_norms
+  for (size_t gid = 1; gid <= sample_num_gates; gid++) {
+    // minimal distance from norm boundaries to desired velocity
+    Eigen::Vector2f& min_max_norm = gates_yaw_pitch_size_ranges[gid - 1][2];
+    const Scalar gate_vel_norm = gates_vel_norms[gid];
+    Scalar min_dist_desired_vel = std::min(gate_vel_norm - min_max_norm(0),
+                                           min_max_norm(1) - gate_vel_norm);
+    min_dist_desired_vel = std::max(min_dist_desired_vel, 2.0);
+    min_max_norm(0) = gate_vel_norm - min_dist_desired_vel;
+    min_max_norm(1) = gate_vel_norm + min_dist_desired_vel;
+  }
+
   Timer timer;
   timer.tic();
 
@@ -125,13 +145,16 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
         num_vel_samples_size;  // zero size does not need yaw-pitch samples
 
       // get current min-max angles(relative to gate yaw) and velocity sizes
-      const Vector<2> min_max_yaw = gates_yaw_pitch_size_ranges[gid - 1][0];
-      const Vector<2> min_max_pitch = gates_yaw_pitch_size_ranges[gid - 1][1];
-      const Vector<2> min_max_size = gates_yaw_pitch_size_ranges[gid - 1][2];
+      const Eigen::Vector2f min_max_yaw =
+        gates_yaw_pitch_size_ranges[gid - 1][0];
+      const Eigen::Vector2f min_max_pitch =
+        gates_yaw_pitch_size_ranges[gid - 1][1];
+      const Eigen::Vector2f min_max_norm =
+        gates_yaw_pitch_size_ranges[gid - 1][2];
 
       // angle step sizes
       const Scalar gate_vel_samples_size_step =
-        (min_max_size(1) - min_max_size(0)) /
+        (min_max_norm(1) - min_max_norm(0)) /
         ((Scalar)(num_vel_samples_size - 1));
       const Scalar gate_vel_samples_yaw_step =
         (min_max_yaw(1) - min_max_yaw(0)) /
@@ -142,6 +165,8 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
 
       const Scalar gate_yaw = gates_yaw_deg[gid];
       const Scalar gate_pitch = gates_pitch_deg[gid];
+      const Scalar gate_vel_norm = gates_vel_norms[gid];
+
 
       gate_velocity_samples[gid].resize(num_samples_gate);
 
@@ -154,7 +179,7 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
       int i = 0;
       for (size_t z_s = 0; z_s < num_vel_samples_size; z_s++) {
         const Scalar vel_size =
-          min_max_size(0) + z_s * gate_vel_samples_size_step;
+          min_max_norm(0) + z_s * gate_vel_samples_size_step;
         for (size_t x_s = 0; x_s < num_vel_samples_yaw_pitch_ang; x_s++) {
           const Scalar yaw = min_max_yaw(0) + x_s * gate_vel_samples_yaw_step;
           for (size_t y_s = 0; y_s < num_vel_samples_yaw_pitch_ang; y_s++) {
@@ -301,7 +326,7 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
         std::get<2>(gate_velocity_samples[g_id][prev_sample_idx]);
 
       for (size_t i = 0; i < 3; i++) {
-        const Vector<2> current_range =
+        const Eigen::Vector2f current_range =
           gates_yaw_pitch_size_ranges[g_id - 1][i];
 
         const Scalar range_size_half =
@@ -309,8 +334,8 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
         if (indexes(i) == 0) {
           // move the range of minmax down
           gates_yaw_pitch_size_ranges[g_id - 1][i] =
-            Vector<2>(current_range(0) - range_size_half,
-                      current_range(1) - range_size_half);
+            Eigen::Vector2f(current_range(0) - range_size_half,
+                            current_range(1) - range_size_half);
           if (i == 2) {
             // limit velocity size to be bigger than min_velocity_size_boundary_
             gates_yaw_pitch_size_ranges[g_id - 1][i] =
@@ -328,8 +353,8 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
         } else if (indexes(i) == 2) {
           // move the range of minmax up
           gates_yaw_pitch_size_ranges[g_id - 1][i] =
-            Vector<2>(current_range(0) + range_size_half,
-                      current_range(1) + range_size_half);
+            Eigen::Vector2f(current_range(0) + range_size_half,
+                            current_range(1) + range_size_half);
           if (i < 2) {
             // limit yaw pitch change from gate direction to be within
             // -yaw_pitch_cone_angle_boundary_ and
@@ -342,8 +367,8 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
         } else {
           // make smaller range around current sample
           gates_yaw_pitch_size_ranges[g_id - 1][i] =
-            Vector<2>(current_range(0) + range_size_half / 2.0,
-                      current_range(1) - range_size_half / 2.0);
+            Eigen::Vector2f(current_range(0) + range_size_half / 2.0,
+                            current_range(1) - range_size_half / 2.0);
         }
         std::cout << "g " << (g_id - 1) << " ax " << i << "range"
                   << gates_yaw_pitch_size_ranges[g_id - 1][i].transpose()

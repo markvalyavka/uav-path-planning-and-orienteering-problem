@@ -41,7 +41,8 @@ class VelocitySearchGraph {
     const std::vector<Vector<3>>& gates_waypoints,
     const Vector<3>& start_velocity, const Vector<3>& end_velocity,
     const std::vector<Scalar>& gates_yaw_deg,
-    const std::vector<Scalar>& gates_pitch_deg, const bool end_free,
+    const std::vector<Scalar>& gates_pitch_deg,
+    const std::vector<Scalar>& gates_vel_norms, const bool end_free,
     const bool use_gd);
   void setYawPitchConeSidesAndPecisiton(const Scalar max_yaw_pitch_ang,
                                         const Scalar precision_yaw_pitch_ang);

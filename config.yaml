@@ -47,7 +47,7 @@ gates: [[ -0.9,     -1.27  ,  3.48],
 # gates_pitch_orientations: [0,0,0,0]
 
 gates_orientations: [ -40.4495, 69.6394 ,0,-90.5]   
-gates_pitch_orientations: [-27.2011, 22.521, 0.866014]
+gates_pitch_orientations: [-27.2011, 22.521, -40, 0.866014]
 # output tr size 3
 #  yaw -40.4495 pitch -27.2011
 # yaw 69.6394 pitch 22.521
