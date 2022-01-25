@@ -319,8 +319,8 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
       found_gates_speeds[g_id - 1] =
         std::get<0>(gate_velocity_samples[g_id][prev_sample_idx]);
 
-      std::cout << "idx " << g_id << " speed "
-                << found_gates_speeds[g_id - 1].transpose() << std::endl;
+      // std::cout << "idx " << g_id << " speed "
+      //           << found_gates_speeds[g_id - 1].transpose() << std::endl;
 
       Vector<3> indexes =
         std::get<2>(gate_velocity_samples[g_id][prev_sample_idx]);
@@ -370,9 +370,9 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
             Eigen::Vector2f(current_range(0) + range_size_half / 2.0,
                             current_range(1) - range_size_half / 2.0);
         }
-        std::cout << "g " << (g_id - 1) << " ax " << i << "range"
-                  << gates_yaw_pitch_size_ranges[g_id - 1][i].transpose()
-                  << std::endl;
+        // std::cout << "g " << (g_id - 1) << " ax " << i << "range"
+        //           << gates_yaw_pitch_size_ranges[g_id - 1][i].transpose()
+        //           << std::endl;
       }
 
       // traceback previous sample index here

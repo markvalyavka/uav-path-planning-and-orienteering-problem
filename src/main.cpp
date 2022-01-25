@@ -365,7 +365,7 @@ int test_pmm(int argc, char** argv) {
   Scalar sum_times = 0;
   find_vel.tic();
   MultiWaypointTrajectory tr;
-  for (int impr = 0; impr < 3; impr++) {
+  for (int impr = 0; impr < 5; impr++) {
     std::cout << "call " << impr << std::endl;
     tr = vel_search_graph.find_velocities_in_positions(
       gates_waypoints, start_velocity, end_velocity, gates_yaw_deg,
