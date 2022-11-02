@@ -5,7 +5,7 @@
 #include <limits>
 #include <sstream>
 
-#include "agilib/math/gravity.hpp"
+#include "gravity.hpp"
 
 namespace agi {
 PointMassTrajectory3D::PointMassTrajectory3D() {}

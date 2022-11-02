@@ -3,7 +3,7 @@
 #include <cmath>
 #include <iostream>
 
-#include "agilib/math/types.hpp"
+#include "types.hpp"
 
 namespace agi {
 

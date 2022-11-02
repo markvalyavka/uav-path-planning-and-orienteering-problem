@@ -1,7 +1,9 @@
 #pragma once
 #include <cmath>
-
-#include "agilib/math/types.hpp"
+#include <Eigen/Eigen>
+#include <limits>
+// #include "agilib/math/types.hpp"
+#include "types.hpp"
 
 #define PRECISION_PMM_VALUES (1.0e-8)
 #define PRECISION_TRANS3D (1E-4)

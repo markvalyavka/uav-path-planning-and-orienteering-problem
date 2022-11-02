@@ -2,7 +2,7 @@
 
 #include <gtest/gtest.h>
 
-#include "agilib/math/types.hpp"
+#include "types.hpp"
 
 using namespace agi;
 

@@ -3,7 +3,7 @@
 #include <cfloat>
 #include <cmath>
 
-#include "agilib/types/quadrotor.hpp"
+#include "quad_state.hpp"
 #include "pmm_trajectory.hpp"
 
 #define CONVERGENCE_PRECISION (1E-3)

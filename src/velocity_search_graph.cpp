@@ -3,9 +3,10 @@
 
 #include <cfloat>
 #include <fstream>
+#include <iomanip>
 
-#include "agilib/math/gravity.hpp"
-#include "agilib/utils/timer.hpp"
+#include "gravity.hpp"
+#include "timer.hpp"
 
 namespace agi {
 
@@ -714,6 +715,12 @@ void VelocitySearchGraph::saveSamplesToFile(std::string filename,
 void operator>>(const YAML::Node& node, Scalar& value) {
   assert(node.IsScalar());
   value = node.as<Scalar>();
+}
+
+void operator>>(const YAML::Node& node, agi::Vector<3>& value) {
+  for (std::size_t i = 0; i < node.size(); i++) {
+    value(i) = node[i].as<Scalar>();
+  }
 }
 
 }  // namespace agi

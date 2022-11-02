@@ -11,10 +11,10 @@
 #include <string>
 #include <unordered_set>
 
-#include "agilib/math/gravity.hpp"
-#include "agilib/utils/timer.hpp"
+#include "gravity.hpp"
 #include "pmm_trajectory3d.hpp"
 #include "three_acc.hpp"
+#include "timer.hpp"
 #include "tuples_hash.hpp"
 #include "velocity_search_graph.hpp"
 #include "yaml-cpp/yaml.h"

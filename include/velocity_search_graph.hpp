@@ -2,10 +2,11 @@
 #include <vector>
 
 #include "pmm_trajectory3d.hpp"
-
+#include "yaml-cpp/yaml.h"
 namespace agi {
 
 void operator>>(const YAML::Node& node, Scalar& value);
+void operator>>(const YAML::Node& node, agi::Vector<3>& value);
 
 template<typename DataType>
 bool parseArrayParam(const YAML::Node& config, std::string param,
