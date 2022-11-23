@@ -13,6 +13,7 @@ PointMassTrajectory3D::PointMassTrajectory3D() {}
 /*
 basic version with simetric acc limits in axis
 */
+// this
 PointMassTrajectory3D::PointMassTrajectory3D(const QuadState &from,
                                              const QuadState &to,
                                              const Vector<3> max_acc,

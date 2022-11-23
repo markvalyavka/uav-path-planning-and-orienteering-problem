@@ -10,6 +10,7 @@
 #include <queue>
 #include <string>
 #include <unordered_set>
+#include <unordered_map>
 
 #include "gravity.hpp"
 #include "pmm_trajectory3d.hpp"
@@ -277,7 +278,7 @@ void test_poly_fiting(std::vector<QuadState>& samples) {
     myfile.close();
   }
 }
-
+// point mass model
 int test_pmm(int argc, char** argv) {
   // register singal for killingcm
   std::signal(SIGINT, signal_callback);
@@ -425,7 +426,16 @@ int test_pmm(int argc, char** argv) {
     }
   }
 
+  VelocitySearchGraph::saveTrajectoryEquitemporal(tr, "samples_pmm.csv");
 
+  std::cout << "saved equitemporal" << std::endl;
+  VelocitySearchGraph::saveTrajectoryEquidistant(tr,
+                                                 "samples_equidistant.csv"); std::cout << "saved equidistant" << std::endl;
+  VelocitySearchGraph::saveTrajectoryEquidistant(
+    tr, "samples_equidistant_08.csv", 0.8);
+  std::cout << "saved equidistant 0.8" << std::endl;
+
+  return 0;
   // PointMassTrajectory3D pmm3d = tr[0];
   // std::cout << "pmm3d" << std::endl;
   // std::cout << pmm3d << std::endl;
@@ -506,7 +516,7 @@ int test_pmm(int argc, char** argv) {
               << std::endl;
   }
 
-*/
+  */
   // PointMassTrajectory3D pmm_gd(from_pmm3d, to_pmm3d, 26.29);
   // std::cout << "pmm_gd " << pmm_gd << std::endl;
 
@@ -566,20 +576,6 @@ int test_pmm(int argc, char** argv) {
   // std::cout << "total time pmm " << sum_times << std::endl;
   // std::vector<QuadState> samples =
   //   VelocitySearchGraph::getTrajectoryEquidistantStates(tr, 0.8);
-
-  // test_poly_fiting(samples);
-  // std::cout << "out" << std::endl;
-
-  // VelocitySearchGraph::saveTrajectoryEquitemporal(tr, "samples_pmm.csv");
-
-  // std::cout << "saved equitemporal" << std::endl;
-  // VelocitySearchGraph::saveTrajectoryEquidistant(tr,
-  // "samples_equidistant.csv"); std::cout << "saved equidistant" << std::endl;
-  // VelocitySearchGraph::saveTrajectoryEquidistant(
-  //   tr, "samples_equidistant_08.csv", 0.8);
-  // std::cout << "saved equidistant 0.8" << std::endl;
-
-  return 0;
 }
 
 int main(int argc, char** argv) {

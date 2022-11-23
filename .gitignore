@@ -2,3 +2,4 @@ unittests
 main
 .vscode
 obj
+.idea/

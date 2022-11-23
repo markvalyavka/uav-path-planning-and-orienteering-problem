@@ -96,10 +96,13 @@ struct QuadState {
 
   Vector<IDX::SIZE> x = Vector<IDX::SIZE>::Constant(NAN);
   Scalar t{NAN};
-
+  // Position
   Ref<Vector<3>> p{x.segment<IDX::NPOS>(IDX::POS)};
+  // Quaternion
   Ref<Vector<4>> qx{x.segment<IDX::NATT>(IDX::ATT)};
+  // Velocity
   Ref<Vector<3>> v{x.segment<IDX::NVEL>(IDX::VEL)};
+  // Angular velocity
   Ref<Vector<3>> w{x.segment<IDX::NOME>(IDX::OME)};
   Ref<Vector<3>> a{x.segment<IDX::NACC>(IDX::ACC)};
   Ref<Vector<3>> tau{x.segment<IDX::NTAU>(IDX::TAU)};

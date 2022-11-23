@@ -9,10 +9,10 @@ bin: $(TARGET)
 TARGET_OBJS=$(addprefix $(OBJ_DIR)/,$(OBJS))
 TEST_TARGET_OBJS=$(addprefix $(OBJ_DIR)/,$(OBJS_TESTS))
 
-$(TEST_TARGET): create_directories $(OBJS) $(OBJS_TESTS)
-	echo "making $(TEST_TARGET)"
-	$(CXX) -c tests/$(TEST_TARGET).cpp $(CXXFLAGS) $(CPPFLAGS) -o $(OBJ_DIR)/$(TEST_TARGET).o
-	$(CXX) $(CXXFLAGS) -o $@ $(TARGET_OBJS) $(TEST_TARGET_OBJS) $(OBJ_DIR)/$(TEST_TARGET).o $(LDFLAGS)
+#$(TEST_TARGET): create_directories $(OBJS) $(OBJS_TESTS)
+#	echo "making $(TEST_TARGET)"
+#	$(CXX) -c tests/$(TEST_TARGET).cpp $(CXXFLAGS) $(CPPFLAGS) -o $(OBJ_DIR)/$(TEST_TARGET).o
+#	$(CXX) $(CXXFLAGS) -o $@ $(TARGET_OBJS) $(TEST_TARGET_OBJS) $(OBJ_DIR)/$(TEST_TARGET).o $(LDFLAGS)
 
 $(OBJS): %.o: src/%.cpp
 	echo "making $<"
@@ -22,7 +22,7 @@ $(OBJS_TESTS): %.o: tests/%.cpp
 	echo "making $<"
 	$(CXX) -c $< $(CXXFLAGS) $(CPPFLAGS) -o $(OBJ_DIR)/$@
 
-$(TARGET): create_directories $(OBJS) $(TEST_TARGET)
+$(TARGET): create_directories $(OBJS)
 	echo "making $(TARGET)"
 	$(CXX) -c src/$(TARGET).cpp $(CXXFLAGS) $(CPPFLAGS) -o $(OBJ_DIR)/$(TARGET).o
 	$(CXX) $(CXXFLAGS) -o $@ $(TARGET_OBJS) $(OBJ_DIR)/$(TARGET).o $(LDFLAGS)
@@ -49,20 +49,20 @@ create_directories:
 	echo "create dircetory $(OBJ_DIR)"
 	mkdir -p $(OBJ_DIR)
 
-dependencies: agilicious_lib
+#dependencies: agilicious_lib
 
-agilicious_lib:
-	echo "making agilicious"
-	cd ./agilicious/agilib/build; cmake -DCMAKE_CXX_FLAGS="-Werror" -DCMAKE_BUILD_TYPE=RelWithDebInfo -DBUILD_TEST=ON -DEIGEN_FROM_SYSTEM=OFF .. ; make -j8;
-	#cd ./agilicious/agilib/build; cmake .. ; make -j8; #-DUNSAFE_MATH=OFF -DCMAKE_VERBOSE_MAKEFILE=ON
-	#cd ./agilicious/agilib/build; cmake .. -DCMAKE_BUILD_TYPE=Debug; make;
-	#-DCMAKE_BUILD_TYPE=Release
-
-clean_dependencies: clean_agilicious_lib
-
-clean_agilicious_lib:
-	echo "cleaning flann"
-	rm -rf ./lib/agilicious/agilib/build/*
+#agilicious_lib:
+#	echo "making agilicious"
+#	cd ./agilicious/agilib/build; cmake -DCMAKE_CXX_FLAGS="-Werror" -DCMAKE_BUILD_TYPE=RelWithDebInfo -DBUILD_TEST=ON -DEIGEN_FROM_SYSTEM=OFF .. ; make -j8;
+#	#cd ./agilicious/agilib/build; cmake .. ; make -j8; #-DUNSAFE_MATH=OFF -DCMAKE_VERBOSE_MAKEFILE=ON
+#	#cd ./agilicious/agilib/build; cmake .. -DCMAKE_BUILD_TYPE=Debug; make;
+#	#-DCMAKE_BUILD_TYPE=Release
+#
+#clean_dependencies: clean_agilicious_lib
+#
+#clean_agilicious_lib:
+#	echo "cleaning flann"
+#	rm -rf ./lib/agilicious/agilib/build/*
 
 clean:
 	$(RM) $(TARGET)
@@ -73,5 +73,5 @@ clean:
         $(MAKE) -C $$i clean; \
         done
 
-clean_all: clean clean_dependencies
+clean_all: clean
 
