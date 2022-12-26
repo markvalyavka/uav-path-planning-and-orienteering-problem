@@ -13,7 +13,7 @@ PointMassTrajectory3D::PointMassTrajectory3D() {}
 /*
 basic version with simetric acc limits in axis
 */
-// this
+// Use this to calculate trajectory between 2 positions
 PointMassTrajectory3D::PointMassTrajectory3D(const QuadState &from,
                                              const QuadState &to,
                                              const Vector<3> max_acc,
@@ -230,7 +230,7 @@ PointMassTrajectory3D::PointMassTrajectory3D(const QuadState &from,
           i = 0;
           reset_count++;
           if (reset_count > 3) {
-            std::cout << "reset count exceeded" << std::endl;
+//            std::cout << "reset count exceeded" << std::endl;
             break;
           }
         }
@@ -1027,10 +1027,10 @@ Scalar PointMassTrajectory3D::get_axis_switch_time(const int i) const {
 }
 
 std::ostream &operator<<(std::ostream &o, const PointMassTrajectory3D &t) {
-  o << "pmm3d: t:" << t.time() << ";exists:" << t.exists();
-  o << "\n\tx: " << t.x_;
-  o << "\n\ty: " << t.y_;
-  o << "\n\tz: " << t.z_;
+//  o << "pmm3d: t:" << t.time() << ";exists:" << t.exists();
+//  o << "\n\tx: " << t.x_;
+//  o << "\n\ty: " << t.y_;
+//  o << "\n\tz: " << t.z_;
   return o;
 }
 
