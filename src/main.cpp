@@ -181,13 +181,10 @@ int test_pmm(int argc, char** argv) {
   }
   std::cout <<  "--------------------" << std::endl;
   VelocitySearchGraph::saveTrajectoryEquitemporal(tr, "samples_pmm.csv");
-  std::cout << "saved equitemporal" << std::endl;
+  std::cout << "Saved equitemporal." << std::endl;
   VelocitySearchGraph::saveTrajectoryEquidistant(tr,
                                                  "samples_equidistant.csv");
-  std::cout << "saved equidistant" << std::endl;
-//  VelocitySearchGraph::saveTrajectoryEquidistant(
-//    tr, "samples_equidistant_08.csv", 0.8);
-//  std::cout << "saved equidistant 0.8" << std::endl;
+  std::cout << "Saved equidistant." << std::endl;
 
   return 0;
 }

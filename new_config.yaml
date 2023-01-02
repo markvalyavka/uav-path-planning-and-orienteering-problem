@@ -1,12 +1,11 @@
-
-
 start:
   position: [0, 0, 0]
-  velocity: [2, 0, 2]
+  velocity: [12, 0, 0]
 end:
-  position: [6, 0, 0]
-  velocity: [0, 0 ,0]
-positions: []
+  position: [0, 14, 0]
+  velocity: [-20, -20 ,0]
+locations: [[10, 10, 0],
+            [20, 13, 0]]
 
 number_of_yaw_samples: 8
 number_of_velocity_samples: 8

@@ -34,12 +34,13 @@
 
 
 start:
-  position: [ 0  ,    0  , 0]
-  velocity: [2  , 0     , 2  ]
+  position: [0, 0, 0]
+  velocity: [12  , 0     , 0  ]
 end:
-  position: [ 6 ,    0    , 0  ]
-  velocity: [0    ,  0 , 0 ]
-gates: []
+  position: [0, 14, 0]
+  velocity: [-20    ,  -20 , 0 ]
+gates: [[10, 10, 0],
+        [20, 13, 0]]
 
 gates_orientations: [ 0 , -90]
 gates_pitch_orientations: [0 , 0]
