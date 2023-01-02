@@ -1,0 +1,16 @@
+
+
+start:
+  position: [0, 0, 0]
+  velocity: [2, 0, 2]
+end:
+  position: [6, 0, 0]
+  velocity: [0, 0 ,0]
+positions: []
+
+number_of_yaw_samples: 8
+number_of_velocity_samples: 8
+max_velocity_norm: 20
+
+
+

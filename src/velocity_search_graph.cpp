@@ -25,7 +25,10 @@ VelocitySearchGraph::VelocitySearchGraph(
     max_velocity_size_(max_velocity_size),
     precision_velocity_size_(precision_velocity_size) {}
 
+// Given waypoints that form a trajectory, finds velocities and angles for each
+// waypoint such that the cost of trajectory traversal is optimal.
 
+// Cone refocusing is used for sampling.
 MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
   const std::vector<Vector<3>>& gates_waypoints,
   const Vector<3>& start_velocity, const Vector<3>& end_velocity,
@@ -541,7 +544,7 @@ std::vector<QuadState> VelocitySearchGraph::getTrajectoryEquidistantStates(
   const MultiWaypointTrajectory& trajectories, const Scalar desired_ds) {
   std::vector<QuadState> samples;
   Scalar trajectory_length = 0;
-
+  std::cout << "here1" << std::endl;
   // get the trajectories length
   for (size_t i = 0; i < trajectories.size(); i++) {
     const Scalar ttime = trajectories[i].time_min();
@@ -549,7 +552,7 @@ std::vector<QuadState> VelocitySearchGraph::getTrajectoryEquidistantStates(
       trajectories[i].get_length_between_times(0, ttime);
     trajectory_length += traj_length;
   }
-
+  std::cout << "here" << std::endl;
   const int num_samples = ceil(trajectory_length / desired_ds);
   const Scalar ds = trajectory_length / ((Scalar)(num_samples - 1));
 

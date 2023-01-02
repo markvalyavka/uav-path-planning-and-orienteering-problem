@@ -34,15 +34,16 @@ PMMTrajectory::PMMTrajectory(const Scalar ps, const Scalar vs, const Scalar pe,
   // std::cout << "\t ps " << ps << " vs " << vs << " pe " << pe << " ve " << ve
   //           << " a1_in " << a1_in << " a2_in " << a2_in << std::endl;
 
-  // can not move without acc
+  // If the acceleration is too low, you can't move, and thus, the trajectory
+  // doesn't exist.
   if (fabs(a1_in) <= PRECISION_PMM_VALUES &&
       fabs(a2_in) <= PRECISION_PMM_VALUES) {
     exists_ = false;
     return;
   }
 
-  const Scalar pow_ve2 = ve * ve;
   const Scalar pow_vs2 = vs * vs;
+  const Scalar pow_ve2 = ve * ve;
 
   // already there
   if (fabs(pe - ps) < PRECISION_PMM_VALUES &&

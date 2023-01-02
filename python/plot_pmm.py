@@ -34,32 +34,31 @@ def load_trajectory_samples_pmm(file):
     return np.array(states)
 
 
-gates = None
-end = None
-start = None
-with open('../config.yaml') as file: 
-    config = yaml.load(file,Loader=yaml.FullLoader)
-    print('start',config['start']['position']) 
-    print('end',config['end']['position'])
-    print("gates",config['gates'])
-    gates = config['gates']
-    end = config['end']['position']
-    start = config['start']['position']
+# def get_trajectory_positions(config_file):
+#     with open('../config.yaml') as file:
+#         config = yaml.load(file, Loader=yaml.FullLoader)
+#         gates = config['gates']
+#         end = config['end']['position']
+#         start = config['start']['position']
+#         return start, end, gates
 
 
-trajectory_file_pmm = '../samples_pmm.csv'
-trajectory_file_pmm_equidistant = '../samples_equidistant.csv'
-pmm = load_trajectory_samples_pmm(trajectory_file_pmm)
-pmm_equidistant = load_trajectory_samples_pmm(trajectory_file_pmm_equidistant)
+def plot_3d_positions_graph(pmm, pmm_equidistant):
+    fig2 = plt.figure()
+    ax3d = fig2.add_subplot(111, projection='3d')
+    ax3d.plot(pmm[:, 1], pmm[:, 2], pmm[:, 3])
+    ax3d.plot(pmm_equidistant[:, 1], pmm_equidistant[:, 2], pmm_equidistant[:, 3], '.k')
+    plt.legend()
+    plt.show()
 
 
 # fig, axs = plt.subplots(7)
 # ax = fig.add_subplot(111, projection='3d')
 
-colors = ['k','c','r','b']
-max_ax=0
-min_ax=0
-        
+# colors = ['k','c','r','b']
+# max_ax=0
+# min_ax=0
+
 #print("sequence",sequence)
 #lc = Line3DCollection(sequence, colors = 'red')
 #ax.add_collection(lc)
@@ -74,11 +73,12 @@ min_ax=0
 #     d = np.linalg.norm(pmm_equidistant[i,1:4]-pmm_equidistant[i-1,1:4])
 #     axs[6].plot(pmm_equidistant[i,0]/pmm_equidistant[-1,0],d,'.')
 
-fig2 = plt.figure()
-ax3d = fig2.add_subplot(111, projection='3d')
-ax3d.plot(pmm[:,1],pmm[:,2],pmm[:,3])
-ax3d.plot(pmm_equidistant[:,1],pmm_equidistant[:,2],pmm_equidistant[:,3],'.k')
 
-plt.legend()
+if __name__ == "__main__":
+    trajectory_pmm_file = '../samples_pmm.csv'
+    trajectory_pmm_equidistant_file = '../samples_equidistant.csv'
+    pmm = load_trajectory_samples_pmm(trajectory_pmm_file)
+    pmm_equidistant = load_trajectory_samples_pmm(trajectory_pmm_equidistant_file)
 
-plt.show()  
+    plot_3d_positions_graph(pmm, pmm_equidistant)
+

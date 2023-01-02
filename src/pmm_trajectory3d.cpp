@@ -11,9 +11,9 @@ namespace agi {
 PointMassTrajectory3D::PointMassTrajectory3D() {}
 
 /*
-basic version with simetric acc limits in axis
+Basic version with symmetric acc limits in axis.
+Use this to calculate trajectory between 2 positions. [MARK]
 */
-// Use this to calculate trajectory between 2 positions
 PointMassTrajectory3D::PointMassTrajectory3D(const QuadState &from,
                                              const QuadState &to,
                                              const Vector<3> max_acc,
@@ -22,31 +22,10 @@ PointMassTrajectory3D::PointMassTrajectory3D(const QuadState &from,
   : PointMassTrajectory3D(from, to, max_acc, -max_acc, equalize_time,
                           calc_gradient) {}
 
-
-//                                              {
-//   x_ = PMMTrajectory(from.p(0), from.v(0), to.p(0), to.v(0), max_acc(0),
-//                      -max_acc(0), 0);
-//   y_ = PMMTrajectory(from.p(1), from.v(1), to.p(1), to.v(1), max_acc(1),
-//                      -max_acc(1), 1);
-//   z_ = PMMTrajectory(from.p(2), from.v(2), to.p(2), to.v(2), max_acc(2),
-//                      -max_acc(2), 2);
-
-
-//   if (equalize_time) {
-//     const Scalar tr_time = time();
-//     for (size_t i = 0; i < 3; i++) {
-//       if (get_axis_trajectory(i).time() != tr_time) {
-//         PMMTrajectory scaled = PMMTrajectory(get_axis_trajectory(i),
-//         tr_time); set_axis_trajectory(i, scaled);
-//       }
-//     }
-//   }
-// }
-
 /*
-version that converges to thust limit by iterative increasing scaled (to mach
-time) to the acc norm
-this version scales time by default
+Version that converges to thrust limit by iterative increasing scaled (to match
+time) to the acc norm.
+This version scales time by default.
 */
 PointMassTrajectory3D::PointMassTrajectory3D(const QuadState &from,
                                              const QuadState &to,
@@ -199,14 +178,14 @@ PointMassTrajectory3D::PointMassTrajectory3D(const QuadState &from,
                      max_acc2(1), 1, 0.0, false, calc_gradient, false);
   z_ = PMMTrajectory(from.p(2), from.v(2), to.p(2), to.v(2), max_acc1(2),
                      max_acc2(2), 2, 0.0, false, calc_gradient, false);
-  // std::cout << "before scaling" << std::endl;
-  // std::cout << "x_ " << x_ << std::endl;
-  // std::cout << "y_ " << y_ << std::endl;
-  // std::cout << "z_ " << z_ << std::endl << std::endl;
+  std::cout << "before scaling" << std::endl;
+  std::cout << "x_ " << x_ << std::endl;
+  std::cout << "y_ " << y_ << std::endl;
+  std::cout << "z_ " << z_ << std::endl << std::endl;
 
   if (equalize_time) {
     Scalar tr_time = time();  // * 2.92;
-    // std::cout << tr_time << std::endl;
+    std::cout << "tr time -> " << tr_time << std::endl;
     size_t i = 0;
     size_t reset_count = 0;
     for (; i < 3; i++) {
@@ -774,6 +753,9 @@ Scalar PointMassTrajectory3D::get_length_between_times(const Scalar tfrom,
       switch_times.push_back(switch_time);
     }
   }
+//  for (auto i : switch_times) {
+//    std::cout << "Switch times: " << i << std::endl;
+//  }
 
   // sort the times
   std::sort(switch_times.begin(), switch_times.end());
@@ -1027,10 +1009,10 @@ Scalar PointMassTrajectory3D::get_axis_switch_time(const int i) const {
 }
 
 std::ostream &operator<<(std::ostream &o, const PointMassTrajectory3D &t) {
-//  o << "pmm3d: t:" << t.time() << ";exists:" << t.exists();
-//  o << "\n\tx: " << t.x_;
-//  o << "\n\ty: " << t.y_;
-//  o << "\n\tz: " << t.z_;
+  o << "pmm3d: t:" << t.time() << ";exists:" << t.exists();
+  o << "\n\tx: " << t.x_;
+  o << "\n\ty: " << t.y_;
+  o << "\n\tz: " << t.z_;
   return o;
 }
 

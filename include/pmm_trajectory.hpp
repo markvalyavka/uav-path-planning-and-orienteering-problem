@@ -2,7 +2,6 @@
 #include <cmath>
 #include <Eigen/Eigen>
 #include <limits>
-// #include "agilib/math/types.hpp"
 #include "types.hpp"
 
 #define PRECISION_PMM_VALUES (1.0e-8)
@@ -14,17 +13,21 @@ namespace agi {
 
 static constexpr Scalar MAX_SCALAR = std::numeric_limits<Scalar>::max();
 
+/*
+ * This class calculates the trajectory in one dimension (one axis).
+ */
 class PMMTrajectory {
  public:
   PMMTrajectory();
   PMMTrajectory(const PMMTrajectory &in);
   /*
-  this solves the equations
+  This solves the equations:
   v1 == vs + t1*(a1);
   ve == v1 + t2*(a2);
   p1 == ps + t1*vs + 1/2*t1^2*(a1);
   pe == p1 + t2*v1 + 1/2*t2^2*(a2);
   */
+  // Is vs -- initial velocity?
   PMMTrajectory(const Scalar ps, const Scalar vs, const Scalar pe,
                 const Scalar ve, const Scalar a1_in, const Scalar a2_in,
                 const int i, const double desired_time = 0,
@@ -32,7 +35,7 @@ class PMMTrajectory {
                 const bool calc_gradient = false,
                 const bool check_result = false);
   /*
-  one that scales times to given one
+  This constructor scales time to the one provided in arguments('total_time').
   */
   PMMTrajectory(const PMMTrajectory &in, const Scalar total_time,
                 const bool calc_gradient = false);

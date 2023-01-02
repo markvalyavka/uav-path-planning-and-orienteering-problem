@@ -6,7 +6,7 @@ namespace agi {
 /**
  * Gravity Value [m/s^2]
  *
- * This is the gravity value used in the whole project.
+ * This is the gravity value used in project.
  */
 static constexpr Scalar G = 9.8066;
 

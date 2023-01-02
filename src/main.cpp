@@ -49,24 +49,6 @@ dist_state make_diststate(QuadState state) {
 }
 
 
-void get_positions_travel_costs()
-{
-  QuadState from;
-  from.setZero();
-  from.p = Vector<3>(8.34, 6.34, 0.757);
-  from.v = Vector<3>(12.4, 4.53, -2.59);
-  QuadState to;
-  to.setZero();
-  to.p = Vector<3>(9.09, 6.26, 1.08);
-  to.v = Vector<3>(15.9748, 0, -5.81434);
-
-  const Scalar single_axis = 100.0;
-  Vector<3> max_acc_per_axis = Vector<3>::Constant(single_axis);
-  PointMassTrajectory3D test(from, to, max_acc_per_axis, true);
-  std::cout << test << std::endl;
-}
-
-
 // point mass model
 int test_pmm(int argc, char** argv) {
   // Register signal for killing
@@ -75,8 +57,6 @@ int test_pmm(int argc, char** argv) {
 
   std::string config_file = "config.yaml";
   YAML::Node config = YAML::LoadFile(config_file);
-
-  // TEST POINT MASS TRAJECTORY
 
   // PARAMETERS INITIALIZATION
 
@@ -205,15 +185,109 @@ int test_pmm(int argc, char** argv) {
   VelocitySearchGraph::saveTrajectoryEquidistant(tr,
                                                  "samples_equidistant.csv");
   std::cout << "saved equidistant" << std::endl;
-  VelocitySearchGraph::saveTrajectoryEquidistant(
-    tr, "samples_equidistant_08.csv", 0.8);
-  std::cout << "saved equidistant 0.8" << std::endl;
+//  VelocitySearchGraph::saveTrajectoryEquidistant(
+//    tr, "samples_equidistant_08.csv", 0.8);
+//  std::cout << "saved equidistant 0.8" << std::endl;
 
   return 0;
 }
 
+std::vector<Scalar> get_velocity_norm_samples(int samples_num, Scalar max_velocity) {
+  std::vector<Scalar> samples{};
+  for (int i = 1; i < samples_num+1; i++) {
+    samples.emplace_back((i-1)*max_velocity/(samples_num-1));
+  }
+  return samples;
+}
+
+std::vector<Scalar> get_heading_angle_samples(int samples_num) {
+  std::vector<Scalar> samples{};
+  for (int i = 1; i < samples_num+1; i++) {
+    samples.emplace_back(2*i*M_PI_2/samples_num);
+  }
+  return samples;
+}
+
+Vector<3> to_velocity_vector(Scalar velocity_norm, Scalar angle) {
+  return Vector<3>(velocity_norm*cos(angle), velocity_norm*sin(angle), 0);
+}
+
+std::tuple<Scalar, Scalar> to_velocity_norm_and_angle(Vector<3> velocity_vector) {
+  Scalar x_squared = velocity_vector[0] * velocity_vector[0];
+  Scalar y_squared = velocity_vector[1] * velocity_vector[1];
+  Scalar velocity_norm = sqrt(x_squared + y_squared);
+  Scalar heading_angle = atan2(velocity_vector[1], velocity_vector[0]);
+  return std::make_tuple(velocity_norm, heading_angle);
+}
+
+
+void get_positions_travel_costs()
+{
+  const Scalar single_axis = 100.0;
+  Vector<3> max_acc_per_axis = Vector<3>::Constant(single_axis);
+  Scalar max_velocity = 20;
+  int V = 8;
+  int H = 8;
+  std::vector<Scalar> velocity_samples = get_velocity_norm_samples(V, max_velocity);
+  std::vector<Scalar> heading_angle_samples = get_heading_angle_samples(H);
+  std::cout << "Velocity vector -> " << to_velocity_vector(18, 2.35619) << std::endl;
+  Scalar norm, hangle;
+  std::tie(norm, hangle) = to_velocity_norm_and_angle(to_velocity_vector(18, 2.35619));
+  std::cout << "norm -> " << norm << " angle -> " << hangle << std::endl;
+//  for (auto sample: heading_angle_samples) {
+//    std::cout << "Heading angle sample -> " << sample << std::endl;
+//  }
+
+  QuadState loc_1;
+  loc_1.setZero();
+//  loc_1.p = Vector<3>(8.34, 6.34, 0.757);
+//  loc_1.v = Vector<3>(12.4, 4.53, -2.59);
+  loc_1.p = Vector<3>(0, 0, 0);
+  loc_1.v = Vector<3>(12, 0, 0);
+
+  QuadState loc_2;
+  loc_2.setZero();
+//  loc_2.p = Vector<3>(9.09, 6.26, 1.08);
+//  loc_2.v = Vector<3>(15.9748, 0, -5.81434);
+  loc_2.p = Vector<3>(10, 10, 0);
+  loc_2.v = Vector<3>(12, 12, 0);
+
+  QuadState loc_3;
+  loc_3.setZero();
+//    to.p = Vector<3>(9.09, 6.26, 1.08);
+//    to.v = Vector<3>(15.9748, 0, -5.81434);
+  loc_3.p = Vector<3>(20, 13, 0);
+  loc_3.v = Vector<3>(0, 12, 0);
+
+  QuadState loc_4;
+  loc_4.setZero();
+  //    to.p = Vector<3>(9.09, 6.26, 1.08);
+  //    to.v = Vector<3>(15.9748, 0, -5.81434);
+  loc_4.p = Vector<3>(0, 14, 0);
+  loc_4.v = Vector<3>(-20, -20, 0);
+
+  PointMassTrajectory3D two_point_trajectory1(loc_1, loc_2, max_acc_per_axis, true);
+  PointMassTrajectory3D two_point_trajectory2(loc_2, loc_3, max_acc_per_axis, true);
+  PointMassTrajectory3D two_point_trajectory3(loc_3, loc_4, max_acc_per_axis, true);
+
+  //  std::cout << two_point_trajectory.time() << std::endl;
+//  std::cout << two_point_trajectory.exists() << std::endl;
+  std::vector<PointMassTrajectory3D> traj = {two_point_trajectory1, two_point_trajectory2, two_point_trajectory3};
+//  auto time_min = traj[0].time_min();
+//  std::cout << "Time min: " << time_min << std::endl;
+//  const Scalar traj_length = traj[0].get_length_between_times(0, time_min);
+
+//  std::cout <<  "--------------------" << std::endl;
+  VelocitySearchGraph::saveTrajectoryEquitemporal(traj, "samples_pmm.csv");
+  std::cout << "saved equitemporal" << std::endl;
+  VelocitySearchGraph::saveTrajectoryEquidistant(traj,
+                                                 "samples_equidistant.csv");
+  std::cout << "saved equidistant" << std::endl;
+}
+
 int main(int argc, char** argv) {
 //  test_pmm(argc, argv);
+  std::string config_file = "config.yaml";
   get_positions_travel_costs();
   return 0;
 }
