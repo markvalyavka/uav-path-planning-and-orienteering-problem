@@ -28,19 +28,17 @@ def load_trajectory_samples_pmm(file):
             for c in row:
                 col.append(float(c))
             state = [col[0],col[1],col[2],col[3],col[8],col[9],col[10]]
-            states.append(state)    
-            
-    #print(edges)
+            states.append(state)
     return np.array(states)
 
 
-# def get_trajectory_positions(config_file):
-#     with open('../config.yaml') as file:
-#         config = yaml.load(file, Loader=yaml.FullLoader)
-#         gates = config['gates']
-#         end = config['end']['position']
-#         start = config['start']['position']
-#         return start, end, gates
+def get_trajectory_positions(config_file):
+    with open(config_file) as file:
+        config = yaml.load(file, Loader=yaml.FullLoader)
+        locations = config['locations']
+        end = config['end']['position']
+        start = config['start']['position']
+        return np.array([start, *locations, end])
 
 
 def plot_3d_positions_graph(pmm, pmm_equidistant):
@@ -48,6 +46,14 @@ def plot_3d_positions_graph(pmm, pmm_equidistant):
     ax3d = fig2.add_subplot(111, projection='3d')
     ax3d.plot(pmm[:, 1], pmm[:, 2], pmm[:, 3])
     ax3d.plot(pmm_equidistant[:, 1], pmm_equidistant[:, 2], pmm_equidistant[:, 3], '.k')
+
+    locations = get_trajectory_positions('../new_config.yaml')
+    ax3d.scatter(locations[1:3, 0], locations[1:3, 1], locations[1:3, 2], c='y', s=[50, 50], alpha=1)
+    ax3d.scatter(locations[0, 0], locations[0, 1], locations[0, 2], c='r', s=[50], alpha=1)
+    ax3d.scatter(locations[3, 0], locations[3, 1], locations[3, 2], c='r', s=[50], alpha=1)
+    ax3d.set_xlabel('X-axis', labelpad=10)
+    ax3d.set_ylabel('Y-axis', labelpad=10)
+    ax3d.set_zlabel('Z-axis', labelpad=10)
     plt.legend()
     plt.show()
 
