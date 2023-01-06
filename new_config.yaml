@@ -1,15 +1,24 @@
 start:
   position: [0, 0, 0]
-  velocity: [12, 0, 0]
+  velocity: [50, 0, 0]
 end:
-  position: [0, 14, 0]
-  velocity: [-20, -20 ,0]
-locations: [[10, 10, 0]]
+  position: [40, 40, 0]
+  velocity: [0, -0 ,0]
+locations: [[30, 15, 0],
+            [50, 45, 0],
+            [70, 20, 0],
+            [30, 40, 0],
+            [25, 25, 0]]
 
-number_of_angle_samples: 4
-number_of_velocity_samples: 4
-max_velocity_norm: 20
+
+#locations: [[30, 15,  0]]
+
+rewards: [71, 71, 100, 50, 11]
+number_of_angle_samples: 20
+number_of_velocity_samples: 5
+max_velocity_norm: 40
 sample_end: True
+t_max: 1
 
 
 

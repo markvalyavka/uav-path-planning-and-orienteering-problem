@@ -38,7 +38,8 @@ def get_trajectory_positions(config_file):
         locations = config['locations']
         end = config['end']['position']
         start = config['start']['position']
-        return np.array([start, *locations, end])
+        rewards = config['rewards']
+        return rewards, np.array([start, *locations, end])
 
 
 def plot_3d_positions_graph(pmm, pmm_equidistant):
@@ -47,14 +48,15 @@ def plot_3d_positions_graph(pmm, pmm_equidistant):
     ax3d.plot(pmm[:, 1], pmm[:, 2], pmm[:, 3])
     ax3d.plot(pmm_equidistant[:, 1], pmm_equidistant[:, 2], pmm_equidistant[:, 3], '.k')
 
-    locations = get_trajectory_positions('../new_config.yaml')
+    rewards, locations = get_trajectory_positions('../new_config.yaml')
     print(locations)
-    ax3d.scatter(locations[1:len(locations)-1, 0], locations[1:len(locations)-1, 1], locations[1:len(locations)-1, 2], c='y', s=[50]*(len(locations)-2), alpha=1)
+    p = ax3d.scatter(locations[1:len(locations)-1, 0], locations[1:len(locations)-1, 1], locations[1:len(locations)-1, 2], c=rewards, cmap='Blues', s=[50]*(len(locations)-2), alpha=1)
     ax3d.scatter(locations[0, 0], locations[0, 1], locations[0, 2], c='r', s=[50], alpha=1)
     ax3d.scatter(locations[len(locations)-1, 0], locations[len(locations)-1, 1], locations[len(locations)-1, 2], c='r', s=[50], alpha=1)
     ax3d.set_xlabel('X-axis', labelpad=10)
     ax3d.set_ylabel('Y-axis', labelpad=10)
     ax3d.set_zlabel('Z-axis', labelpad=10)
+    fig2.colorbar(p, label="rewards", pad=0.2, ticks=[int(max(rewards)/4), int(max(rewards)/2), int(max(rewards)*3/4), int(max(rewards))])
     plt.legend()
     plt.show()
 
