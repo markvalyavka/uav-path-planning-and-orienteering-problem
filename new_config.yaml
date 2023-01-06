@@ -11,14 +11,11 @@ locations: [[30, 15, 0],
             [25, 25, 0]]
 
 
-#locations: [[30, 15,  0]]
-
 rewards: [71, 71, 100, 50, 11]
-number_of_angle_samples: 20
-number_of_velocity_samples: 5
+number_of_angle_samples: 23
+number_of_velocity_samples: 8
 max_velocity_norm: 40
-sample_end: True
-t_max: 1
+t_max: 4
 
 
 

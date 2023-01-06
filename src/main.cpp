@@ -258,7 +258,7 @@ std::tuple<MultiWaypointTrajectory, Scalar> calculate_trajectory_cost_and_optima
               shortest_samples_times[loc_id].end(), not_reached);
   }
 
-  // Samples have [gate_id][sample_id][{velocity, norm, heading_angle)}]
+  // Samples have [loc_id][sample_id][{velocity, norm, heading_angle)}]
   std::vector<std::vector<std::tuple<Vector<3>, Scalar, Scalar>>> gate_velocity_samples;
   gate_velocity_samples.resize(number_of_locations);
   for (int loc_id = 1; loc_id < number_of_locations; loc_id++) {
@@ -267,20 +267,9 @@ std::tuple<MultiWaypointTrajectory, Scalar> calculate_trajectory_cost_and_optima
   gate_velocity_samples[0].push_back({start_velocity, 0, 0});
 
 
-//  // Amount of gates to create samples for. Initially, it's all gates in the middle
-//  // (all except start an end). Although, if 'end_free' = True, we also create samples
-//  // for end location.
+  // Amount of gates to create samples for.
   int num_of_sampled_locations = number_of_locations - 2;
-  if (optimize_end) {
-    // If end is "free to sample", we have one more gate to sample velocities for.
-    num_of_sampled_locations += 1;
-  }
-    // For 'end' location, we don't create samples
-//    gate_velocity_samples[number_of_locations - 1] = std::vector<>(
-//      {end_velocity, 0, 0});
-    // It takes infinite amount time to reach to the end gate.
-//    shortest_samples_times[number_of_locations - 1].push_back(
-//      {-1, DBL_MAX});  // add end
+
   // ---- FIND OPTIMAL VELOCITIES AND TIME OF THE TRAJECTORY.
 
   for (size_t loc_to = 1; loc_to < number_of_locations; loc_to++) {
@@ -363,9 +352,9 @@ std::tuple<MultiWaypointTrajectory, Scalar> calculate_trajectory_cost_and_optima
   }
 //  std::cout << "end_best_idx -> " << end_best_idx << std::endl;
 //  std::cout << "shortest_time " << shortest_time << std::endl << std::endl;
+
   // Knowing the id of the sample of the last location that gives us the best
   // time, we can traceback the optimal velocities at all previous locations.
-
   std::vector<Vector<3>> found_optimal_gates_velocities;
   // We don't find optimal velocities for 'start', thus, number_of_locations - 1.
   found_optimal_gates_velocities.resize(number_of_locations - 1);
@@ -526,7 +515,6 @@ void get_positions_travel_costs(std::string config_file)
   config["end"]["velocity"] >> end_velocity;
   config["end"]["position"] >> end_position;
 
-  const bool sample_end = config["sample_end"].as<bool>();
   int V = config["number_of_velocity_samples"].as<int>();
   int H = config["number_of_angle_samples"].as<int>();
   Scalar t_max = config["t_max"].as<Scalar>();
