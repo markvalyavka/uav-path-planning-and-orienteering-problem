@@ -178,14 +178,13 @@ PointMassTrajectory3D::PointMassTrajectory3D(const QuadState &from,
                      max_acc2(1), 1, 0.0, false, calc_gradient, false);
   z_ = PMMTrajectory(from.p(2), from.v(2), to.p(2), to.v(2), max_acc1(2),
                      max_acc2(2), 2, 0.0, false, calc_gradient, false);
-  std::cout << "before scaling" << std::endl;
-  std::cout << "x_ " << x_ << std::endl;
-  std::cout << "y_ " << y_ << std::endl;
-  std::cout << "z_ " << z_ << std::endl << std::endl;
-
+//  std::cout << "before scaling" << std::endl;
+//  std::cout << "x_ " << x_ << std::endl;
+//  std::cout << "y_ " << y_ << std::endl;
+//  std::cout << "z_ " << z_ << std::endl << std::endl;
   if (equalize_time) {
     Scalar tr_time = time();  // * 2.92;
-    std::cout << "tr time -> " << tr_time << std::endl;
+//    std::cout << "tr time -> " << tr_time << std::endl;
     size_t i = 0;
     size_t reset_count = 0;
     for (; i < 3; i++) {
@@ -193,7 +192,8 @@ PointMassTrajectory3D::PointMassTrajectory3D(const QuadState &from,
         PMMTrajectory scaled =
           PMMTrajectory(get_axis_trajectory(i), tr_time, calc_gradient);
         if (!scaled.exists_) {
-          // std::cout << "scaled does not exists" << std::endl;
+//          x_.exists_ = false;
+//          std::cout << "scaled does not exists" << std::endl;
           Scalar scale_time = fabs(scaled.a_(0)) / max_acc1(i);
           // std::cout << "scale_time " << scale_time << std::endl;
           scaled = PMMTrajectory(

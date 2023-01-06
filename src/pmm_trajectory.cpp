@@ -52,7 +52,7 @@ PMMTrajectory::PMMTrajectory(const Scalar ps, const Scalar vs, const Scalar pe,
     a_(1) = 0;
     p_(0) = p_(1) = p_(2) = p_(3) = ps;
     v_(0) = v_(1) = v_(2) = vs;
-    std::cout << "already there" << std::endl;
+//    std::cout << "already there" << std::endl;
     exists_ = true;
     return;
   }
@@ -181,6 +181,7 @@ PMMTrajectory::PMMTrajectory(const Scalar ps, const Scalar vs, const Scalar pe,
     dt_dve_ = dt_dve;
 
     if (check_result) {
+      std::cout << "here" << std::endl;
       const Scalar ve_tst = v_(1) + a_(1) * t2;
       const Scalar pe_tst = p_(2) + t2 * v_(1) + 0.5 * a_(1) * t2 * t2;
       if (fabs(ve_tst - ve) > PRECISION_PMM_VALUES ||
@@ -207,9 +208,9 @@ PMMTrajectory::PMMTrajectory(const PMMTrajectory &in, const Scalar total_time,
     return;
   }
   if (total_time < in.time()) {
-    std::cout << "this should never happen" << std::endl;
-    std::cout << "in.time() " << in.time() << std::endl;
-    std::cout << "total_time " << total_time << std::endl;
+//    std::cout << "this should never happen" << std::endl;
+//    std::cout << "in.time() " << in.time() << std::endl;
+//    std::cout << "total_time " << total_time << std::endl;
   }
 
   const Scalar &ps = in.p_(0);

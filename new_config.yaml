@@ -4,12 +4,12 @@ start:
 end:
   position: [0, 14, 0]
   velocity: [-20, -20 ,0]
-locations: [[10, 10, 0],
-            [20, 13, 0]]
+locations: [[10, 10, 0]]
 
-number_of_yaw_samples: 8
-number_of_velocity_samples: 8
+number_of_angle_samples: 4
+number_of_velocity_samples: 4
 max_velocity_norm: 20
+sample_end: True
 
 
 

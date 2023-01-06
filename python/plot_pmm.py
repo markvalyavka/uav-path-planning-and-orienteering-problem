@@ -47,10 +47,10 @@ def plot_3d_positions_graph(pmm, pmm_equidistant):
     ax3d.plot(pmm[:, 1], pmm[:, 2], pmm[:, 3])
     ax3d.plot(pmm_equidistant[:, 1], pmm_equidistant[:, 2], pmm_equidistant[:, 3], '.k')
 
-    locations = get_trajectory_positions('../new_config.yaml')
-    ax3d.scatter(locations[1:3, 0], locations[1:3, 1], locations[1:3, 2], c='y', s=[50, 50], alpha=1)
+    locations = get_trajectory_positions('../config.yaml')
+    ax3d.scatter(locations[1:len(locations)-1, 0], locations[1:len(locations)-1, 1], locations[1:len(locations)-1, 2], c='y', s=[50]*(len(locations)-2), alpha=1)
     ax3d.scatter(locations[0, 0], locations[0, 1], locations[0, 2], c='r', s=[50], alpha=1)
-    ax3d.scatter(locations[3, 0], locations[3, 1], locations[3, 2], c='r', s=[50], alpha=1)
+    ax3d.scatter(locations[len(locations)-1, 0], locations[len(locations)-1, 1], locations[len(locations)-1, 2], c='r', s=[50], alpha=1)
     ax3d.set_xlabel('X-axis', labelpad=10)
     ax3d.set_ylabel('Y-axis', labelpad=10)
     ax3d.set_zlabel('Z-axis', labelpad=10)

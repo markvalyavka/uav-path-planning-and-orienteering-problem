@@ -33,7 +33,7 @@ class PMMTrajectory {
                 const int i, const double desired_time = 0,
                 const bool keep_acc_sign = false,
                 const bool calc_gradient = false,
-                const bool check_result = false);
+                const bool check_result = true);
   /*
   This constructor scales time to the one provided in arguments('total_time').
   */
