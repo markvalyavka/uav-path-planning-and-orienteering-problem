@@ -71,6 +71,10 @@ class PointMassTrajectory3D {
   void set_axis_trajectory(const int i, const PMMTrajectory tr);
   PMMTrajectory &get_axis_trajectory(const int i);
   Scalar get_axis_switch_time(const int i) const;
+  Scalar inp_from_v_norm;
+  Scalar inp_from_v_angle;
+  Scalar inp_to_v_norm;
+  Scalar inp_to_v_angle;
 
   PMMTrajectory x_;
   PMMTrajectory y_;

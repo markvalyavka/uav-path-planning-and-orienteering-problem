@@ -46,7 +46,7 @@ def plot_3d_positions_graph(pmm, pmm_equidistant):
     fig2 = plt.figure()
     ax3d = fig2.add_subplot(111, projection='3d')
     ax3d.plot(pmm[:, 1], pmm[:, 2], pmm[:, 3])
-    ax3d.plot(pmm_equidistant[:, 1], pmm_equidistant[:, 2], pmm_equidistant[:, 3], '.k')
+    # ax3d.plot(pmm_equidistant[:, 1], pmm_equidistant[:, 2], pmm_equidistant[:, 3], '.k')
 
     rewards, locations = get_trajectory_positions('../new_config.yaml')
     print(locations)
@@ -87,7 +87,7 @@ if __name__ == "__main__":
     trajectory_pmm_file = '../samples_pmm.csv'
     trajectory_pmm_equidistant_file = '../samples_equidistant.csv'
     pmm = load_trajectory_samples_pmm(trajectory_pmm_file)
-    pmm_equidistant = load_trajectory_samples_pmm(trajectory_pmm_equidistant_file)
+    # pmm_equidistant = load_trajectory_samples_pmm(trajectory_pmm_equidistant_file)
 
-    plot_3d_positions_graph(pmm, pmm_equidistant)
+    plot_3d_positions_graph(pmm, None)
 

@@ -112,6 +112,8 @@ struct QuadState {
   Ref<Vector<3>> ba{x.segment<IDX::NBACC>(IDX::BACC)};
   Ref<Vector<4>> mot{x.segment<IDX::NMOT>(IDX::MOT)};
   Ref<Vector<4>> motdes{x.segment<IDX::NMOTDES>(IDX::MOTDES)};
+  Scalar v_norm;
+  Scalar v_angle;
 
   Scalar getYaw(const Scalar yaw = NAN) const;
   void applyYaw(const Scalar angle);

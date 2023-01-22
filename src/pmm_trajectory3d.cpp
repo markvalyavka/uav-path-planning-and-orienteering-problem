@@ -182,6 +182,11 @@ PointMassTrajectory3D::PointMassTrajectory3D(const QuadState &from,
 //  std::cout << "x_ " << x_ << std::endl;
 //  std::cout << "y_ " << y_ << std::endl;
 //  std::cout << "z_ " << z_ << std::endl << std::endl;
+  inp_from_v_norm = from.v_norm;
+  inp_from_v_angle = from.v_angle;
+  inp_to_v_norm = to.v_norm;
+  inp_to_v_angle = to.v_angle;
+
   if (equalize_time) {
     Scalar tr_time = time();  // * 2.92;
 //    std::cout << "tr time -> " << tr_time << std::endl;
