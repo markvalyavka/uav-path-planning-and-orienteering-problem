@@ -37,10 +37,10 @@ locations: [[18.000, 15.900, 0],
 
 
 rewards: [10, 10, 10, 10, 5, 5, 5, 5, 10, 10, 10, 5, 10, 15, 15, 10, 5, 5, 5, 10, 10, 10, 15, 15, 15, 10, 10, 10, 10, 10]
-number_of_angle_samples: 2
-number_of_velocity_samples: 2
-max_velocity_norm: 20
-t_max: 4
+number_of_angle_samples: 6
+number_of_velocity_samples: 6
+max_velocity_norm: 10
+t_max: 5
 
 
 

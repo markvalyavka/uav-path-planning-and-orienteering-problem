@@ -250,7 +250,7 @@ std::tuple<MultiWaypointTrajectory, Scalar> calculate_trajectory_cost_and_optima
                                                                          Vector<3> &start_velocity,
                                                                          Vector<3> &end_velocity,
                                                                          Vector<3> &max_acc_per_axis,
-                                                                                             std::vector<int> &scheduled_locations_idx) {
+                                                                         std::vector<int> &scheduled_locations_idx) {
   Scalar shortest_time = DBL_MAX;
   int number_of_locations = location_positions.size();
   int number_of_velocity_samples = velocity_sample_tuples.size();
@@ -497,7 +497,6 @@ void populate_precalculated_travel_costs_map(travel_cost_map &travel_costs,
                 angle2 = std::get<1>(start_vel_mag_ang);
               }
 
-
               test_loc_1.v = loc_1_velocity;
               test_loc_2.v = loc_2_velocity;
               PointMassTrajectory3D tr(test_loc_1, test_loc_2, max_acc_per_axis, true);
@@ -616,10 +615,10 @@ void get_positions_travel_costs(std::string config_file)
   std::vector<int> scheduled_locations_idx = {0, (int)location_positions.size()-1};
   auto traj_and_time = calculate_trajectory_cost_and_optimal_velocities(precalculated_costs,
                                                                         scheduled_locations,
-                                                                   velocity_samples_tuples,
-                                                                   start_velocity,
-                                                                   end_velocity,
-                                                                   max_acc_per_axis,
+                                                                        velocity_samples_tuples,
+                                                                        start_velocity,
+                                                                        end_velocity,
+                                                                        max_acc_per_axis,
                                                                         scheduled_locations_idx);
   MultiWaypointTrajectory current_trajectory = std::get<0>(traj_and_time);
   Scalar current_cost = std::get<1>(traj_and_time);
@@ -630,19 +629,18 @@ void get_positions_travel_costs(std::string config_file)
     // <what_idx_to_insert, where_to_insert, velocity>
     std::tuple<int, int, Vector<3>, MultiWaypointTrajectory, Scalar, std::vector<Vector<3>>> best_insertion_so_far{};
     Scalar ratio_of_best_insertion_so_far = -1;
-    // For every unscheduled location
+    // Try to schedule every unscheduled location
     for (int unscheduled_idx : unscheduled_locations_idx) {
       std::cout << "unschedule index -> " << unscheduled_idx << std::endl;
-      // For every possible insertion idx
+      // For every possible insertion_idx
+      //                     possible insertion spot
+      //                          v
+      // Example: {start_location, end_location}
       for (int insertion_idx = 1; insertion_idx < scheduled_locations.size(); insertion_idx++) {
         std::cout << "insertion_idx -> " << insertion_idx << std::endl;
         Scalar curr_min_insertion_cost = DBL_MAX;
         int pred_idx = scheduled_locations_idx[insertion_idx-1];
         int succ_idx = scheduled_locations_idx[insertion_idx];
-//        Vector<3> pred_position = location_positions[pred_idx];
-//        Vector<3> succ_position = location_positions[succ_idx];
-//        Vector<3> pred_velocity = current_trajectory[insertion_idx-1].get_start_state().v;
-//        Vector<3> succ_velocity = current_trajectory[insertion_idx-1].get_end_state().v;
 
         // For every possible combination of norm and heading_angle
         for (Scalar norm1 : velocity_norm_samples) {
