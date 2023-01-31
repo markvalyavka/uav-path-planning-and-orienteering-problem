@@ -195,6 +195,9 @@ int test_pmm(int argc, char** argv) {
 
 std::vector<Scalar> get_velocity_norm_samples(int samples_num, Scalar max_velocity) {
   std::vector<Scalar> samples{};
+  if (samples_num == 1) {
+    return std::vector<Scalar>{max_velocity};
+  }
   for (int i = 1; i < samples_num+1; i++) {
     samples.emplace_back((i-1)*max_velocity/(samples_num-1));
   }
@@ -427,8 +430,9 @@ std::tuple<MultiWaypointTrajectory, Scalar> calculate_trajectory_cost_and_optima
     }
     if (fabs(tr_max_between.time_min() - tr_max_between.time()) >=
         PRECISION_PMM_VALUES) {
-      std::cout << tr_max_between << std::endl;
-      std::cout << "Not equal time " << std::endl;
+//      std::cout << tr_max_between << std::endl;
+//      std::cout << fabs(tr_max_between.time_min() - tr_max_between.time()) << " >= " << PRECISION_PMM_VALUES << std::endl;
+//      std::cout << "Not equal time here" << std::endl;
     }
   }
   // ------ Add all other trajectories --- END
@@ -500,6 +504,9 @@ void populate_precalculated_travel_costs_map(travel_cost_map &travel_costs,
               test_loc_1.v = loc_1_velocity;
               test_loc_2.v = loc_2_velocity;
               PointMassTrajectory3D tr(test_loc_1, test_loc_2, max_acc_per_axis, true);
+              if (!tr.exists()) {
+                std::cout << "Not-existing" << std::endl;
+              }
 //              if (loc1_id == 0 && loc2_id == 1) {
 //                std::cout << "from_p -> " << location_positions[loc1_id].transpose() << std::endl;
 //                std::cout << "to_p -> " << location_positions[loc2_id].transpose() << std::endl;
@@ -540,8 +547,8 @@ void get_positions_travel_costs(std::string config_file)
   int H = config["number_of_angle_samples"].as<int>();
   Scalar t_max = config["t_max"].as<Scalar>();
   Scalar max_velocity = config["max_velocity_norm"].as<Scalar>();
-  const Scalar single_axis = 100.0;
-  Vector<3> max_acc_per_axis = Vector<3>::Constant(single_axis);
+  Scalar max_acceleration = config["max_acceleration"].as<Scalar>();
+  Vector<3> max_acc_per_axis = Vector<3>::Constant(max_acceleration);
 
   // Vector of 'heading angles'(positions) of all gates (including start and end).
   std::vector<Vector<3>> location_positions;
@@ -561,13 +568,20 @@ void get_positions_travel_costs(std::string config_file)
 
   std::vector<Scalar> velocity_norm_samples = get_velocity_norm_samples(V, max_velocity);
   std::vector<Scalar> heading_angle_samples = get_heading_angle_samples(H);
-
+  for (auto x: velocity_norm_samples) {
+    std::cout << "Sample vec -> " << x << std::endl;
+  }
+  exit(1);
+//  for (auto x: heading_angle_samples) {
+//    std::cut << "Sample angle -> " << x << std::endl;
+//  }
+//  exit(1);
   // Samples combinations in vector form. [norm][angle] -> *vector [x, y, z]*
   norm_angle_to_velocity_vector_map norm_angle_to_vector{};
   populate_norm_angle_to_velocity_vector_map(norm_angle_to_vector,
                                              velocity_norm_samples,
                                              heading_angle_samples);
-
+  std::cout << max_acc_per_axis.transpose() << std::endl;
   // Precalculated costs map.
   travel_cost_map precalculated_costs{};
   populate_precalculated_travel_costs_map(precalculated_costs,
@@ -600,6 +614,7 @@ void get_positions_travel_costs(std::string config_file)
 //  Scalar traj_time = std::get<1>(traj_and_time_1);
 //  std::cout << "Final time is " << traj_time << std::endl;
 //  std::cout << "Size " << traj.size() << std::endl;
+//  exit(1);
 ////  std::cout << "Size " << traj[0].inp_from_v_norm << std::endl;
 //  VelocitySearchGraph::saveTrajectoryEquitemporal(traj, "samples_pmm.csv");
 //  std::cout << "Saved equitemporal." << std::endl;
@@ -631,13 +646,13 @@ void get_positions_travel_costs(std::string config_file)
     Scalar ratio_of_best_insertion_so_far = -1;
     // Try to schedule every unscheduled location
     for (int unscheduled_idx : unscheduled_locations_idx) {
-      std::cout << "unschedule index -> " << unscheduled_idx << std::endl;
+//      std::cout << "unschedule index -> " << unscheduled_idx << std::endl;
       // For every possible insertion_idx
       //                     possible insertion spot
       //                          v
       // Example: {start_location, end_location}
       for (int insertion_idx = 1; insertion_idx < scheduled_locations.size(); insertion_idx++) {
-        std::cout << "insertion_idx -> " << insertion_idx << std::endl;
+//        std::cout << "insertion_idx -> " << insertion_idx << std::endl;
         Scalar curr_min_insertion_cost = DBL_MAX;
         int pred_idx = scheduled_locations_idx[insertion_idx-1];
         int succ_idx = scheduled_locations_idx[insertion_idx];
@@ -746,8 +761,8 @@ void get_positions_travel_costs(std::string config_file)
   std::cout << "Collected reward: " << collected_reward << std::endl;
   VelocitySearchGraph::saveTrajectoryEquitemporal(current_trajectory, "samples_pmm.csv");
   std::cout << "Saved equitemporal." << std::endl;
-  VelocitySearchGraph::saveTrajectoryEquidistant(current_trajectory, "samples_equidistant.csv");
-  std::cout << "Saved equidistant." << std::endl;
+//  VelocitySearchGraph::saveTrajectoryEquidistant(current_trajectory, "samples_equidistant.csv");
+//  std::cout << "Saved equidistant." << std::endl;
 }
 
 int main(int argc, char** argv) {

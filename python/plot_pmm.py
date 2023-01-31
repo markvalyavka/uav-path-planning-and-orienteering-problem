@@ -45,18 +45,25 @@ def get_trajectory_positions(config_file):
 def plot_3d_positions_graph(pmm, pmm_equidistant):
     fig2 = plt.figure()
     ax3d = fig2.add_subplot(111, projection='3d')
-    ax3d.plot(pmm[:, 1], pmm[:, 2], pmm[:, 3])
+
+    velocity_norms = np.sqrt(pmm[:, 4] * pmm[:, 4] + pmm[:, 5] * pmm[:, 5] + pmm[:, 6] * pmm[:, 6])
+
+    # ax3d.plot(pmm[:, 1], pmm[:, 2], pmm[:, 3])
+    velocities_plot = ax3d.scatter(pmm[:, 1], pmm[:, 2], pmm[:, 3], c=velocity_norms, cmap='jet', s=0.35)
+
     # ax3d.plot(pmm_equidistant[:, 1], pmm_equidistant[:, 2], pmm_equidistant[:, 3], '.k')
 
     rewards, locations = get_trajectory_positions('../new_config.yaml')
     print(locations)
-    p = ax3d.scatter(locations[1:len(locations)-1, 0], locations[1:len(locations)-1, 1], locations[1:len(locations)-1, 2], c=rewards, cmap='Blues', s=[50]*(len(locations)-2), alpha=1)
+    p = ax3d.scatter(locations[1:len(locations)-1, 0], locations[1:len(locations)-1, 1], locations[1:len(locations)-1, 2], c=rewards, cmap='binary', s=[50]*(len(locations)-2), alpha=1)
     ax3d.scatter(locations[0, 0], locations[0, 1], locations[0, 2], c='r', s=[50], alpha=1)
     ax3d.scatter(locations[len(locations)-1, 0], locations[len(locations)-1, 1], locations[len(locations)-1, 2], c='r', s=[50], alpha=1)
-    ax3d.set_xlabel('X-axis', labelpad=10)
-    ax3d.set_ylabel('Y-axis', labelpad=10)
-    ax3d.set_zlabel('Z-axis', labelpad=10)
+    ax3d.set_xlabel('x in m', labelpad=10)
+    ax3d.set_ylabel('y in m', labelpad=10)
+    ax3d.set_zlabel('z in m', labelpad=10)
     fig2.colorbar(p, label="rewards", pad=0.2, ticks=[int(max(rewards)/4), int(max(rewards)/2), int(max(rewards)*3/4), int(max(rewards))])
+    fig2.colorbar(velocities_plot, label="velocity m/s", pad=0.2,
+                  ticks=[int(max(velocity_norms) / 4), int(max(velocity_norms) / 2), int(max(velocity_norms) * 3 / 4), int(max(velocity_norms))])
     plt.legend()
     plt.show()
 
