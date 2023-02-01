@@ -22,7 +22,7 @@ locations:
 - [9.5, 18.8, 0]
 - [4.7, 16.8, 0]
 max_velocity_norm: 3
-max_acceleration: 1.06
+max_acceleration: 1.2
 number_of_angle_samples: 8
 number_of_velocity_samples: 6
 rewards: [20.0, 20.0, 30.0, 15.0, 15.0, 10.0, 20.0, 20.0, 20.0, 15.0, 10.0, 10.0,
