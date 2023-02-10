@@ -538,7 +538,7 @@ constructed_trajectory construction_heuristic(
   std::cout << "Final cost: " << current_cost << std::endl;
   std::cout << "Collected reward: " << collected_reward << std::endl;
   VelocitySearchGraph::saveTrajectoryEquitemporal(current_trajectory, "samples_pmm.csv");
-  std::cout << "Saved equitemporal." << std::endl;
+//  std::cout << "Saved equitemporal." << std::endl;
 
 
 //  for (auto ul : unscheduled_locations_idx) {
@@ -550,6 +550,32 @@ constructed_trajectory construction_heuristic(
   std::cout << std::endl;
   // OUTPUT: MultiWaypointTrajectory, total_cost, total_reward, scheduled_locations_idx, unscheduled_locations_idx
   return {current_trajectory, current_cost, collected_reward, scheduled_locations_idx, unscheduled_locations_idx};
+}
+void destruction_heuristic_3(std::vector<int>& sched_loc,
+                             std::vector<int>& unsched_loc,
+                             MultiWaypointTrajectory& curr_traj,
+                             std::vector<Scalar> ratios,
+                             EnvConfig& env_state_config) {
+
+  int min_idx = 1;
+  Scalar min_heu = 10000000000;
+  for (int i = 1; i < sched_loc.size()-1; i++) {
+
+    std::vector<int> to_try{sched_loc[i-1], sched_loc[i], sched_loc[i+1]};
+    auto to_try_optimal = calculate_trajectory_cost_and_optimal_velocities(to_try,
+                                                                           env_state_config,
+                                                                           true);
+    Scalar optimal_time = std::get<1>(to_try_optimal);
+    Scalar curr_time = curr_traj[i-1].time() + curr_traj[i].time();
+    Scalar diff = abs(optimal_time - curr_time);
+    Scalar heu = ratios[i] / diff;
+    if (heu < min_heu) {
+      min_heu = heu;
+      min_idx = i;
+    }
+  }
+  unsched_loc.push_back(sched_loc[min_idx]);
+  sched_loc.erase(std::remove(sched_loc.begin(), sched_loc.end(), sched_loc[min_idx]), sched_loc.end());
 }
 
 void destruction_heuristic_2(std::vector<int>& sched_loc,
@@ -665,15 +691,19 @@ std::tuple<std::vector<int>, std::vector<int>> destruction_heuristic_paper(const
   for (int i = 0; i < positions_to_remove; i++) {
 
 
-    int random_number = randint(1, 2);
+    int random_number = randint(1, 3);
+//    std::cout << random_number << std::endl;
     if (random_number == 1) {
       destruction_heuristic_1(sched_loc, unsched_loc, ratios);
     } else if (random_number == 2) {
       destruction_heuristic_2(sched_loc, unsched_loc, mvt, env_params);
+    } else if (random_number == 3) {
+      destruction_heuristic_3(sched_loc, unsched_loc, mvt, ratios, env_params);
     }
     auto new_traj_time = calculate_trajectory_cost_and_optimal_velocities(sched_loc,env_params);
     mvt = std::get<0>(new_traj_time);
     cost = std::get<1>(new_traj_time);
+    std::cout << cost << std::endl;
     ratios = calculate_heuristic_ratio(sched_loc, mvt, rewards, travel_costs);
   }
 //  std::cout << "Final cost " << cost << std::endl;
@@ -715,6 +745,26 @@ void get_positions_travel_costs(std::string config_file)
     std::cout << "Construction #" << j << std::endl;
 
     auto destroyed_solution = destruction_heuristic_paper(initial_constr, 50, env_state_config);
+    scheduled_locations_idx = std::get<0>(destroyed_solution);
+    unscheduled_locations_idx = std::get<1>(destroyed_solution);
+    initial_constr = construction_heuristic(scheduled_locations_idx, unscheduled_locations_idx, env_state_config);
+    if (std::get<2>(initial_constr) > best_reward_yet) {
+      best_reward_yet = std::get<2>(initial_constr);
+      best_tr_yet = std::get<0>(initial_constr);
+    }
+  }
+  std::cout << std::endl;
+  std::cout << std::endl;
+  std::cout << std::endl;
+  std::cout << "Final reward AFTER FIRST STRAGE -> " << best_reward_yet << std::endl;
+  std::cout << std::endl;
+  std::cout << std::endl;
+  std::cout << std::endl;
+
+  for (int j = 0; j < 100; j++) {
+    std::cout << "Construction #" << j << std::endl;
+
+    auto destroyed_solution = destruction_heuristic_paper(initial_constr, 20, env_state_config);
     scheduled_locations_idx = std::get<0>(destroyed_solution);
     unscheduled_locations_idx = std::get<1>(destroyed_solution);
     initial_constr = construction_heuristic(scheduled_locations_idx, unscheduled_locations_idx, env_state_config);
