@@ -21,8 +21,8 @@ locations:
 - [9.7, 16.4, 0]
 - [9.5, 18.8, 0]
 - [4.7, 16.8, 0]
-max_velocity_norm: 3
-max_acceleration: 1.2
+max_velocity_norm: 2.4
+max_acceleration: 1.11
 number_of_angle_samples: 8
 number_of_velocity_samples: 6
 rewards: [20.0, 20.0, 30.0, 15.0, 15.0, 10.0, 20.0, 20.0, 20.0, 15.0, 10.0, 10.0,
@@ -30,4 +30,4 @@ rewards: [20.0, 20.0, 30.0, 15.0, 15.0, 10.0, 20.0, 20.0, 20.0, 15.0, 10.0, 10.0
 start:
   position: [4.6, 7.1, 0]
   velocity: [0, 0, 0]
-t_max: 35.0
+t_max: 35

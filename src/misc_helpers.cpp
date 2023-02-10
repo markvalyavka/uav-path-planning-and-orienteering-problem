@@ -72,7 +72,6 @@ void populate_precalculated_travel_costs_map(travel_cost_map &travel_costs,
                                              Vector<3> end_vel) {
 
 
-
   std::tuple<Scalar, Scalar> start_vel_mag_ang = to_velocity_norm_and_angle(start_vel);
   QuadState test_loc_1;
   QuadState test_loc_2;
@@ -94,14 +93,30 @@ void populate_precalculated_travel_costs_map(travel_cost_map &travel_costs,
 
               // Location is START or END, the velocity is fixed (not sampled)
               if (loc1_id == 0) {
-                loc_1_velocity = start_vel;
-                norm1 = std::get<0>(start_vel_mag_ang);
-                angle1 = std::get<1>(start_vel_mag_ang);
+//                loc_1_velocity = start_vel;
+//                norm1 = std::get<0>(start_vel_mag_ang);
+//                angle1 = std::get<1>(start_vel_mag_ang);
+
+                test_loc_1.v = start_vel;
+                test_loc_2.v = loc_2_velocity;
+                PointMassTrajectory3D tr(test_loc_1, test_loc_2, max_acc_per_axis, true);
+                if (!tr.exists()) {
+                  std::cout << "Not-existing" << std::endl;
+                }
+                travel_costs[loc1_id][loc2_id][std::get<0>(start_vel_mag_ang)][norm2][std::get<1>(start_vel_mag_ang)][angle2] = tr.time();
               }
               if (loc2_id == 0) {
-                loc_2_velocity = start_vel;
-                norm2 = std::get<0>(start_vel_mag_ang);
-                angle2 = std::get<1>(start_vel_mag_ang);
+//                loc_2_velocity = start_vel;
+//                norm2 = std::get<0>(start_vel_mag_ang);
+//                angle2 = std::get<1>(start_vel_mag_ang);
+
+                test_loc_1.v = loc_1_velocity;
+                test_loc_2.v = start_vel;
+                PointMassTrajectory3D tr(test_loc_1, test_loc_2, max_acc_per_axis, true);
+                if (!tr.exists()) {
+                  std::cout << "Not-existing" << std::endl;
+                }
+                travel_costs[loc1_id][loc2_id][norm1][std::get<0>(start_vel_mag_ang)][angle1][std::get<1>(start_vel_mag_ang)] = tr.time();
               }
 
               test_loc_1.v = loc_1_velocity;
@@ -118,13 +133,13 @@ void populate_precalculated_travel_costs_map(travel_cost_map &travel_costs,
               //                std::cout << "Time between " <<loc1_id << " and " << loc2_id << " is " << tr.time() << std::endl;
               //              }
               travel_costs[loc1_id][loc2_id][norm1][norm2][angle1][angle2] = tr.time();
-
             }
           }
         }
       }
     }
   }
+
   //  auto time_taken = travel_costs[0][6][std::get<0>(start_vel_mag_ang)][velocity_norm_samples[1]][std::get<1>(start_vel_mag_ang)][heading_angle_samples[2]];
   //  std::cout << "From start to end -> " << time_taken << std::endl;
   //  exit(1);

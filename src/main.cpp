@@ -168,53 +168,60 @@ int test_pmm(int argc, char** argv) {
 
 
 
-std::tuple<MultiWaypointTrajectory, Scalar> calculate_trajectory_cost_and_optimal_velocities(
-                                                                                             std::vector<int> &scheduled_locations_idx,
-                                                                                             EnvConfig& env_params) {
+std::tuple<MultiWaypointTrajectory, Scalar> calculate_trajectory_cost_and_optimal_velocities(std::vector<int> &scheduled_locations_idx,
+                                                                                             EnvConfig& env_params,
+                                                                                             bool sample_start_velocity = false) {
+
   travel_cost_map& travel_costs = env_params.precalculated_costs;
   std::vector<std::tuple<Vector<3>, Scalar, Scalar>>& velocity_sample_tuples = env_params.velocity_samples_tuples;
-  Vector<3> start_velocity = env_params.start_velocity;
-//  Vector<3> &end_velocity = env_params.location_positions[scheduled_locations_idx[scheduled_locations_idx.size()-1]];
+  Vector<3> &start_velocity = env_params.start_velocity;
   Vector<3> &max_acc_per_axis = env_params.max_acc_per_axis;
   std::vector<Vector<3>> location_positions{};
-
   for (int idx : scheduled_locations_idx) {
     location_positions.push_back(env_params.location_positions[idx]);
-//    if (scheduled_locations_idx.size() == 3) {
-//      std::cout<< idx << std::endl;
-//    }
+//    std::cout << idx << std::endl;
   }
-//  if (scheduled_locations_idx.size() == 3) {
-//    std::cout << std::endl;
-//  }
-
-
 
   Scalar shortest_time = DBL_MAX;
   int number_of_locations = location_positions.size();
   int number_of_velocity_samples = velocity_sample_tuples.size();
   std::tuple<Scalar, Scalar> start_vel_mag_ang = to_velocity_norm_and_angle(start_velocity);
 
-  // {id_of_sample_in_location_before, time_from_the_start}, idx - location_idx
+  // {sample_id_in_location_before, total_time_from_the_start}, idx - location_idx
   std::vector<std::vector<std::pair<int, Scalar>>> shortest_samples_times;
   shortest_samples_times.resize(number_of_locations);
 
-  // For 'start' location, it takes 0 seconds to reach.
-  shortest_samples_times[0].push_back({-1, 0});
+
   const std::pair<int, Scalar> not_reached = std::make_pair(-1, DBL_MAX);
   for (int loc_id = 1; loc_id < number_of_locations; loc_id++) {
+    // Every sample at `loc_id` is unreachable initially.
     shortest_samples_times[loc_id].resize(number_of_velocity_samples, {-1, DBL_MAX});
     std::fill(shortest_samples_times[loc_id].begin(),
               shortest_samples_times[loc_id].end(), not_reached);
   }
+  // For 'start' location, it takes 0 seconds to reach.
+  if (sample_start_velocity) {
+    const std::pair<int, Scalar> reached = std::make_pair(-1, 0);
+    shortest_samples_times[0].resize(number_of_velocity_samples, {-1, 0});
+    std::fill(shortest_samples_times[0].begin(),
+              shortest_samples_times[0].end(), reached);
+  } else {
+    shortest_samples_times[0].push_back({-1, 0});
+  }
+
 
   // Samples have [loc_id][sample_id][{velocity, norm, heading_angle)}]
+  // number of `sample_ids` == V * H, essentially.
   std::vector<std::vector<std::tuple<Vector<3>, Scalar, Scalar>>> gate_velocity_samples;
   gate_velocity_samples.resize(number_of_locations);
   for (int loc_id = 1; loc_id < number_of_locations; loc_id++) {
     gate_velocity_samples[loc_id] = velocity_sample_tuples;
   }
-  gate_velocity_samples[0].push_back({start_velocity, 0, 0});
+  if (sample_start_velocity) {
+    gate_velocity_samples[0] = velocity_sample_tuples;
+  } else {
+    gate_velocity_samples[0].push_back({start_velocity, 0, 0});
+  }
 
 
   // ---- FIND OPTIMAL VELOCITIES AND TIME OF THE TRAJECTORY.
@@ -237,39 +244,39 @@ std::tuple<MultiWaypointTrajectory, Scalar> calculate_trajectory_cost_and_optima
     Scalar min_dist_to_gate = DBL_MAX;
 
     // loop for indexes of the samples in the gate (gid_to-1)
-    for (int idx_from = 0; idx_from < from_shortest_samples_dists.size(); idx_from++) {
-      const Scalar& time_from = from_shortest_samples_dists[idx_from].second;
-      const Vector<3>& from_v = std::get<0>(from_samples[idx_from]);
+    for (int sample_idx_from = 0; sample_idx_from < from_shortest_samples_dists.size(); sample_idx_from++) {
+      const Scalar& time_from = from_shortest_samples_dists[sample_idx_from].second;
+      const Vector<3>& from_v = std::get<0>(from_samples[sample_idx_from]);
       if (time_from == DBL_MAX) {
         // No path reaching that sample.
         continue;
       }
       // loop for indexes of the samples in the gate gid_to
-      for (int idx_to = 0; idx_to < to_shortest_samples_dists.size(); idx_to++) {
-        std::pair<int, Scalar>& shortest_to = to_shortest_samples_dists[idx_to];
+      for (int sample_idx_to = 0; sample_idx_to < to_shortest_samples_dists.size(); sample_idx_to++) {
+        std::pair<int, Scalar>& shortest_to = to_shortest_samples_dists[sample_idx_to];
 
-        Scalar from_norm = std::get<1>(from_samples[idx_from]);
-        Scalar from_angle = std::get<2>(from_samples[idx_from]);
-        Scalar to_norm = std::get<1>(to_samples[idx_to]);
-        Scalar to_angle = std::get<2>(to_samples[idx_to]);
+        Scalar from_norm = std::get<1>(from_samples[sample_idx_from]);
+        Scalar from_angle = std::get<2>(from_samples[sample_idx_from]);
+        Scalar to_norm = std::get<1>(to_samples[sample_idx_to]);
+        Scalar to_angle = std::get<2>(to_samples[sample_idx_to]);
 
-        // If location is START, the velocity is fixed (not sampled).
-        if (loc_to-1 == 0) {
+        // If location is START and the velocity is fixed (not sampled).
+        if (!sample_start_velocity && loc_to-1 == 0) {
           from_norm = std::get<0>(start_vel_mag_ang);
           from_angle = std::get<1>(start_vel_mag_ang);
-        }
-        if (loc_to == 0) {
-          to_norm = std::get<0>(start_vel_mag_ang);
-          to_angle = std::get<1>(start_vel_mag_ang);
+//          std::cout << "blah" << std::endl;
         }
 
         Scalar time_between = travel_costs[scheduled_locations_idx[loc_to-1]][scheduled_locations_idx[loc_to]][from_norm][to_norm][from_angle][to_angle];
+//        if (time_between < 1.57) {
+//          std::cout << "time between " << scheduled_locations_idx[loc_to-1] << " and " << scheduled_locations_idx[loc_to] << " not found" << std::endl;
+//        }
         const Scalar time_tot = time_between + time_from;
         if (time_tot < min_dist_to_gate) {
           min_dist_to_gate = time_tot;
         }
         if (time_tot < shortest_to.second) {
-          shortest_to.first = idx_from;
+          shortest_to.first = sample_idx_from;
           shortest_to.second = time_tot;
         }
       }
@@ -292,21 +299,23 @@ std::tuple<MultiWaypointTrajectory, Scalar> calculate_trajectory_cost_and_optima
       end_best_idx = i;
     }
   }
+
   //  std::cout << "end_best_idx -> " << end_best_idx << std::endl;
-  //  std::cout << "shortest_time " << shortest_time << std::endl << std::endl;
+//    std::cout << "shortest_time " << shortest_time << std::endl << std::endl;
 
   // Knowing the id of the sample of the last location that gives us the best
   // time, we can traceback the optimal velocities at all previous locations.
-
-
   std::vector<std::tuple<Vector<3>, Scalar, Scalar>> found_optimal_gates_velocities;
-  // We don't find optimal velocities for 'start', thus, number_of_locations - 1.
-  found_optimal_gates_velocities.resize(number_of_locations - 1);
+  found_optimal_gates_velocities.resize(number_of_locations);
   int prev_sample_idx = end_best_idx;
-  for (int loc_id = endi; loc_id > 0; loc_id--) {
-    found_optimal_gates_velocities[loc_id - 1] = gate_velocity_samples[loc_id][prev_sample_idx];
+  for (int loc_id = endi; loc_id >= 0; loc_id--) {
+    found_optimal_gates_velocities[loc_id] = gate_velocity_samples[loc_id][prev_sample_idx];
     prev_sample_idx = shortest_samples_times[loc_id][prev_sample_idx].first;
   }
+  if (!sample_start_velocity) {
+    found_optimal_gates_velocities[0] = {start_velocity, std::get<0>(start_vel_mag_ang), std::get<1>(start_vel_mag_ang)};
+  }
+
 
   // Populate trajectories between all points.
   MultiWaypointTrajectory trajectories;
@@ -314,45 +323,46 @@ std::tuple<MultiWaypointTrajectory, Scalar> calculate_trajectory_cost_and_optima
   Scalar time_sum = 0;
 
   // ------ Add trajectory "start" -> "location_1"
-  QuadState from_start_state;
-  from_start_state.p = location_positions[0];
-  from_start_state.v = start_velocity;
-  from_start_state.v_norm = std::get<0>(start_vel_mag_ang);
-  from_start_state.v_angle = std::get<1>(start_vel_mag_ang);;
-  QuadState to_state;
-  to_state.p = location_positions[1];
-  to_state.v = std::get<0>(found_optimal_gates_velocities[0]);
-  to_state.v_norm = std::get<1>(found_optimal_gates_velocities[0]);
-  to_state.v_angle = std::get<2>(found_optimal_gates_velocities[0]);
-  PointMassTrajectory3D tr_max_acc_start;
-  tr_max_acc_start =
-    PointMassTrajectory3D(from_start_state, to_state, max_acc_per_axis, true);
+//  QuadState from_start_state;
+//  from_start_state.p = location_positions[0];
+//  from_start_state.v = start_velocity;
+//  from_start_state.v_norm = std::get<0>(start_vel_mag_ang);
+//  from_start_state.v_angle = std::get<1>(start_vel_mag_ang);;
+//  QuadState to_state;
+//  to_state.p = location_positions[1];
+//  to_state.v = std::get<0>(found_optimal_gates_velocities[0]);
+//  to_state.v_norm = std::get<1>(found_optimal_gates_velocities[0]);
+//  to_state.v_angle = std::get<2>(found_optimal_gates_velocities[0]);
+//  PointMassTrajectory3D tr_max_acc_start;
+//  tr_max_acc_start =
+//    PointMassTrajectory3D(from_start_state, to_state, max_acc_per_axis, true);
 
-  trajectories.push_back(tr_max_acc_start);
-  time_sum += tr_max_acc_start.time();
-  if (!tr_max_acc_start.exists()) {
-    std::cout << "Trajectory does not exist from start location." << std::endl;
-    return {MultiWaypointTrajectory(), DBL_MAX};
-  }
+//  trajectories.push_back(tr_max_acc_start);
+//  time_sum += tr_max_acc_start.time();
+//  if (!tr_max_acc_start.exists()) {
+//    std::cout << "Trajectory does not exist from start location." << std::endl;
+//    return {MultiWaypointTrajectory(), DBL_MAX};
+//  }
   // ------ Add trajectory "start" -> "location_1" ---- END
 
   // ------ Add all other trajectories
-  for (size_t i = 2; i < location_positions.size(); i++) {
+  for (size_t i = 1; i < location_positions.size(); i++) {
     QuadState from_state_b;
     from_state_b.p = location_positions[i - 1];
-    from_state_b.v = std::get<0>(found_optimal_gates_velocities[i - 2]);
-    from_state_b.v_norm = std::get<1>(found_optimal_gates_velocities[i - 2]);
-    from_state_b.v_angle = std::get<2>(found_optimal_gates_velocities[i - 2]);
+    from_state_b.v = std::get<0>(found_optimal_gates_velocities[i - 1]);
+    from_state_b.v_norm = std::get<1>(found_optimal_gates_velocities[i - 1]);
+    from_state_b.v_angle = std::get<2>(found_optimal_gates_velocities[i - 1]);
 
     QuadState to_state_b;
     to_state_b.p = location_positions[i];
-    to_state_b.v = std::get<0>(found_optimal_gates_velocities[i - 1]);
-    to_state_b.v_norm = std::get<1>(found_optimal_gates_velocities[i - 1]);
-    to_state_b.v_angle = std::get<2>(found_optimal_gates_velocities[i - 1]);
+    to_state_b.v = std::get<0>(found_optimal_gates_velocities[i]);
+    to_state_b.v_norm = std::get<1>(found_optimal_gates_velocities[i]);
+    to_state_b.v_angle = std::get<2>(found_optimal_gates_velocities[i]);
 
     PointMassTrajectory3D tr_max_between;
     tr_max_between =
       PointMassTrajectory3D(from_state_b, to_state_b, max_acc_per_axis, true);
+
     trajectories.push_back(tr_max_between);
     time_sum += tr_max_between.time();
 
@@ -379,7 +389,6 @@ std::tuple<MultiWaypointTrajectory, Scalar> calculate_trajectory_cost_and_optima
     std::cout << "shortest_time" << shortest_time << std::endl;
     return {MultiWaypointTrajectory(), DBL_MAX};
   }
-  //  std::cout << "End of trajectory calculation. Return trajectories found.." << std::endl;
   return {trajectories, shortest_time};
 }
 
@@ -393,13 +402,11 @@ std::tuple<MultiWaypointTrajectory, Scalar, Scalar, std::vector<int>, std::vecto
   // CFG
   // location_positions  &
   // start_velocity  &
-  // end_velocity  &
   // max_acc_per_axis  &
   // t_max  &
   // rewards  &
   std::vector<Vector<3>>& location_positions = env_params.location_positions;
   Vector<3>& start_velocity = env_params.start_velocity;
-  Vector<3>& end_velocity = env_params.end_velocity;
   Vector<3>& max_acc_per_axis = env_params.max_acc_per_axis;
   Scalar t_max = env_params.t_max;
   std::vector<Scalar>& rewards = env_params.rewards;
@@ -509,6 +516,7 @@ std::tuple<MultiWaypointTrajectory, Scalar, Scalar, std::vector<int>, std::vecto
     //    std::cout << "Best ration act -> " << "Insert " << what_to << " at " << where_to << " with velocity ->" << velocity.transpose() <<  std::endl;
     //    std::cout << "New cost -> " << new_cost << " at " << where_to << " with velocity ->" << velocity.transpose() <<  std::endl;
 
+//    std::cout << " ratio scheudled -> " << ratio_of_best_insertion_so_far << std::endl;
     scheduled_locations = new_scheduled_locations;
     //    std::cout << "size_new_sched_loc " << scheduled_locations.size() << std::endl;
     current_trajectory = new_trajectory;
@@ -519,16 +527,42 @@ std::tuple<MultiWaypointTrajectory, Scalar, Scalar, std::vector<int>, std::vecto
   }
 
   std::cout <<  "-------------------------" << std::endl;
-  std::cout << "Current cost: " << current_cost << std::endl;
+  std::cout << "Final cost: " << current_cost << std::endl;
   std::cout << "Collected reward: " << collected_reward << std::endl;
   VelocitySearchGraph::saveTrajectoryEquitemporal(current_trajectory, "samples_pmm.csv");
   std::cout << "Saved equitemporal." << std::endl;
 //  for (auto ul : unscheduled_locations_idx) {
 //    std::cout << "Unscheduled location -> " << ul << std::endl;
 //  }
-  for (auto sl : scheduled_locations_idx) {
-    std::cout  << sl << " -> ";
-  }
+//  for (auto sl : scheduled_locations_idx) {
+//    std::cout  << sl << " -> ";
+//  }
+//  std::cout << std::endl;
+
+  // Finding final ratios
+//  for (int i = 1; i < scheduled_locations_idx.size()-1; i++) {
+//    Scalar pred_to_curr_cost, curr_to_succ_cost, pred_to_succ_cost;
+//    Scalar pred_norm = current_trajectory[i-1].inp_from_v_norm;
+//    Scalar pred_angle = current_trajectory[i-1].inp_from_v_angle;
+//    Scalar curr_norm = current_trajectory[i-1].inp_to_v_norm;
+//    Scalar curr_angle = current_trajectory[i-1].inp_to_v_angle;
+//    Scalar succ_norm = current_trajectory[i].inp_from_v_norm;
+//    Scalar succ_angle = current_trajectory[i].inp_from_v_angle;
+//
+//    // Predecessor -> Current [cost]
+//    pred_to_curr_cost = precalculated_costs[scheduled_locations_idx[i-1]][scheduled_locations_idx[i]][pred_norm][curr_norm][pred_angle][curr_angle];
+//    // Current -> Successor [cost]
+//    curr_to_succ_cost = precalculated_costs[scheduled_locations_idx[i]][scheduled_locations_idx[i+1]][curr_norm][succ_norm][curr_angle][succ_angle];
+//    // Predecessor -> Successor [cost]
+//    pred_to_succ_cost = precalculated_costs[scheduled_locations_idx[i-1]][scheduled_locations_idx[i+1]][pred_norm][succ_norm][pred_angle][succ_angle];
+//
+//    Scalar cost_of_insertion = pred_to_curr_cost + curr_to_succ_cost - pred_to_succ_cost;
+//    Scalar ratio = rewards[i] / cost_of_insertion;
+//    std::cout << " ratio -> " << ratio << std::endl;
+//    if (ratio < 9) {
+//      std::cout << "reward -> " << rewards[i] <<" " << i <<  std::endl;
+//    }
+//  }
 //  std::cout  << std::endl;
 //  for (auto tr : current_trajectory) {
 //    std::cout << "from -> " << tr.get_start_state().p.transpose() << " to -> " << tr.get_end_state().p.transpose() << std::endl;
@@ -548,118 +582,42 @@ void get_positions_travel_costs(std::string config_file)
   env_state_config.generate_samples_with_simple_sampling();
   env_state_config.generate_precalculated_graph_of_costs();
 
-//  Vector<3> start_velocity;
-//  Vector<3> start_position;
-//  Vector<3> end_velocity;
-//  Vector<3> end_position;
-//  config["start"]["velocity"] >> start_velocity;
-//  config["start"]["position"] >> start_position;
-//  config["end"]["velocity"] >> end_velocity;
-//  config["end"]["position"] >> end_position;
-//
-//  int V = config["number_of_velocity_samples"].as<int>();
-//  int H = config["number_of_angle_samples"].as<int>();
-//  Scalar t_max = config["t_max"].as<Scalar>();
-//  Scalar max_velocity = config["max_velocity_norm"].as<Scalar>();
-//  Scalar max_acceleration = config["max_acceleration"].as<Scalar>();
-//  Vector<3> max_acc_per_axis = Vector<3>::Constant(max_acceleration);
-//
-//  // Vector of 'heading angles'(positions) of all gates (including start and end).
-//  std::vector<Vector<3>> location_positions;
-//  if (!parseArrayParam<Vector<3>>(config, "locations", location_positions)) {
-//    std::cerr << "YAML:PARSER -> Can't load param 'locations'" << std::endl;
-//  }
-//  location_positions.insert(location_positions.begin(), start_position);
-//  location_positions.push_back(end_position);
-//
-//  std::vector<Scalar> rewards{};
-//  if (!parseArrayParam<Scalar>(config, "rewards", rewards)) {
-//    std::cerr << "Can't load param 'rewards'" << std::endl;
-//  }
-//  rewards.insert(rewards.begin(), 0);
-//  rewards.push_back(0);
-//  // LOAD CONFIG END -------------------------------------------------------
-//
-//  std::vector<Scalar> velocity_norm_samples = get_velocity_norm_samples(V, max_velocity);
-//  std::vector<Scalar> heading_angle_samples = get_heading_angle_samples(H);
-//
-//  // Samples combinations in vector form. [norm][angle] -> *vector [x, y, z]*
-//  norm_angle_to_velocity_vector_map norm_angle_to_vector{};
-//  populate_norm_angle_to_velocity_vector_map(norm_angle_to_vector,
-//                                             velocity_norm_samples,
-//                                             heading_angle_samples);
-//
-//  // Precalculated costs map.
-//  travel_cost_map precalculated_costs{};
-//  populate_precalculated_travel_costs_map(precalculated_costs,
-//                                          location_positions,
-//                                          velocity_norm_samples,
-//                                          heading_angle_samples,
-//                                          norm_angle_to_vector,
-//                                          max_acc_per_axis,
-//                                          start_velocity,
-//                                          end_velocity);
-//
-//  // Tuples of all samples <velocity_vector, norm, angle>
-//  std::vector<std::tuple<Vector<3>, Scalar, Scalar>> velocity_samples_tuples =
-//    generate_total_sample_tuples(norm_angle_to_vector,
-//                                 velocity_norm_samples,
-//                                 heading_angle_samples);
-//  std::vector<int> location_idx{};
-//  for (int idx = 0; idx < location_positions.size(); idx++) {
-//    location_idx.push_back(idx);
-//  }
-//  auto traj_and_time_1 = calculate_trajectory_cost_and_optimal_velocities(precalculated_costs,
-//                                                   location_positions,
-//                                                   velocity_samples_tuples,
-//                                                   start_velocity,
-//                                                   end_velocity,
-//                                                   max_acc_per_axis,
-//                                                   location_idx);
-//
-//  MultiWaypointTrajectory traj = std::get<0>(traj_and_time_1);
-//  Scalar traj_time = std::get<1>(traj_and_time_1);
-//  std::cout << "Final time is " << traj_time << std::endl;
-//  std::cout << "Size " << traj.size() << std::endl;
-//  exit(1);
-////  std::cout << "Size " << traj[0].inp_from_v_norm << std::endl;
-//  VelocitySearchGraph::saveTrajectoryEquitemporal(traj, "samples_pmm.csv");
-//  std::cout << "Saved equitemporal." << std::endl;
-//  VelocitySearchGraph::saveTrajectoryEquidistant(traj, "samples_equidistant.csv");
-//  exit(1);
+
   // ----------------------------- HEURISTIC IMPLEMENTATION
 
   // idx == location by idx in `location_positions`
-  std::vector<int> scheduled_locations_idx = {0, (int)env_state_config.location_positions.size()-1};
-  std::vector<int> unscheduled_locations_idx{};
-  for (int i = 1; i < env_state_config.location_positions.size() - 1; i++) {
-    unscheduled_locations_idx.push_back(i);
-  }
+//  std::vector<int> scheduled_locations_idx = {0, (int)env_state_config.location_positions.size()-1};
+//  std::vector<int> unscheduled_locations_idx{};
+//  for (int i = 1; i < env_state_config.location_positions.size() - 1; i++) {
+//    unscheduled_locations_idx.push_back(i);
+//  }
+//
+//
+//  constructed_trajectory res = construction_heuristic(
+//    scheduled_locations_idx,
+//    unscheduled_locations_idx,
+//    env_state_config);
+//
+//  std::vector<int> sched_loc = std::get<3>(res);
+//  MultiWaypointTrajectory mvt = std::get<0>(res);
 
+  std::vector<int> to_try{0, 6, 12, 0, 11};
+  std::cout << "locs -> " << to_try[0] << ", " << to_try[1]  << std::endl;
+  std::cout << "-------------------------" << std::endl;
+    auto to_try_optimal = calculate_trajectory_cost_and_optimal_velocities(to_try,
+                                                                           env_state_config,
+                                                                         true);
+    std::cout << " | time Optimal -> " << std::get<1>(to_try_optimal) << std::endl;
+  //  for (int i = 1; i < sched_loc.size()-1; i++) {
+  //    std::cout  << std::endl;
 
-  constructed_trajectory res = construction_heuristic(
-    scheduled_locations_idx,
-    unscheduled_locations_idx,
-    env_state_config);
+  //    for (auto lalas : to_try) {
+  //      std::cout << "to_try -> " << lalas << std::endl;
+  //    }
+  //    std::cout < << std::endl;
 
-  std::vector<int> sched_loc = std::get<3>(res);
-  MultiWaypointTrajectory mvt = std::get<0>(res);
-
-
-
-  for (int i = 1; i < sched_loc.size()-1; i++) {
-//    std::cout  << std::endl;
-//    std::vector<int> to_try{sched_loc[i-1], sched_loc[i], sched_loc[i+1]};
-//    for (auto lalas : to_try) {
-//      std::cout << "to_try -> " << lalas << std::endl;
-//    }
-//    std::cout < << std::endl;
-//    auto to_try_optimal = calculate_trajectory_cost_and_optimal_velocities(to_try,
-//                                                                 env_state_config);
-//    std::cout << "Time now -> " << mvt[i-1].time() + mvt[i].time() << " | time Optimal -> " << std::get<1>(to_try_optimal) << std::endl;
-  }
-
-
+  //    std::cout << "Time now -> " << mvt[i-1].time() + mvt[i].time() << " | time Optimal -> " << std::get<1>(to_try_optimal) << std::endl;
+  //  }
 }
 
 int main(int argc, char** argv) {
