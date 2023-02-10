@@ -10,6 +10,7 @@
 #include <string>
 #include <unordered_set>
 #include <unordered_map>
+#include <cstdlib>
 
 #include "gravity.hpp"
 #include "pmm_trajectory3d.hpp"
@@ -28,6 +29,10 @@ void signal_callback(int sig) {
 }
 
 typedef std::tuple<MultiWaypointTrajectory, Scalar, Scalar, std::vector<int>, std::vector<int>> constructed_trajectory;
+
+int randint(int Min, int Max) {
+  return std::rand() % (Max + 1 - Min) + Min;
+}
 
 
 // point mass model
@@ -395,7 +400,7 @@ std::tuple<MultiWaypointTrajectory, Scalar> calculate_trajectory_cost_and_optima
 
 
 
-std::tuple<MultiWaypointTrajectory, Scalar, Scalar, std::vector<int>, std::vector<int>> construction_heuristic(
+constructed_trajectory construction_heuristic(
   std::vector<int> scheduled_locations_idx,
   std::vector<int> unscheduled_locations_idx,
   EnvConfig& env_params) {
@@ -437,7 +442,10 @@ std::tuple<MultiWaypointTrajectory, Scalar, Scalar, std::vector<int>, std::vecto
   MultiWaypointTrajectory current_trajectory = std::get<0>(current_traj_and_time);
   Scalar current_cost = std::get<1>(current_traj_and_time);
   Scalar collected_reward = 0;
-  std::cout << "Current cost " << current_cost << std::endl;
+  for (int k = 1; k < scheduled_locations_idx.size(); k++) {
+    collected_reward += rewards[scheduled_locations_idx[k]];
+  }
+//  std::cout << "Current cost " << current_cost << std::endl;
 
   while (current_cost < t_max) {
     // <what_idx_to_insert, where_to_insert, velocity>
@@ -531,93 +539,205 @@ std::tuple<MultiWaypointTrajectory, Scalar, Scalar, std::vector<int>, std::vecto
   std::cout << "Collected reward: " << collected_reward << std::endl;
   VelocitySearchGraph::saveTrajectoryEquitemporal(current_trajectory, "samples_pmm.csv");
   std::cout << "Saved equitemporal." << std::endl;
+
+
 //  for (auto ul : unscheduled_locations_idx) {
 //    std::cout << "Unscheduled location -> " << ul << std::endl;
 //  }
-//  for (auto sl : scheduled_locations_idx) {
+  for (auto sl : scheduled_locations_idx) {
+    std::cout  << sl << " -> ";
+  }
+  std::cout << std::endl;
+  // OUTPUT: MultiWaypointTrajectory, total_cost, total_reward, scheduled_locations_idx, unscheduled_locations_idx
+  return {current_trajectory, current_cost, collected_reward, scheduled_locations_idx, unscheduled_locations_idx};
+}
+
+void destruction_heuristic_2(std::vector<int>& sched_loc,
+                             std::vector<int>& unsched_loc,
+                             MultiWaypointTrajectory& curr_traj,
+                             EnvConfig& env_state_config) {
+
+  int max_idx = 1;
+  Scalar max_diff = -1;
+
+  for (int i = 1; i < sched_loc.size()-1; i++) {
+    std::vector<int> to_try{sched_loc[i-1], sched_loc[i], sched_loc[i+1]};
+    auto to_try_optimal = calculate_trajectory_cost_and_optimal_velocities(to_try,
+                                                                           env_state_config,
+                                                                           true);
+    Scalar optimal_time = std::get<1>(to_try_optimal);
+    Scalar curr_time = curr_traj[i-1].time() + curr_traj[i].time();
+    Scalar diff = abs(optimal_time - curr_time);
+    if (diff < max_diff) {
+      max_diff = diff;
+      max_idx = i;
+    }
+//    std::cout << "Time now -> " << mvt[i-1].time() + mvt[i].time() << " | time Optimal -> " << std::get<1>(to_try_optimal) << std::endl;
+//    std::cout << "Diff -> " << abs(mvt[i-1].time() + mvt[i].time() - std::get<1>(to_try_optimal)) << std::endl;
+
+  }
+  unsched_loc.push_back(sched_loc[max_idx]);
+  sched_loc.erase(std::remove(sched_loc.begin(), sched_loc.end(), sched_loc[max_idx]), sched_loc.end());
+}
+
+
+void destruction_heuristic_1(std::vector<int>& sched_loc,
+                            std::vector<int>& unsched_loc,
+                            std::vector<Scalar>& ratios) {
+//  for (auto asas : unsched_loc) {
+//    std::cout  << asas << " -> ";
+//  }
+//  std::cout << std::endl;
+  int min_idx = 1;
+  Scalar curr_min_ratio = ratios[min_idx];
+  for (int i = 1; i < sched_loc.size()-1; i++) {
+    if (ratios[i] < curr_min_ratio) {
+      curr_min_ratio = ratios[i];
+      min_idx = i;
+    }
+  }
+//  std::cout << "To remove loc -> " << sched_loc[min_idx] << " with ration of " << ratios[min_idx] << std::endl;
+  unsched_loc.push_back(sched_loc[min_idx]);
+  sched_loc.erase(std::remove(sched_loc.begin(), sched_loc.end(), sched_loc[min_idx]), sched_loc.end());
+//  std::cout<< "Push " << sched_loc[min_idx] << std::endl;
+
+
+}
+
+std::vector<Scalar> calculate_heuristic_ratio(std::vector<int>& scheduled_locations_idx,
+                                              MultiWaypointTrajectory& current_trajectory,
+                                              std::vector<Scalar> rewards,
+                                              travel_cost_map& precalculated_costs) {
+
+  std::vector<Scalar> final_ratios{-1};
+  // Finding final ratios
+  for (int i = 1; i < scheduled_locations_idx.size()-1; i++) {
+    Scalar pred_to_curr_cost, curr_to_succ_cost, pred_to_succ_cost;
+    Scalar pred_norm = current_trajectory[i-1].inp_from_v_norm;
+    Scalar pred_angle = current_trajectory[i-1].inp_from_v_angle;
+    Scalar curr_norm = current_trajectory[i-1].inp_to_v_norm;
+    Scalar curr_angle = current_trajectory[i-1].inp_to_v_angle;
+    Scalar succ_norm = current_trajectory[i].inp_from_v_norm;
+    Scalar succ_angle = current_trajectory[i].inp_from_v_angle;
+
+    // Predecessor -> Current [cost]
+    pred_to_curr_cost = precalculated_costs[scheduled_locations_idx[i-1]][scheduled_locations_idx[i]][pred_norm][curr_norm][pred_angle][curr_angle];
+    // Current -> Successor [cost]
+    curr_to_succ_cost = precalculated_costs[scheduled_locations_idx[i]][scheduled_locations_idx[i+1]][curr_norm][succ_norm][curr_angle][succ_angle];
+    // Predecessor -> Successor [cost]
+    pred_to_succ_cost = precalculated_costs[scheduled_locations_idx[i-1]][scheduled_locations_idx[i+1]][pred_norm][succ_norm][pred_angle][succ_angle];
+
+    Scalar cost_of_insertion = pred_to_curr_cost + curr_to_succ_cost - pred_to_succ_cost;
+    Scalar ratio = rewards[scheduled_locations_idx[i]] / cost_of_insertion;
+    final_ratios.push_back(ratio);
+    //    std::cout << " ratio -> " << ratio << std::endl;
+    //    if (ratio < 5) {
+    //      std::cout << "reward -> " << rewards[scheduled_locations_idx[i]] <<" " << scheduled_locations_idx[i] <<  std::endl;
+    //    }
+  }
+  final_ratios.push_back(-1);
+  //  std::cout  << std::endl;
+  //  for (auto tr : current_trajectory) {
+  //    std::cout << "from -> " << tr.get_start_state().p.transpose() << " to -> " << tr.get_end_state().p.transpose() << std::endl;
+  //  }
+  return final_ratios;
+}
+
+
+std::tuple<std::vector<int>, std::vector<int>> destruction_heuristic_paper(constructed_trajectory& constr_tr,
+                                 Scalar percentage,
+                                 EnvConfig& env_params) {
+  // ENV PARAMS
+  travel_cost_map& travel_costs = env_params.precalculated_costs;
+  std::vector<Scalar>& rewards = env_params.rewards;
+
+  MultiWaypointTrajectory mvt = std::get<0>(constr_tr);
+  Scalar cost = std::get<1>(constr_tr);
+  Scalar reward = std::get<2>(constr_tr);
+  std::vector<int> sched_loc = std::get<3>(constr_tr);
+  std::vector<int> unsched_loc = std::get<4>(constr_tr);
+  std::vector<Scalar> ratios = calculate_heuristic_ratio(sched_loc, mvt, rewards, travel_costs);
+
+  int positions_to_remove = sched_loc.size() * percentage / 100;
+
+//  std::cout << "Percentage -> " << percentage <<"% " << "removes " << positions_to_remove << " positions" << std::endl;
+
+  for (int i = 0; i < positions_to_remove; i++) {
+
+
+    int random_number = randint(1, 2);
+    if (random_number == 1) {
+      destruction_heuristic_1(sched_loc, unsched_loc, ratios);
+    } else if (random_number == 2) {
+      destruction_heuristic_2(sched_loc, unsched_loc, mvt, env_params);
+    }
+    auto new_traj_time = calculate_trajectory_cost_and_optimal_velocities(sched_loc,env_params);
+    mvt = std::get<0>(new_traj_time);
+    cost = std::get<1>(new_traj_time);
+    ratios = calculate_heuristic_ratio(sched_loc, mvt, rewards, travel_costs);
+  }
+//  std::cout << "Final cost " << cost << std::endl;
+//  for (auto sl : sched_loc) {
 //    std::cout  << sl << " -> ";
 //  }
 //  std::cout << std::endl;
-
-  // Finding final ratios
-//  for (int i = 1; i < scheduled_locations_idx.size()-1; i++) {
-//    Scalar pred_to_curr_cost, curr_to_succ_cost, pred_to_succ_cost;
-//    Scalar pred_norm = current_trajectory[i-1].inp_from_v_norm;
-//    Scalar pred_angle = current_trajectory[i-1].inp_from_v_angle;
-//    Scalar curr_norm = current_trajectory[i-1].inp_to_v_norm;
-//    Scalar curr_angle = current_trajectory[i-1].inp_to_v_angle;
-//    Scalar succ_norm = current_trajectory[i].inp_from_v_norm;
-//    Scalar succ_angle = current_trajectory[i].inp_from_v_angle;
-//
-//    // Predecessor -> Current [cost]
-//    pred_to_curr_cost = precalculated_costs[scheduled_locations_idx[i-1]][scheduled_locations_idx[i]][pred_norm][curr_norm][pred_angle][curr_angle];
-//    // Current -> Successor [cost]
-//    curr_to_succ_cost = precalculated_costs[scheduled_locations_idx[i]][scheduled_locations_idx[i+1]][curr_norm][succ_norm][curr_angle][succ_angle];
-//    // Predecessor -> Successor [cost]
-//    pred_to_succ_cost = precalculated_costs[scheduled_locations_idx[i-1]][scheduled_locations_idx[i+1]][pred_norm][succ_norm][pred_angle][succ_angle];
-//
-//    Scalar cost_of_insertion = pred_to_curr_cost + curr_to_succ_cost - pred_to_succ_cost;
-//    Scalar ratio = rewards[i] / cost_of_insertion;
-//    std::cout << " ratio -> " << ratio << std::endl;
-//    if (ratio < 9) {
-//      std::cout << "reward -> " << rewards[i] <<" " << i <<  std::endl;
-//    }
+//  for (auto asas : unsched_loc) {
+//    std::cout  << asas << " -> ";
 //  }
-//  std::cout  << std::endl;
-//  for (auto tr : current_trajectory) {
-//    std::cout << "from -> " << tr.get_start_state().p.transpose() << " to -> " << tr.get_end_state().p.transpose() << std::endl;
-//  }
-  // OUTPUT: MultiWaypointTrajectory, total_cost, total_reward, scheduled_locations_idx, unscheduled_locations_idx
-  return {current_trajectory, current_cost, collected_reward, scheduled_locations_idx, unscheduled_locations_idx};
+  return {sched_loc, unsched_loc};
 }
 
 
 void get_positions_travel_costs(std::string config_file)
 {
   // LOAD CONFIG
-//  std::string cfg_file = config_file;
-//  YAML::Node config = YAML::LoadFile(cfg_file);
-
   EnvConfig env_state_config(config_file);
   env_state_config.generate_samples_with_simple_sampling();
   env_state_config.generate_precalculated_graph_of_costs();
 
 
-  // ----------------------------- HEURISTIC IMPLEMENTATION
-
   // idx == location by idx in `location_positions`
-//  std::vector<int> scheduled_locations_idx = {0, (int)env_state_config.location_positions.size()-1};
-//  std::vector<int> unscheduled_locations_idx{};
-//  for (int i = 1; i < env_state_config.location_positions.size() - 1; i++) {
-//    unscheduled_locations_idx.push_back(i);
-//  }
-//
-//
-//  constructed_trajectory res = construction_heuristic(
-//    scheduled_locations_idx,
-//    unscheduled_locations_idx,
-//    env_state_config);
-//
+  std::vector<int> scheduled_locations_idx = {0, (int)env_state_config.location_positions.size()-1};
+  std::vector<int> unscheduled_locations_idx{};
+  for (int i = 1; i < env_state_config.location_positions.size() - 1; i++) {
+    unscheduled_locations_idx.push_back(i);
+  }
+
+  // ----------------------------- HEURISTIC IMPLEMENTATION
+  constructed_trajectory initial_constr = construction_heuristic(
+    scheduled_locations_idx,
+    unscheduled_locations_idx,
+    env_state_config);
+
+  MultiWaypointTrajectory best_tr_yet = std::get<0>(initial_constr);
+  Scalar best_reward_yet = std::get<2>(initial_constr);
+  for (int j = 0; j < 100; j++) {
+    std::cout << "Construction #" << j << std::endl;
+
+    auto destroyed_solution = destruction_heuristic_paper(initial_constr, 50, env_state_config);
+    scheduled_locations_idx = std::get<0>(destroyed_solution);
+    unscheduled_locations_idx = std::get<1>(destroyed_solution);
+    initial_constr = construction_heuristic(scheduled_locations_idx, unscheduled_locations_idx, env_state_config);
+    if (std::get<2>(initial_constr) > best_reward_yet) {
+      best_reward_yet = std::get<2>(initial_constr);
+      best_tr_yet = std::get<0>(initial_constr);
+    }
+  }
+  std::cout << "Final reward -> " << best_reward_yet << std::endl;
+
 //  std::vector<int> sched_loc = std::get<3>(res);
 //  MultiWaypointTrajectory mvt = std::get<0>(res);
 
-  std::vector<int> to_try{0, 6, 12, 0, 11};
-  std::cout << "locs -> " << to_try[0] << ", " << to_try[1]  << std::endl;
-  std::cout << "-------------------------" << std::endl;
-    auto to_try_optimal = calculate_trajectory_cost_and_optimal_velocities(to_try,
-                                                                           env_state_config,
-                                                                         true);
-    std::cout << " | time Optimal -> " << std::get<1>(to_try_optimal) << std::endl;
-  //  for (int i = 1; i < sched_loc.size()-1; i++) {
-  //    std::cout  << std::endl;
 
-  //    for (auto lalas : to_try) {
-  //      std::cout << "to_try -> " << lalas << std::endl;
-  //    }
-  //    std::cout < << std::endl;
 
-  //    std::cout << "Time now -> " << mvt[i-1].time() + mvt[i].time() << " | time Optimal -> " << std::get<1>(to_try_optimal) << std::endl;
-  //  }
+//  std::cout << "locs -> " << to_try[0] << ", " << to_try[1]  << std::endl;
+//  std::cout << "-------------------------" << std::endl;
+//    auto to_try_optimal = calculate_trajectory_cost_and_optimal_velocities(to_try,
+//                                                                           env_state_config,
+//                                                                         true);
+//    std::cout << " | time Optimal -> " << std::get<1>(to_try_optimal) << std::endl;
+
+//  }
 }
 
 int main(int argc, char** argv) {
