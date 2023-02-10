@@ -438,7 +438,8 @@ constructed_trajectory construction_heuristic(
 
   auto current_traj_and_time = calculate_trajectory_cost_and_optimal_velocities(
     scheduled_locations_idx,
-    env_params);
+    env_params,
+    true);
   MultiWaypointTrajectory current_trajectory = std::get<0>(current_traj_and_time);
   Scalar current_cost = std::get<1>(current_traj_and_time);
   Scalar collected_reward = 0;
@@ -495,7 +496,8 @@ constructed_trajectory construction_heuristic(
 
               auto try_traj_and_time = calculate_trajectory_cost_and_optimal_velocities(
                                                                                         try_scheduled_locations_idx,
-                                                                                        env_params);
+                                                                                        env_params,
+                true);
               auto new_traj = std::get<0>(try_traj_and_time);
               auto new_cost = std::get<1>(try_traj_and_time);
 
@@ -700,10 +702,10 @@ std::tuple<std::vector<int>, std::vector<int>> destruction_heuristic_paper(const
     } else if (random_number == 3) {
       destruction_heuristic_3(sched_loc, unsched_loc, mvt, ratios, env_params);
     }
-    auto new_traj_time = calculate_trajectory_cost_and_optimal_velocities(sched_loc,env_params);
+    auto new_traj_time = calculate_trajectory_cost_and_optimal_velocities(sched_loc,env_params, true);
     mvt = std::get<0>(new_traj_time);
     cost = std::get<1>(new_traj_time);
-    std::cout << cost << std::endl;
+//    std::cout << cost << std::endl;
     ratios = calculate_heuristic_ratio(sched_loc, mvt, rewards, travel_costs);
   }
 //  std::cout << "Final cost " << cost << std::endl;
