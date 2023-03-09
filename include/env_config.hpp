@@ -33,6 +33,7 @@ class EnvConfig {
   // Vector of 'heading angles'(positions) of all gates (including start and end).
   std::vector<Vector<3>> location_positions;
   std::vector<Scalar> rewards;
+  int avg_reward_over_runs;
 
   // PRECALCULATED
   std::vector<Scalar> velocity_norm_samples;

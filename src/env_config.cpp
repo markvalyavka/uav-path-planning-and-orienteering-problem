@@ -16,6 +16,7 @@ EnvConfig::EnvConfig(std::string cfg_file) {
   max_velocity = config["max_velocity_norm"].as<Scalar>();
   Scalar max_acceleration = config["max_acceleration"].as<Scalar>();
   max_acc_per_axis = Vector<3>::Constant(max_acceleration);
+  avg_reward_over_runs = config["avg_reward_over_runs"].as<int>();
 
   if (!parseArrayParam<Vector<3>>(config, "locations", location_positions)) {
     std::cerr << "YAML:PARSER -> Can't load param 'locations'" << std::endl;

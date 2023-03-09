@@ -720,14 +720,7 @@ std::tuple<std::vector<int>, std::vector<int>> destruction_heuristic_paper(const
 }
 
 
-void get_positions_travel_costs(std::string config_file)
-{
-  // LOAD CONFIG
-  EnvConfig env_state_config(config_file);
-  env_state_config.generate_samples_with_simple_sampling();
-  env_state_config.generate_precalculated_graph_of_costs();
-
-
+std::tuple<MultiWaypointTrajectory, Scalar> run_paper_heuristic(EnvConfig& env_state_config) {
   // idx == location by idx in `location_positions`
   std::vector<int> scheduled_locations_idx = {0, (int)env_state_config.location_positions.size()-1};
   std::vector<int> unscheduled_locations_idx{};
@@ -754,6 +747,10 @@ void get_positions_travel_costs(std::string config_file)
       best_reward_yet = std::get<2>(initial_constr);
       best_tr_yet = std::get<0>(initial_constr);
     }
+    // Best found --> optimize with cone refocusing ->
+    // 1 3 2 4 12 12
+    // v1 v2
+    // Store promising solution that are above the limit
   }
   std::cout << std::endl;
   std::cout << std::endl;
@@ -776,25 +773,64 @@ void get_positions_travel_costs(std::string config_file)
     }
   }
   std::cout << "Final reward -> " << best_reward_yet << std::endl;
+  return {best_tr_yet, best_reward_yet};
+}
+
+void get_positions_travel_costs(std::string config_file, int argc, char** cli_args)
+{
+  // LOAD CONFIG
+  EnvConfig env_state_config(config_file);
+  env_state_config.generate_samples_with_simple_sampling();
+  env_state_config.generate_precalculated_graph_of_costs();
+
+  exit(1)
+  if (argc == 3) {
+    // CLI args override default config --> ./main *t_max* *V*
+    env_state_config.t_max = atof(cli_args[1]);
+    env_state_config.V = atof(cli_args[2]);
+  }
+  std::cout << "t_max -> " << env_state_config.t_max <<std::endl;
+  std::cout << "v -> " << env_state_config.V <<std::endl;
+
+  Scalar reward_accumulated = 0;
+  Scalar runtime_accumulated = 0;
+  Scalar best_reward = 0;
+  MultiWaypointTrajectory best_trajectory{};
+  Timer heuristic_runtime_timer{};
+  for (int i = 0; i < env_state_config.avg_reward_over_runs; i++) {
+    heuristic_runtime_timer.tic();
+    auto result = run_paper_heuristic(env_state_config);
+    MultiWaypointTrajectory curr_traj = std::get<0>(result);
+    Scalar curr_reward = std::get<1>(result);
+
+    reward_accumulated += curr_reward;
+    if (curr_reward > best_reward) {
+      best_reward = curr_reward;
+      best_trajectory = curr_traj;
+    }
+    heuristic_runtime_timer.toc();
+  }
+  Scalar avg_reward = reward_accumulated / env_state_config.avg_reward_over_runs;
+
+  std::cout << "<result>" << env_state_config.t_max << "," << env_state_config.V << "&"
+            << best_reward << "," << avg_reward << "," << heuristic_runtime_timer.mean() << "</result>" << std::endl;
+//  std::cout << "best_reward -> " << best_reward << std::endl;
+//  std::cout << "avg reward -> " << avg_reward << std::endl;
+//  std::cout << "avg runtime -> " << heuristic_runtime_timer.mean() << std::endl;
 
 //  std::vector<int> sched_loc = std::get<3>(res);
 //  MultiWaypointTrajectory mvt = std::get<0>(res);
-
-
-
 //  std::cout << "locs -> " << to_try[0] << ", " << to_try[1]  << std::endl;
 //  std::cout << "-------------------------" << std::endl;
 //    auto to_try_optimal = calculate_trajectory_cost_and_optimal_velocities(to_try,
 //                                                                           env_state_config,
 //                                                                         true);
 //    std::cout << " | time Optimal -> " << std::get<1>(to_try_optimal) << std::endl;
-
 //  }
 }
 
 int main(int argc, char** argv) {
-//  test_pmm(argc, argv);
-//  std::string config_file = "config.yaml";
-  get_positions_travel_costs("new_config.yaml");
+
+  get_positions_travel_costs("/Users/markv/pmm_planner/new_config.yaml", argc, argv);
   return 0;
 }
