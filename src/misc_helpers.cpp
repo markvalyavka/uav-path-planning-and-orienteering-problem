@@ -24,6 +24,7 @@ std::vector<Scalar> get_heading_angle_samples(int samples_num) {
 }
 
 Vector<3> to_velocity_vector(Scalar velocity_norm, Scalar angle) {
+//  std::cout << "angle -> " << angle << std::endl;
   return Vector<3>(velocity_norm*cos(angle), velocity_norm*sin(angle), 0);
 }
 

@@ -36,24 +36,32 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
   const std::vector<Scalar>& gates_pitch_deg,
   const std::vector<Scalar>& gates_vel_norms, const bool end_free,
   const bool use_gd) {
+
+
   const int gates_size = gates_waypoints.size();
 
-  Scalar pow_max_acc_2 = max_acc_ * max_acc_;
+  //  const std::vector<Scalar>& gates_yaw_deg,
+  //  const std::vector<Scalar>& gates_pitch_deg,
+  //  const std::vector<Scalar>& gates_vel_norms,
+  //  const bool end_free
+
+
   // Scalar single_axis = sqrt(pow_max_acc_2 / 3.0);
-  // solution to a_s^2 + a_s^2 + (a_s+g)^2 = thrust^2
+
 //  for (auto x : gates_yaw_deg) {
 //    std::cout << " HERE WP -> " << x << std::endl;
 //  }
   // [Question#] What does this scalar represent? How is 'single_axis' max
   // acceleration different from 'mac_acc_'?
+  Scalar pow_max_acc_2 = max_acc_ * max_acc_;
+  // solution to a_s^2 + a_s^2 + (a_s+g)^2 = thrust^2
   Scalar single_axis =
     (-2 * G + sqrt(4 * G * G - 12 * (G * G - pow_max_acc_2))) / 6.0;
 
-  Vector<3> max_acc_per_axis = Vector<3>::Constant(single_axis);
+  Vector<3> max_acc_per_axis = Vector<3>::Constant(max_acc_);
+//  Vector<3> max_acc_per_axis = Vector<3>::Constant(1.06);
   std::cout << "max_acc_ " << max_acc_ << std::endl;
   std::cout << "single_axis " << single_axis << std::endl;
-  // std::cout << "single_axis_a " << single_axis_a << std::endl;
-  // std::cout << "single_axis_b " << single_axis_b << std::endl;
 
   if (gates_waypoints.size() != gates_yaw_deg.size() ||
       gates_yaw_deg.size() != gates_pitch_deg.size() ||
@@ -63,21 +71,22 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
   }
   std::vector<Vector<3>> found_gates_speeds;
   // [Question#] What does found_gates_times[i] represent?
-//  std::vector<Scalar> found_gates_times;
+  std::vector<Scalar> found_gates_times;
   // Allow optimizing the end but omit the start. Therefore, "gates_size - 1"
   found_gates_speeds.resize(gates_size - 1);
-//  found_gates_times.resize(gates_size - 1);
+  found_gates_times.resize(gates_size - 1);
 
   std::vector<std::vector<Eigen::Vector2f>> gates_yaw_pitch_size_ranges;
   gates_yaw_pitch_size_ranges.resize(
     gates_size - 1, {Eigen::Vector2f(-max_yaw_pitch_ang_, max_yaw_pitch_ang_),
-                     Eigen::Vector2f(-max_yaw_pitch_ang_, max_yaw_pitch_ang_),
+                     Eigen::Vector2f(0, 0),
                      Eigen::Vector2f(min_velocity_size_, max_velocity_size_)});
 
 
   // [Question#] What is vel_size?
-  // Samples have [gateid][sampleid][{velocity,(yaw, pitch,
-  // vel_size),(yaw_coneindex, pitch_coneindex, vel_size_coneindex)}]
+  // Samples have [gateid][sample_id] =
+  //          (velocity_vector, (yaw, pitch,vel_size), (yaw_coneindex, pitch_coneindex, vel_size_coneindex))
+  //
   std::vector<std::vector<std::tuple<Vector<3>, Vector<3>, Vector<3>>>>
     gate_velocity_samples;
   gate_velocity_samples.resize(gates_size);
@@ -92,6 +101,7 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
   std::vector<std::vector<std::pair<int, Scalar>>> shortest_samples_times;
   shortest_samples_times.resize(gate_velocity_samples.size());
   // For 'start' location, it takes 0 seconds to reach.
+  // HOW TO INTERPRET --> To reach gate 0, it takes 0 seconds if we go from sample id '-1' from previous gate('-1')
   shortest_samples_times[0].push_back({-1, 0});
 
   const int num_vel_samples_yaw_pitch_ang =
@@ -108,7 +118,8 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
     num_vel_samples_size > 1 ? (max_velocity_size_ - min_velocity_size_) /
                                  ((Scalar)(num_vel_samples_size - 1))
                              : 0;
-
+  std::cout << "num_vel_samples_size -> " << num_vel_samples_size << std::endl;
+  std::cout << "vel_samples_size_step -> " << vel_samples_size_step << std::endl;
   // We create sample for all gates except start and end
   std::cout << "gate_velocity_samples size -> " << gate_velocity_samples.size() << std::endl;
   std::cout << "shortest_samples_times size -> " << shortest_samples_times.size() << std::endl;
@@ -150,12 +161,23 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
 
   const int num_iter_improve = 10;
 
+  auto backup_found_gates_speeds = found_gates_speeds;
+  auto backup_gate_velocity_samples = gate_velocity_samples;
+  auto backup_shortest_samples_times = shortest_samples_times;
+
   // Shortest time of the whole trajectory.
   Scalar last_shortest_time = MAX_SCALAR;
   // iteration over improvements of velocities == focusing velocity cones
   for (size_t iterimp = 0; iterimp < num_iter_improve; iterimp++) {
-    // loop gates 1....sample_num_gates (0 is start and gatesize-1 is end)
 
+    backup_found_gates_speeds = found_gates_speeds;
+    backup_gate_velocity_samples = gate_velocity_samples;
+    backup_shortest_samples_times = shortest_samples_times;
+
+    // COPY BACK TO => found_gates_speeds, gate_velocity_samples, shortest_samples_times
+
+    // loop gates 1....sample_num_gates (0 is start and gatesize-1 is end)
+    std::cout << "Improvement -> " << iterimp << std::endl;
     timer_samples.tic();
     // here creating only the samples
     for (size_t gid = 1; gid <= sample_num_gates; gid++) {
@@ -321,7 +343,7 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
 
     // Find the time of the shortest-time trajectory by looking at samples of
     // the last node
-    std::cout << "Heyaaa ----------------" << std::endl;
+//    std::cout << "Heyaaa ----------------" << std::endl;
     Scalar shortest_time = DBL_MAX;
     int end_best_idx = -1;
     const int endi = shortest_samples_times.size() - 1;
@@ -332,10 +354,18 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
         end_best_idx = i;
       }
     }
-    std::cout << "end_best_idx -> " << end_best_idx << std::endl;
+//    std::cout << "end_best_idx -> " << end_best_idx << std::endl;
 
-    std::cout << "shortest_time " << shortest_time << std::endl << std::endl;
+    std::cout << "last_shortest_time blah -> " << last_shortest_time << std::endl;
+    std::cout << "shortest_time blah -> " << shortest_time << std::endl << std::endl;
+    // We continue this iterative
+    // process until the ratio between previous minimum time and
+    // new minimum time is less than . In our case, this  has
+    // been chosen such that if the improvement is less than 1% in
+    // minimum time between iteration, the algorithm has converged
+    // and the iteration ends.
     if (shortest_time > 0.99 * last_shortest_time) {
+      std::cout << "We break" << std::endl;
       break;
     }
     last_shortest_time = shortest_time;
@@ -350,69 +380,72 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
     for (int g_id = endi; g_id > 0; g_id--) {
       found_gates_speeds[g_id - 1] =
         std::get<0>(gate_velocity_samples[g_id][prev_sample_idx]);
-
 //      std::cout << "idx " << g_id << " speed "
 //                << found_gates_speeds[g_id - 1].transpose() << std::endl;
-//      Vector<3> indexes =
-//        std::get<2>(gate_velocity_samples[g_id][prev_sample_idx]);
-//      for (size_t i = 0; i < 3; i++) {
-//        const Eigen::Vector2f current_range =
-//          gates_yaw_pitch_size_ranges[g_id - 1][i];
-//
-//        const Scalar range_size_half =
-//          (current_range(1) - current_range(0)) / 2.0;
-//        if (indexes(i) == 0) {
-//          // move the range of minmax down
-//          gates_yaw_pitch_size_ranges[g_id - 1][i] =
-//            Eigen::Vector2f(current_range(0) - range_size_half,
-//                            current_range(1) - range_size_half);
-//          if (i == 2) {
-//            // limit velocity size to be bigger than min_velocity_size_boundary_
-//            gates_yaw_pitch_size_ranges[g_id - 1][i] =
-//              gates_yaw_pitch_size_ranges[g_id - 1][i].cwiseMax(
-//                min_velocity_size_boundary_);
-//          } else {
-//            // limit yaw pitch change from gate direction to be within
-//            // -yaw_pitch_cone_angle_boundary_ and
-//            // yaw_pitch_cone_angle_boundary_
-//            gates_yaw_pitch_size_ranges[g_id - 1][i] =
-//              gates_yaw_pitch_size_ranges[g_id - 1][i]
-//                .cwiseMax(-yaw_pitch_cone_angle_boundary_)
-//                .cwiseMin(yaw_pitch_cone_angle_boundary_);
-//          }
-//        } else if (indexes(i) == 2) {
-//          // move the range of minmax up
-//          gates_yaw_pitch_size_ranges[g_id - 1][i] =
-//            Eigen::Vector2f(current_range(0) + range_size_half,
-//                            current_range(1) + range_size_half);
-//          if (i < 2) {
-//            // limit yaw pitch change from gate direction to be within
-//            // -yaw_pitch_cone_angle_boundary_ and
-//            // yaw_pitch_cone_angle_boundary_
-//            gates_yaw_pitch_size_ranges[g_id - 1][i] =
-//              gates_yaw_pitch_size_ranges[g_id - 1][i]
-//                .cwiseMax(-yaw_pitch_cone_angle_boundary_)
-//                .cwiseMin(yaw_pitch_cone_angle_boundary_);
-//          }
-//        } else {
-//          // make smaller range around current sample
-//          gates_yaw_pitch_size_ranges[g_id - 1][i] =
-//            Eigen::Vector2f(current_range(0) + range_size_half / 2.0,
-//                            current_range(1) - range_size_half / 2.0);
-//        }
+      Vector<3> indexes =
+        std::get<2>(gate_velocity_samples[g_id][prev_sample_idx]);
+      for (size_t i = 0; i < 3; i++) {
+        const Eigen::Vector2f current_range =
+          gates_yaw_pitch_size_ranges[g_id - 1][i];
+
+        const Scalar range_size_half =
+          (current_range(1) - current_range(0)) / 2.0;
+        if (indexes(i) == 0) {
+          // move the range of minmax down
+          gates_yaw_pitch_size_ranges[g_id - 1][i] =
+            Eigen::Vector2f(current_range(0) - range_size_half,
+                            current_range(1) - range_size_half);
+          if (i == 2) {
+            // limit velocity size to be bigger than min_velocity_size_boundary_
+            gates_yaw_pitch_size_ranges[g_id - 1][i] =
+              gates_yaw_pitch_size_ranges[g_id - 1][i].cwiseMax(
+                min_velocity_size_boundary_);
+          } else {
+            // limit yaw pitch change from gate direction to be within
+            // -yaw_pitch_cone_angle_boundary_ and
+            // yaw_pitch_cone_angle_boundary_
+            gates_yaw_pitch_size_ranges[g_id - 1][i] =
+              gates_yaw_pitch_size_ranges[g_id - 1][i]
+                .cwiseMax(-yaw_pitch_cone_angle_boundary_)
+                .cwiseMin(yaw_pitch_cone_angle_boundary_);
+          }
+        } else if (indexes(i) == 2) {
+          // move the range of minmax up
+          gates_yaw_pitch_size_ranges[g_id - 1][i] =
+            Eigen::Vector2f(current_range(0) + range_size_half,
+                            current_range(1) + range_size_half);
+          if (i < 2) {
+            // limit yaw pitch change from gate direction to be within
+            // -yaw_pitch_cone_angle_boundary_ and
+            // yaw_pitch_cone_angle_boundary_
+            gates_yaw_pitch_size_ranges[g_id - 1][i] =
+              gates_yaw_pitch_size_ranges[g_id - 1][i]
+                .cwiseMax(-yaw_pitch_cone_angle_boundary_)
+                .cwiseMin(yaw_pitch_cone_angle_boundary_);
+          }
+        } else {
+          // make smaller range around current sample
+          gates_yaw_pitch_size_ranges[g_id - 1][i] =
+            Eigen::Vector2f(current_range(0) + range_size_half / 2.0,
+                            current_range(1) - range_size_half / 2.0);
+        }
 //        std::cout << "g " << (g_id - 1) << " ax " << i << "range"
 //                  << gates_yaw_pitch_size_ranges[g_id - 1][i].transpose()
 //                  << std::endl;
-//      }
+      }
 
       // traceback previous sample index here
       prev_sample_idx = shortest_samples_times[g_id][prev_sample_idx].first;
     }
-//    exit(1);
-    std::cout << "Exiting the iter improvement loop.." << std::endl;
   }
+  std::cout << "Exiting the iter improvement loop.." << std::endl;
 
   timer.toc();
+
+  // COPY BACK TO => found_gates_speeds, gate_velocity_samples, shortest_samples_times
+  found_gates_speeds = backup_found_gates_speeds;
+  gate_velocity_samples = backup_gate_velocity_samples;
+  shortest_samples_times = backup_shortest_samples_times;
 
 
   // find the shortest among the end ones
@@ -427,14 +460,14 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
     }
   }
 
-  // std::cout << "shortest_time " << shortest_time << std::endl;
+   std::cout << "last_shortest_time -> " << last_shortest_time << std::endl;
 
   int prev_sample_idx = end_best_idx;
   for (int g_id = endi; g_id > 0; g_id--) {
     found_gates_speeds[g_id - 1] =
       std::get<0>(gate_velocity_samples[g_id][prev_sample_idx]);
-//    found_gates_times[g_id - 1] =
-//      shortest_samples_times[g_id][prev_sample_idx].second;
+    found_gates_times[g_id - 1] =
+      shortest_samples_times[g_id][prev_sample_idx].second;
 
     prev_sample_idx = shortest_samples_times[g_id][prev_sample_idx].first;
   }
@@ -490,7 +523,7 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
         PRECISION_PMM_VALUES) {
       std::cout << tr_max_between << std::endl;
       std::cout << "not equal time " << std::endl;
-      exit(1);
+//      exit(1);
     }
   }
   // ------ Add all other trajectories --- END
@@ -500,7 +533,16 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
     std::cout << "shortest_time" << shortest_time << std::endl;
     return MultiWaypointTrajectory();
   }
-  std::cout << "End of trajectory calculation. Return trajectories found.." << std::endl;
+  Scalar actual_time = 0;
+  for (auto tr: trajectories) {
+    actual_time += tr.time();
+  }
+//  std::cout << "End of trajectory calculation. Return trajectories found.." << std::endl;
+//  std::cout << "Actual time -> " << actual_time << std::endl;
+  std::cout << "Actual time -> " << time_sum << std::endl;
+//  for (auto t : found_gates_times) {
+//    std::cout << "time -> " << t << std::endl;
+//  }
   return trajectories;
 }
 

@@ -34,19 +34,29 @@
 
 
 start:
-  position: [0, 0, 0]
-  velocity: [2  , 0     , 0  ]
-end:
-  position: [0, 14, 0]
+  position: [4.6, 7.1, 0]
   velocity: [0, 0, 0 ]
-locations: [[10, 10, 0]]
-
-gates_orientations: [ 0 , 0, 0]
-gates_pitch_orientations: [0 , 0, 0]
+end:
+  position: [5.0, 5.6, 0]
+  velocity: [0, 0, 0 ]
+#locations: [[8, 1, 0], [2, 8, 0], [0, 20, 0]]
+locations:
+  - [6.3, 7.9, 0] # 10
+  - [7.7, 8.2, 0] # 9
+  - [8.8, 9.8, 0] # 8
+  - [13.8, 13.1, 0] # 14
+  - [14.1, 14.2, 0] # 15
+  - [11.2, 13.6, 0] # 16
+  - [9.7, 16.4, 0] # 17
+  - [9.5, 18.8, 0] # 18
+  - [7.8, 11.0, 0] # 7
+  - [6.7, 5.8, 0] # 13
+gates_orientations: [ 45 , 45,  45, 90, 90, 45, 315, 225, 45, 45, 360, 360]
+gates_pitch_orientations: [0 , 0, 0, 0, 0, 0 , 0, 0, 0, 0, 0, 0]
 
 max_yaw_pitch_ang: 20
 precision_yaw_pitch_ang: 20
-end_free: True
+end_free: true
 # #added start orientation 0 which is not fulfilled!!!
 # gates_orientations: [-43, 0,-20,-126]   
 # # # gates_pitch_orientations: [-20,20,0,0]
