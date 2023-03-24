@@ -61,7 +61,7 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
   Vector<3> max_acc_per_axis = Vector<3>::Constant(max_acc_);
 //  Vector<3> max_acc_per_axis = Vector<3>::Constant(1.06);
   std::cout << "max_acc_ " << max_acc_ << std::endl;
-  std::cout << "single_axis " << single_axis << std::endl;
+//  std::cout << "single_axis " << single_axis << std::endl;
 
   if (gates_waypoints.size() != gates_yaw_deg.size() ||
       gates_yaw_deg.size() != gates_pitch_deg.size() ||

@@ -94,9 +94,9 @@ int test_pmm(int argc, char** argv) {
                                gates_pitch_deg))
     std::cerr << "can't load param gates_pitch_orientations" << std::endl;
 
-  std::vector<Scalar> gates_vel_norms;
-  gates_vel_norms.resize(gates_pitch_deg.size(),
-                         (max_velocity_norm + min_velocity_norm) / 2.0);
+  std::vector<Scalar> gates_vel_norms{2.111, 2.111, 2.111, 1.6888, 2.111, 1.6888, 1.2666, 2.111, 2.111, 1.6888};
+//  gates_vel_norms.resize(gates_pitch_deg.size(),
+//                         (max_velocity_norm + min_velocity_norm) / 2.0);
 
 
 
@@ -447,9 +447,6 @@ constructed_trajectory construction_heuristic(
   for (int k = 1; k < scheduled_locations_idx.size(); k++) {
     collected_reward += rewards[scheduled_locations_idx[k]];
   }
-//  std::cout << "Current cost " << current_cost << std::endl;
-  Scalar total_time_for_extra = 0;
-  Timer heuristic_runtime_timer{};
 
 
   while (current_cost < t_max) {
@@ -458,7 +455,6 @@ constructed_trajectory construction_heuristic(
     Scalar ratio_of_best_insertion_so_far = -1;
     // Try to schedule every unscheduled location
     for (int unscheduled_idx : unscheduled_locations_idx) {
-      //      std::cout << "unschedule index -> " << unscheduled_idx << std::endl;
       // For every possible insertion_idx
       //                     possible insertion spot
       //                          v
@@ -497,29 +493,20 @@ constructed_trajectory construction_heuristic(
 
               try_scheduled_locations.insert(try_scheduled_locations.begin()+insertion_idx, position_to_schedule);
               try_scheduled_locations_idx.insert(try_scheduled_locations_idx.begin()+insertion_idx, unscheduled_idx);
-//              heuristic_runtime_timer.tic();
+
               auto try_traj_and_time = calculate_trajectory_cost_and_optimal_velocities(
                                                                                         try_scheduled_locations_idx,
                                                                                         env_params,
                 true);
-              heuristic_runtime_timer.toc();
-//              total_time_for_extra += heuristic_runtime_timer.last();
+
               auto new_traj = std::get<0>(try_traj_and_time);
               auto new_cost = std::get<1>(try_traj_and_time);
 
-//              auto
 //              std::cout << "-----------------" << std::endl;
 //              std::cout << "Paper coi -> " << cost_of_insertion + current_cost << std::endl;
 //              std::cout << "Real coi -> " << new_cost << std::endl;
 //              std::cout << "-----------------" << std::endl;
               if (new_cost < t_max) {
-//                auto try_traj_and_time = calculate_trajectory_cost_and_optimal_velocities(
-//                  try_scheduled_locations_idx,
-//                  env_params,
-//                  true);
-//                auto new_traj = std::get<0>(try_traj_and_time);
-//                auto new_cost = std::get<1>(try_traj_and_time);
-
                 ratio_of_best_insertion_so_far = ratio;
                 Vector<3> vel_vector = to_velocity_vector(norm1, angle1);
                 best_insertion_so_far = {unscheduled_idx, insertion_idx, vel_vector, new_traj, new_cost, try_scheduled_locations};
@@ -558,18 +545,10 @@ constructed_trajectory construction_heuristic(
 
   std::cout <<  "-------------------------" << std::endl;
   std::cout << "Final cost: " << current_cost << std::endl;
-//  std::cout << "total_time_for_extra: " << total_time_for_extra << std::endl;
   std::cout << "Collected reward: " << collected_reward << std::endl;
-  VelocitySearchGraph::saveTrajectoryEquitemporal(current_trajectory, "samples_pmm.csv");
-  std::cout << "Saved equitemporal." << std::endl;
+//  VelocitySearchGraph::saveTrajectoryEquitemporal(current_trajectory, "samples_pmm.csv");
+//  std::cout << "Saved equitemporal." << std::endl;
 
-//  for (auto ul : unscheduled_locations_idx) {
-//    std::cout << "Unscheduled location -> " << ul << std::endl;
-//  }
-//  for (auto sl : scheduled_locations_idx) {
-//    std::cout  << sl << " -> ";
-//  }
-//  std::cout << std::endl;
   // OUTPUT: MultiWaypointTrajectory, total_cost, total_reward, scheduled_locations_idx, unscheduled_locations_idx
   return {current_trajectory, current_cost, collected_reward, scheduled_locations_idx, unscheduled_locations_idx};
 }
@@ -747,8 +726,8 @@ std::tuple<MultiWaypointTrajectory, Scalar> run_paper_heuristic(EnvConfig& env_s
   for (int i = 1; i < env_state_config.location_positions.size() - 1; i++) {
     unscheduled_locations_idx.push_back(i);
   }
-  Timer heuristic_runtime_timer{};
-  heuristic_runtime_timer.tic();
+//  Timer heuristic_runtime_timer{};
+//  heuristic_runtime_timer.tic();
   // ----------------------------- HEURISTIC IMPLEMENTATION
   constructed_trajectory initial_constr = construction_heuristic(
     scheduled_locations_idx,
@@ -756,39 +735,13 @@ std::tuple<MultiWaypointTrajectory, Scalar> run_paper_heuristic(EnvConfig& env_s
     env_state_config);
 
   MultiWaypointTrajectory best_tr_yet = std::get<0>(initial_constr);
+  Scalar best_cost = std::get<1>(initial_constr);
   Scalar best_reward_yet = std::get<2>(initial_constr);
-  heuristic_runtime_timer.toc();
+  std::vector<int> best_scheduled_positions = std::get<3>(initial_constr);
+  std::vector<int> best_unscheduled_positions = std::get<4>(initial_constr);
+//  heuristic_runtime_timer.toc();
 
-  MultiWaypointTrajectory test_traj = std::get<0>(initial_constr);
-  Scalar test_const = std::get<1>(initial_constr);
-  Scalar test_reward = std::get<2>(initial_constr);
-  std::vector<int> test_scheduled_positions = std::get<3>(initial_constr);
-  std::vector<int> test_unscheduled_positions = std::get<4>(initial_constr);
-//  std::cout << "Elem num: " << test_traj.size() << std::endl;
-  std::cout << "Velocity norms:" << std::endl;
-  for (auto tr: test_traj) {
-    std::cout << "[" << tr.inp_from_v_norm << " -> " << tr.inp_to_v_norm << "] ";
-  }
-  std::cout << std::endl;
-  std::cout << "Velocity angles:" << std::endl;
-  for (auto tr: test_traj) {
-    int ang1 = tr.inp_from_v_angle * 180 / M_PI_2;
-    int ang2 = tr.inp_to_v_angle * 180 / M_PI_2;
-    std::cout << "[" << ang1 << " -> " << ang2 << "] ";
-  }
-  std::cout << std::endl;
-  std::cout << "Scheduled locations:" << std::endl;
-  for (auto sch: test_scheduled_positions) {
-    std::cout << sch << " -> ";
-  }
-  std::cout << std::endl;
-
-  std::cout << "Uncheduled locations:" << std::endl;
-  for (auto unsch: test_unscheduled_positions) {
-    std::cout << unsch << " -> ";
-  }
-  std::cout << std::endl;
-  exit(1);
+//  exit(1);
 
   // -------------
 //  MultiWaypointTrajectory tr;
@@ -812,7 +765,6 @@ std::tuple<MultiWaypointTrajectory, Scalar> run_paper_heuristic(EnvConfig& env_s
   // -------------
 
 
-
 //  std::cout << "here best reward -> " << best_reward_yet << " initila construciton time -> " << heuristic_runtime_timer.last() << std::endl;
 
   for (int j = 0; j < 100; j++) {
@@ -823,8 +775,11 @@ std::tuple<MultiWaypointTrajectory, Scalar> run_paper_heuristic(EnvConfig& env_s
     unscheduled_locations_idx = std::get<1>(destroyed_solution);
     initial_constr = construction_heuristic(scheduled_locations_idx, unscheduled_locations_idx, env_state_config);
     if (std::get<2>(initial_constr) > best_reward_yet) {
-      best_reward_yet = std::get<2>(initial_constr);
       best_tr_yet = std::get<0>(initial_constr);
+      best_cost = std::get<1>(initial_constr);
+      best_reward_yet = std::get<2>(initial_constr);
+      best_scheduled_positions = std::get<3>(initial_constr);
+      best_unscheduled_positions = std::get<4>(initial_constr);
     }
 
     // Best found --> optimize with cone refocusing ->
@@ -841,19 +796,52 @@ std::tuple<MultiWaypointTrajectory, Scalar> run_paper_heuristic(EnvConfig& env_s
   std::cout << std::endl;
 
   for (int j = 0; j < 100; j++) {
-    std::cout << "Construction #" << j << std::endl;
+    std::cout << "Second Construction #" << j << std::endl;
 
     auto destroyed_solution = destruction_heuristic_paper(initial_constr, 20, env_state_config);
     scheduled_locations_idx = std::get<0>(destroyed_solution);
     unscheduled_locations_idx = std::get<1>(destroyed_solution);
     initial_constr = construction_heuristic(scheduled_locations_idx, unscheduled_locations_idx, env_state_config);
     if (std::get<2>(initial_constr) > best_reward_yet) {
-      best_reward_yet = std::get<2>(initial_constr);
       best_tr_yet = std::get<0>(initial_constr);
+      best_cost = std::get<1>(initial_constr);
+      best_reward_yet = std::get<2>(initial_constr);
+      best_scheduled_positions = std::get<3>(initial_constr);
+      best_unscheduled_positions = std::get<4>(initial_constr);
     }
   }
+  VelocitySearchGraph::saveTrajectoryEquitemporal(best_tr_yet, "samples_pmm.csv");
   std::cout << "Final reward -> " << best_reward_yet << std::endl;
-  exit(1);
+  std::cout << "Final cost -> " << best_cost << std::endl;
+  std::cout << "Velocity norms:" << std::endl;
+  for (auto tr: best_tr_yet) {
+    std::cout << "[" << tr.inp_from_v_norm << " -> " << tr.inp_to_v_norm << "] ";
+  }
+  std::cout << std::endl;
+  std::cout << "Velocity angles:" << std::endl;
+  for (auto tr: best_tr_yet) {
+
+    int ang1 = tr.inp_from_v_angle * 180 / M_PI;
+    int ang2 = tr.inp_to_v_angle * 180 / M_PI;
+
+    std::cout << "[" << ang1 << " -> " << ang2 << "] ";
+  }
+  for (auto tr: best_tr_yet) {
+    std::cout << "[" << tr.inp_from_v_angle << " -> " << tr.inp_to_v_angle << "] ";
+  }
+  std::cout << std::endl;
+  std::cout << "Scheduled locations:" << std::endl;
+  for (auto sch: best_scheduled_positions) {
+    std::cout << sch << " -> ";
+  }
+  std::cout << std::endl;
+
+  std::cout << "Uncheduled locations:" << std::endl;
+  for (auto unsch: best_unscheduled_positions) {
+    std::cout << unsch << " -> ";
+  }
+  std::cout << std::endl;
+//  exit(1);
   return {best_tr_yet, best_reward_yet};
 }
 
@@ -869,8 +857,8 @@ void get_positions_travel_costs(std::string config_file, int argc, char** cli_ar
     env_state_config.t_max = atof(cli_args[1]);
     env_state_config.V = atof(cli_args[2]);
   }
-  std::cout << "t_max -> " << env_state_config.t_max <<std::endl;
-  std::cout << "v -> " << env_state_config.V <<std::endl;
+//  std::cout << "t_max -> " << env_state_config.t_max <<std::endl;
+//  std::cout << "v -> " << env_state_config.V <<std::endl;
 
   auto result = run_paper_heuristic(env_state_config);
   MultiWaypointTrajectory curr_traj = std::get<0>(result);
@@ -917,7 +905,10 @@ void get_positions_travel_costs(std::string config_file, int argc, char** cli_ar
 }
 
 int main(int argc, char** argv) {
-//  test_pmm(argc, argv);
-  get_positions_travel_costs("/Users/markv/pmm_planner/new_config.yaml", argc, argv);
+//  std::cout << to_velocity_vector(2.111, 1.9635) << std::endl;
+//  exit(1);
+  test_pmm(argc, argv);
+  srand(1273);
+//  get_positions_travel_costs("/Users/markv/pmm_planner/new_config.yaml", argc, argv);
   return 0;
 }
