@@ -47,7 +47,8 @@ def plot_3d_positions_graph(pmm, pmm_equidistant):
     ax3d = fig2.add_subplot(111, projection='3d', computed_zorder=False)
 
     velocity_norms = np.sqrt(pmm[:, 4] * pmm[:, 4] + pmm[:, 5] * pmm[:, 5] + pmm[:, 6] * pmm[:, 6])
-
+    for i, v in enumerate(velocity_norms):
+        print(i, v)
     # ax3d.plot(pmm[:, 1], pmm[:, 2], pmm[:, 3])
     velocities_plot = ax3d.scatter(pmm[:, 1], pmm[:, 2], pmm[:, 3], c=velocity_norms, cmap='jet', s=0.35, zorder=-1)
 

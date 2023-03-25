@@ -66,7 +66,7 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
   if (gates_waypoints.size() != gates_yaw_deg.size() ||
       gates_yaw_deg.size() != gates_pitch_deg.size() ||
       gates_pitch_deg.size() != gates_vel_norms.size()) {
-    std::cout << "wrong size of gates/yaw/pitch/norm vectors" << std::endl;
+    std::cout << "Wrong size of gates/yaw/pitch/norm vectors." << std::endl;
     return MultiWaypointTrajectory();
   }
   std::vector<Vector<3>> found_gates_speeds;
@@ -75,8 +75,9 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
   // Allow optimizing the end but omit the start. Therefore, "gates_size - 1"
   found_gates_speeds.resize(gates_size - 1);
   found_gates_times.resize(gates_size - 1);
-
   std::vector<std::vector<Eigen::Vector2f>> gates_yaw_pitch_size_ranges;
+
+  // For every gate we have possible ranges of velocity_norm, yaw and pitch.
   gates_yaw_pitch_size_ranges.resize(
     gates_size - 1, {Eigen::Vector2f(-max_yaw_pitch_ang_, max_yaw_pitch_ang_),
                      Eigen::Vector2f(0, 0),
@@ -142,17 +143,22 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
 
   // change the velocity norm range based on current velocity in the
   // gates_vel_norms
-  for (size_t gid = 1; gid <= sample_num_gates; gid++) {
-    // minimal distance from norm boundaries to desired velocity
-    Eigen::Vector2f& min_max_norm = gates_yaw_pitch_size_ranges[gid - 1][2];
-    const Scalar gate_vel_norm = gates_vel_norms[gid];
-    // std::cout << "gate_vel_norm " << gate_vel_norm << std::endl;
-    Scalar min_dist_desired_vel = std::min(gate_vel_norm - min_max_norm(0),
-                                           min_max_norm(1) - gate_vel_norm);
-    min_dist_desired_vel = std::max(min_dist_desired_vel, 2.0);
-    min_max_norm(0) = gate_vel_norm - min_dist_desired_vel;
-    min_max_norm(1) = gate_vel_norm + min_dist_desired_vel;
-  }
+//  for (size_t gid = 1; gid <= sample_num_gates; gid++) {
+//    // minimal distance from norm boundaries to desired velocity
+//    Eigen::Vector2f& min_max_norm = gates_yaw_pitch_size_ranges[gid - 1][2];
+//    const Scalar gate_vel_norm = gates_vel_norms[gid];
+//    std::cout << "--------------------" << std::endl;
+//    std::cout << "gid: " << gid << std::endl;
+//    std::cout << "min_max_norm: " << min_max_norm.transpose() << std::endl;
+//    std::cout << "gate_vel_norm: " << gate_vel_norm << std::endl;
+//    // std::cout << "gate_vel_norm " << gate_vel_norm << std::endl;
+//    Scalar min_dist_desired_vel = std::min(gate_vel_norm - min_max_norm(0),
+//                                           min_max_norm(1) - gate_vel_norm);
+//    min_dist_desired_vel = std::max(min_dist_desired_vel, 2.0);
+//    min_max_norm(0) = gate_vel_norm - min_dist_desired_vel;
+//    min_max_norm(1) = gate_vel_norm + min_dist_desired_vel;
+//    std::cout << "min_max_norm AFTER: " << min_max_norm.transpose() << std::endl;
+//  }
 
   Timer timer;
   timer.tic();
@@ -521,8 +527,8 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
     }
     if (fabs(tr_max_between.time_min() - tr_max_between.time()) >=
         PRECISION_PMM_VALUES) {
-      std::cout << tr_max_between << std::endl;
-      std::cout << "not equal time " << std::endl;
+//      std::cout << tr_max_between << std::endl;
+//      std::cout << "not equal time " << std::endl;
 //      exit(1);
     }
   }

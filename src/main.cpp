@@ -56,9 +56,9 @@ int test_pmm(int argc, char** argv) {
 
   // Velocity norm samples.
   const Scalar min_velocity_norm = 0;
-  const Scalar min_velocity_norm_boundary = -2.111;
+  const Scalar min_velocity_norm_boundary = 0.0001;
   const Scalar max_velocity_norm = 2.111;
-  const Scalar precision_velocity_norm = 0.5;
+  const Scalar precision_velocity_norm = 0.1;
   const Scalar max_acc_norm = 1.06;
   const bool end_free = true;
   Scalar max_yaw_pitch_ang = 20;
@@ -94,9 +94,10 @@ int test_pmm(int argc, char** argv) {
                                gates_pitch_deg))
     std::cerr << "can't load param gates_pitch_orientations" << std::endl;
 
-  std::vector<Scalar> gates_vel_norms{2.111, 2.111, 2.111, 1.6888, 2.111, 1.6888, 1.2666, 2.111, 2.111, 1.6888};
-//  gates_vel_norms.resize(gates_pitch_deg.size(),
-//                         (max_velocity_norm + min_velocity_norm) / 2.0);
+//  std::vector<Scalar> gates_vel_norms{2.111, 2.111, 2.111, 2.111, 2.111, 1.0555, 1.0555, 2.111, 2.111, 2.111, 1.0555, 2.111, 1.0555, 1.0555, 0, 0, 0, 1.0555};
+  std::vector<Scalar> gates_vel_norms{};
+  gates_vel_norms.resize(gates_pitch_deg.size(),
+                         (max_velocity_norm + min_velocity_norm) / 2.0);
 
 
 
@@ -121,32 +122,27 @@ int test_pmm(int argc, char** argv) {
     gates_waypoints, start_velocity, end_velocity, gates_yaw_deg,
     gates_pitch_deg, gates_vel_norms, end_free, false);
 
+//  for (auto t: tr) {
+//    std::cout << t.inp_from_v_norm << std::endl;
+//  }
+
   for (size_t i = 0; i < tr.size(); i++) {
     const Vector<3> vel = tr[i].get_end_state().v;
     const Vector<3> vel_norm = vel.normalized();
+//    std::cout << "vel -> " << vel.transpose() << std::endl;
+    std::cout << "vel_norm -> " << vel.norm() << std::endl;
     const Scalar pitch = asin(-vel_norm(2)) * 180 / M_PI;
     const Scalar yaw = atan2(vel_norm(1), vel_norm(0)) * 180 / M_PI;
     gates_yaw_deg[i + 1] = yaw;
     gates_pitch_deg[i + 1] = pitch;
     gates_vel_norms[i + 1] = vel.norm();
   }
-  find_vel.toc();
-  find_vel.print();
 
-//  std::cout << "output tr size " << tr.size() << std::endl;
   for (size_t i = 0; i < tr.size(); i++) {
+    Vector<3> vel_norm = tr[i].get_end_state().v.normalized();
     if (i == 0) {
       Vector<3> vel_norm = tr[i].get_start_state().v.normalized();
-      Scalar pitch = asin(-vel_norm(2)) * 180 / M_PI;
-      Scalar yaw = atan2(vel_norm(1), vel_norm(0)) * 180 / M_PI;
-//      std::cout << i << " pos " << tr[i].get_start_state().p.transpose()
-//                << " vel " << tr[i].get_start_state().v.transpose() << " acc "
-//                << tr[i].get_start_state().a.transpose() << " thrust norm "
-//                << (tr[i].get_start_state().a - GVEC).norm() << " exists "
-//                << tr[i].exists() << " yaw " << yaw << " pitch " << pitch
-//                << std::endl;
     }
-    Vector<3> vel_norm = tr[i].get_end_state().v.normalized();
     Scalar pitch = asin(-vel_norm(2)) * 180 / M_PI;
     Scalar yaw = atan2(vel_norm(1), vel_norm(0)) * 180 / M_PI;
 //    std::cout << i + 1 << " pos " << tr[i].get_end_state().p.transpose()
@@ -157,16 +153,13 @@ int test_pmm(int argc, char** argv) {
 //              << std::endl;
 
     sum_times += tr[i].time();
-    if (tr[i].time() - tr[i].time_min() > PRECISION_PMM_VALUES) {
+//    if (tr[i].time() - tr[i].time_min() > PRECISION_PMM_VALUES) {
 //      std::cout << "bad time!!!!!!" << std::endl;
-    }
+//    }
   }
   std::cout <<  "--------------------" << std::endl;
   VelocitySearchGraph::saveTrajectoryEquitemporal(tr, "samples_pmm.csv");
   std::cout << "Saved equitemporal." << std::endl;
-//  VelocitySearchGraph::saveTrajectoryEquidistant(tr,
-//                                                 "samples_equidistant.csv");
-//  std::cout << "Saved equidistant." << std::endl;
 
   return 0;
 }
@@ -815,8 +808,9 @@ std::tuple<MultiWaypointTrajectory, Scalar> run_paper_heuristic(EnvConfig& env_s
   std::cout << "Final cost -> " << best_cost << std::endl;
   std::cout << "Velocity norms:" << std::endl;
   for (auto tr: best_tr_yet) {
-    std::cout << "[" << tr.inp_from_v_norm << " -> " << tr.inp_to_v_norm << "] ";
+    std::cout << tr.inp_from_v_norm << ", ";
   }
+  std::cout << (best_tr_yet[best_tr_yet.size()-1].inp_to_v_norm) << "]" << std::endl;
   std::cout << std::endl;
   std::cout << "Velocity angles:" << std::endl;
   for (auto tr: best_tr_yet) {
@@ -824,12 +818,13 @@ std::tuple<MultiWaypointTrajectory, Scalar> run_paper_heuristic(EnvConfig& env_s
     int ang1 = tr.inp_from_v_angle * 180 / M_PI;
     int ang2 = tr.inp_to_v_angle * 180 / M_PI;
 
-    std::cout << "[" << ang1 << " -> " << ang2 << "] ";
+    std::cout << ang1 << ", ";
   }
-  for (auto tr: best_tr_yet) {
-    std::cout << "[" << tr.inp_from_v_angle << " -> " << tr.inp_to_v_angle << "] ";
-  }
-  std::cout << std::endl;
+  std::cout << (int)(best_tr_yet[best_tr_yet.size()-1].inp_to_v_angle * 180 / M_PI) << "]" << std::endl;
+//  for (auto tr: best_tr_yet) {
+//    std::cout << "[" << tr.inp_from_v_angle << " -> " << tr.inp_to_v_angle << "] ";
+//  }
+//  std::cout << std::endl;
   std::cout << "Scheduled locations:" << std::endl;
   for (auto sch: best_scheduled_positions) {
     std::cout << sch << " -> ";
@@ -905,10 +900,10 @@ void get_positions_travel_costs(std::string config_file, int argc, char** cli_ar
 }
 
 int main(int argc, char** argv) {
-//  std::cout << to_velocity_vector(2.111, 1.9635) << std::endl;
+//  std::cout << to_velocity_vector(2.111, 0.381) << std::endl;
 //  exit(1);
   test_pmm(argc, argv);
-  srand(1273);
+//  srand(25);
 //  get_positions_travel_costs("/Users/markv/pmm_planner/new_config.yaml", argc, argv);
   return 0;
 }

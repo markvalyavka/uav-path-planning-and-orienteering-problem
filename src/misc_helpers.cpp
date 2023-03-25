@@ -114,6 +114,8 @@ void populate_precalculated_travel_costs_map(travel_cost_map &travel_costs,
                 test_loc_1.v = loc_1_velocity;
                 test_loc_2.v = start_vel;
                 PointMassTrajectory3D tr(test_loc_1, test_loc_2, max_acc_per_axis, true);
+                std::cout << "max_acc_per_axis: " << max_acc_per_axis << std::endl;
+//                exit(1);
                 if (!tr.exists()) {
                   std::cout << "Not-existing" << std::endl;
                 }
