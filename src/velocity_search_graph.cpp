@@ -143,22 +143,22 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
 
   // change the velocity norm range based on current velocity in the
   // gates_vel_norms
-//  for (size_t gid = 1; gid <= sample_num_gates; gid++) {
-//    // minimal distance from norm boundaries to desired velocity
-//    Eigen::Vector2f& min_max_norm = gates_yaw_pitch_size_ranges[gid - 1][2];
-//    const Scalar gate_vel_norm = gates_vel_norms[gid];
+  for (size_t gid = 1; gid <= sample_num_gates; gid++) {
+    // minimal distance from norm boundaries to desired velocity
+    Eigen::Vector2f& min_max_norm = gates_yaw_pitch_size_ranges[gid - 1][2];
+    const Scalar gate_vel_norm = gates_vel_norms[gid];
 //    std::cout << "--------------------" << std::endl;
 //    std::cout << "gid: " << gid << std::endl;
 //    std::cout << "min_max_norm: " << min_max_norm.transpose() << std::endl;
 //    std::cout << "gate_vel_norm: " << gate_vel_norm << std::endl;
-//    // std::cout << "gate_vel_norm " << gate_vel_norm << std::endl;
-//    Scalar min_dist_desired_vel = std::min(gate_vel_norm - min_max_norm(0),
-//                                           min_max_norm(1) - gate_vel_norm);
-//    min_dist_desired_vel = std::max(min_dist_desired_vel, 2.0);
-//    min_max_norm(0) = gate_vel_norm - min_dist_desired_vel;
-//    min_max_norm(1) = gate_vel_norm + min_dist_desired_vel;
+    // std::cout << "gate_vel_norm " << gate_vel_norm << std::endl;
+    Scalar min_dist_desired_vel = std::min(gate_vel_norm - min_max_norm(0),
+                                           min_max_norm(1) - gate_vel_norm);
+    min_dist_desired_vel = std::max(min_dist_desired_vel, 2.0);
+    min_max_norm(0) = gate_vel_norm - min_dist_desired_vel;
+    min_max_norm(1) = gate_vel_norm + min_dist_desired_vel;
 //    std::cout << "min_max_norm AFTER: " << min_max_norm.transpose() << std::endl;
-//  }
+  }
 
   Timer timer;
   timer.tic();
@@ -370,7 +370,7 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
     // been chosen such that if the improvement is less than 1% in
     // minimum time between iteration, the algorithm has converged
     // and the iteration ends.
-    if (shortest_time > 0.99 * last_shortest_time) {
+    if (shortest_time > 0.995 * last_shortest_time) {
       std::cout << "We break" << std::endl;
       break;
     }

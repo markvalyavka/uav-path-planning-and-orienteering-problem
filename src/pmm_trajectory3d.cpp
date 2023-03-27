@@ -199,7 +199,7 @@ PointMassTrajectory3D::PointMassTrajectory3D(const QuadState &from,
         PMMTrajectory scaled =
           PMMTrajectory(get_axis_trajectory(i), tr_time, calc_gradient);
         if (!scaled.exists_) {
-          x_.exists_ = false;
+//          x_.exists_ = false;
 //          std::cout << "scaled does not exists" << std::endl;
           Scalar scale_time = fabs(scaled.a_(0)) / max_acc1(i);
           // std::cout << "scale_time " << scale_time << std::endl;

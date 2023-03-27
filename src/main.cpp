@@ -11,6 +11,7 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <cstdlib>
+#include <random>
 
 #include "gravity.hpp"
 #include "pmm_trajectory3d.hpp"
@@ -58,8 +59,9 @@ int test_pmm(int argc, char** argv) {
   const Scalar min_velocity_norm = 0;
   const Scalar min_velocity_norm_boundary = 0.0001;
   const Scalar max_velocity_norm = 2.111;
+  // Distance between velocity norms
   const Scalar precision_velocity_norm = 0.1;
-  const Scalar max_acc_norm = 1.06;
+  const Scalar max_acc_norm = 1.06066;
   const bool end_free = true;
   Scalar max_yaw_pitch_ang = 20;
   Scalar precision_yaw_pitch_ang = 20;
@@ -94,10 +96,10 @@ int test_pmm(int argc, char** argv) {
                                gates_pitch_deg))
     std::cerr << "can't load param gates_pitch_orientations" << std::endl;
 
-//  std::vector<Scalar> gates_vel_norms{2.111, 2.111, 2.111, 2.111, 2.111, 1.0555, 1.0555, 2.111, 2.111, 2.111, 1.0555, 2.111, 1.0555, 1.0555, 0, 0, 0, 1.0555};
-  std::vector<Scalar> gates_vel_norms{};
-  gates_vel_norms.resize(gates_pitch_deg.size(),
-                         (max_velocity_norm + min_velocity_norm) / 2.0);
+  std::vector<Scalar> gates_vel_norms{1.06066, 1.06066, 2.12132, 2.12132, 2.12132, 2.12132, 1.06066, 0, 1.06066, 2.12132, 0, 1.06066, 2.12132};
+//  std::vector<Scalar> gates_vel_norms{};
+//  gates_vel_norms.resize(gates_pitch_deg.size(),
+//                         (max_velocity_norm + min_velocity_norm) / 2.0);
 
 
 
@@ -130,7 +132,7 @@ int test_pmm(int argc, char** argv) {
     const Vector<3> vel = tr[i].get_end_state().v;
     const Vector<3> vel_norm = vel.normalized();
 //    std::cout << "vel -> " << vel.transpose() << std::endl;
-    std::cout << "vel_norm -> " << vel.norm() << std::endl;
+//    std::cout << "vel_norm -> " << vel.norm() << std::endl;
     const Scalar pitch = asin(-vel_norm(2)) * 180 / M_PI;
     const Scalar yaw = atan2(vel_norm(1), vel_norm(0)) * 180 / M_PI;
     gates_yaw_deg[i + 1] = yaw;
@@ -395,51 +397,51 @@ std::tuple<MultiWaypointTrajectory, Scalar> calculate_trajectory_cost_and_optima
 
 constructed_trajectory construction_heuristic(
   std::vector<int> scheduled_locations_idx,
-  std::vector<int> unscheduled_locations_idx,
-  EnvConfig& env_params) {
-  // CFG
+  EnvConfig& env_params,
+  MultiWaypointTrajectory mwp_trajectory = MultiWaypointTrajectory{}) {
+
   // location_positions  &
-  // start_velocity  &
-  // max_acc_per_axis  &
-  // t_max  &
   // rewards  &
+  // t_max  &
   std::vector<Vector<3>>& location_positions = env_params.location_positions;
-  Vector<3>& start_velocity = env_params.start_velocity;
-  Vector<3>& max_acc_per_axis = env_params.max_acc_per_axis;
-  Scalar t_max = env_params.t_max;
   std::vector<Scalar>& rewards = env_params.rewards;
+  Scalar t_max = env_params.t_max;
 
-
-  // PRECALC
   // precalculated_costs  &
-  // velocity_samples_tuples  &
   // velocity_norm_samples  &
   // heading_angle_samples  &
   travel_cost_map& precalculated_costs = env_params.precalculated_costs;
-  std::vector<std::tuple<Vector<3>, Scalar, Scalar>>& velocity_samples_tuples = env_params.velocity_samples_tuples;
   std::vector<Scalar>& velocity_norm_samples = env_params.velocity_norm_samples;
   std::vector<Scalar>& heading_angle_samples = env_params.heading_angle_samples;
 
-  // unscheduled_locations_idx
-  // scheduled_locations_idx
-  // scheduled_locations -> get from `location_positions` by `scheduled_locations_idx`
+
   std::vector<Vector<3>> scheduled_locations{};
   for (int idx : scheduled_locations_idx) {
-//    std::cout<< "scheduled id -> " << idx << std::endl;
     scheduled_locations.push_back(env_params.location_positions[idx]);
   }
+  std::vector<int> unscheduled_locations_idx = get_missing_values_in_range(scheduled_locations_idx,
+                                                           scheduled_locations_idx[0],
+                                                           scheduled_locations_idx[scheduled_locations_idx.size()-1]);
 
-
-  auto current_traj_and_time = calculate_trajectory_cost_and_optimal_velocities(
-    scheduled_locations_idx,
-    env_params,
-    true);
-  MultiWaypointTrajectory current_trajectory = std::get<0>(current_traj_and_time);
-  Scalar current_cost = std::get<1>(current_traj_and_time);
-  Scalar collected_reward = 0;
-  for (int k = 1; k < scheduled_locations_idx.size(); k++) {
-    collected_reward += rewards[scheduled_locations_idx[k]];
+  MultiWaypointTrajectory current_trajectory;
+  if (mwp_trajectory.size() > 0) {
+    current_trajectory = mwp_trajectory;
+  } else {
+    auto current_traj_and_time = calculate_trajectory_cost_and_optimal_velocities(
+      scheduled_locations_idx,
+      env_params,
+      true);
+    current_trajectory = std::get<0>(current_traj_and_time);
   }
+
+//  auto current_traj_and_time = calculate_trajectory_cost_and_optimal_velocities(
+//    scheduled_locations_idx,
+//    env_params,
+//    true);
+//  MultiWaypointTrajectory current_trajectory = std::get<0>(current_traj_and_time);
+
+  Scalar current_cost = get_mwp_trajectory_cost(current_trajectory);
+  Scalar collected_reward = get_mwp_trajectory_reward(scheduled_locations_idx, rewards);
 
 
   while (current_cost < t_max) {
@@ -476,6 +478,9 @@ constructed_trajectory construction_heuristic(
 
             // Predecessor -> Successor [cost]
             pred_to_succ_cost = current_trajectory[insertion_idx-1].time();
+            if (pred_to_curr_cost == 0 || curr_to_succ_cost == 0) {
+              std::cout << " This shouldn't happen !!!!!!!!" << std::endl;
+            }
 
             Scalar cost_of_insertion = pred_to_curr_cost + curr_to_succ_cost - pred_to_succ_cost;
             Scalar ratio = rewards[unscheduled_idx] / cost_of_insertion;
@@ -539,8 +544,6 @@ constructed_trajectory construction_heuristic(
   std::cout <<  "-------------------------" << std::endl;
   std::cout << "Final cost: " << current_cost << std::endl;
   std::cout << "Collected reward: " << collected_reward << std::endl;
-//  VelocitySearchGraph::saveTrajectoryEquitemporal(current_trajectory, "samples_pmm.csv");
-//  std::cout << "Saved equitemporal." << std::endl;
 
   // OUTPUT: MultiWaypointTrajectory, total_cost, total_reward, scheduled_locations_idx, unscheduled_locations_idx
   return {current_trajectory, current_cost, collected_reward, scheduled_locations_idx, unscheduled_locations_idx};
@@ -713,20 +716,21 @@ std::tuple<std::vector<int>, std::vector<int>> destruction_heuristic_paper(const
 
 
 std::tuple<MultiWaypointTrajectory, Scalar> run_paper_heuristic(EnvConfig& env_state_config) {
+
   // idx == location by idx in `location_positions`
   std::vector<int> scheduled_locations_idx = {0, (int)env_state_config.location_positions.size()-1};
-  std::vector<int> unscheduled_locations_idx{};
-  for (int i = 1; i < env_state_config.location_positions.size() - 1; i++) {
-    unscheduled_locations_idx.push_back(i);
-  }
-//  Timer heuristic_runtime_timer{};
-//  heuristic_runtime_timer.tic();
+
+
   // ----------------------------- HEURISTIC IMPLEMENTATION
+  auto initial_trajectory_and_time = calculate_trajectory_cost_and_optimal_velocities(
+    scheduled_locations_idx,
+    env_state_config,
+    true);
+  MultiWaypointTrajectory initial_trajectory = std::get<0>(initial_trajectory_and_time);
+
   constructed_trajectory initial_constr = construction_heuristic(
     scheduled_locations_idx,
-    unscheduled_locations_idx,
     env_state_config);
-
   MultiWaypointTrajectory best_tr_yet = std::get<0>(initial_constr);
   Scalar best_cost = std::get<1>(initial_constr);
   Scalar best_reward_yet = std::get<2>(initial_constr);
@@ -736,37 +740,18 @@ std::tuple<MultiWaypointTrajectory, Scalar> run_paper_heuristic(EnvConfig& env_s
 
 //  exit(1);
 
-  // -------------
-//  MultiWaypointTrajectory tr;
-//  // Finds velocities, (and pitch and yaw?) in each gate that optimize the trajectory
-//  // to traverse all the gates. Plus, it gives information about the time to reach
-//  // from gateA to gateB.
-//  tr = vel_search_graph.find_velocities_in_positions(
-//    gates_waypoints, start_velocity, end_velocity, gates_yaw_deg,
-//    gates_pitch_deg, gates_vel_norms, end_free, false);
-//
-//  for (size_t i = 0; i < tr.size(); i++) {
-//    const Vector<3> vel = tr[i].get_end_state().v;
-//    const Vector<3> vel_norm = vel.normalized();
-//    const Scalar pitch = asin(-vel_norm(2)) * 180 / M_PI;
-//    const Scalar yaw = atan2(vel_norm(1), vel_norm(0)) * 180 / M_PI;
-//    gates_yaw_deg[i + 1] = yaw;
-//    gates_pitch_deg[i + 1] = pitch;
-//    gates_vel_norms[i + 1] = vel.norm();
-//  }
-
-  // -------------
+  // ---------------------
 
 
 //  std::cout << "here best reward -> " << best_reward_yet << " initila construciton time -> " << heuristic_runtime_timer.last() << std::endl;
 
-  for (int j = 0; j < 100; j++) {
+  for (int j = 0; j < 57; j++) {
     std::cout << "Construction #" << j << std::endl;
 
     auto destroyed_solution = destruction_heuristic_paper(initial_constr, 50, env_state_config);
     scheduled_locations_idx = std::get<0>(destroyed_solution);
-    unscheduled_locations_idx = std::get<1>(destroyed_solution);
-    initial_constr = construction_heuristic(scheduled_locations_idx, unscheduled_locations_idx, env_state_config);
+//    unscheduled_locations_idx = std::get<1>(destroyed_solution);
+    initial_constr = construction_heuristic(scheduled_locations_idx, env_state_config);
     if (std::get<2>(initial_constr) > best_reward_yet) {
       best_tr_yet = std::get<0>(initial_constr);
       best_cost = std::get<1>(initial_constr);
@@ -788,43 +773,38 @@ std::tuple<MultiWaypointTrajectory, Scalar> run_paper_heuristic(EnvConfig& env_s
   std::cout << std::endl;
   std::cout << std::endl;
 
-  for (int j = 0; j < 100; j++) {
-    std::cout << "Second Construction #" << j << std::endl;
+//  for (int j = 0; j < 100; j++) {
+//    std::cout << "Second Construction #" << j << std::endl;
+//
+//    auto destroyed_solution = destruction_heuristic_paper(initial_constr, 20, env_state_config);
+//    scheduled_locations_idx = std::get<0>(destroyed_solution);
+//    unscheduled_locations_idx = std::get<1>(destroyed_solution);
+//    initial_constr = construction_heuristic(scheduled_locations_idx, unscheduled_locations_idx, env_state_config);
+//    if (std::get<2>(initial_constr) > best_reward_yet) {
+//      best_tr_yet = std::get<0>(initial_constr);
+//      best_cost = std::get<1>(initial_constr);
+//      best_reward_yet = std::get<2>(initial_constr);
+//      best_scheduled_positions = std::get<3>(initial_constr);
+//      best_unscheduled_positions = std::get<4>(initial_constr);
+//    }
+//  }
 
-    auto destroyed_solution = destruction_heuristic_paper(initial_constr, 20, env_state_config);
-    scheduled_locations_idx = std::get<0>(destroyed_solution);
-    unscheduled_locations_idx = std::get<1>(destroyed_solution);
-    initial_constr = construction_heuristic(scheduled_locations_idx, unscheduled_locations_idx, env_state_config);
-    if (std::get<2>(initial_constr) > best_reward_yet) {
-      best_tr_yet = std::get<0>(initial_constr);
-      best_cost = std::get<1>(initial_constr);
-      best_reward_yet = std::get<2>(initial_constr);
-      best_scheduled_positions = std::get<3>(initial_constr);
-      best_unscheduled_positions = std::get<4>(initial_constr);
-    }
-  }
-  VelocitySearchGraph::saveTrajectoryEquitemporal(best_tr_yet, "samples_pmm.csv");
+  std::cout << "------------------  FINAL STATS  ---------------" << std::endl;
   std::cout << "Final reward -> " << best_reward_yet << std::endl;
   std::cout << "Final cost -> " << best_cost << std::endl;
+  std::cout << std::endl;
   std::cout << "Velocity norms:" << std::endl;
-  for (auto tr: best_tr_yet) {
-    std::cout << tr.inp_from_v_norm << ", ";
+  auto vel_norms = get_mwp_trajectory_velocities(best_tr_yet);
+  for (auto n : vel_norms) {
+    std::cout << n << ", ";
   }
-  std::cout << (best_tr_yet[best_tr_yet.size()-1].inp_to_v_norm) << "]" << std::endl;
   std::cout << std::endl;
   std::cout << "Velocity angles:" << std::endl;
-  for (auto tr: best_tr_yet) {
-
-    int ang1 = tr.inp_from_v_angle * 180 / M_PI;
-    int ang2 = tr.inp_to_v_angle * 180 / M_PI;
-
-    std::cout << ang1 << ", ";
+  auto yaw_angles = get_mwp_trajectory_yaw_angles(best_tr_yet);
+  for (auto ya : yaw_angles) {
+    std::cout << ya << ", ";
   }
-  std::cout << (int)(best_tr_yet[best_tr_yet.size()-1].inp_to_v_angle * 180 / M_PI) << "]" << std::endl;
-//  for (auto tr: best_tr_yet) {
-//    std::cout << "[" << tr.inp_from_v_angle << " -> " << tr.inp_to_v_angle << "] ";
-//  }
-//  std::cout << std::endl;
+  std::cout << std::endl;
   std::cout << "Scheduled locations:" << std::endl;
   for (auto sch: best_scheduled_positions) {
     std::cout << sch << " -> ";
@@ -836,7 +816,8 @@ std::tuple<MultiWaypointTrajectory, Scalar> run_paper_heuristic(EnvConfig& env_s
     std::cout << unsch << " -> ";
   }
   std::cout << std::endl;
-//  exit(1);
+  VelocitySearchGraph::saveTrajectoryEquitemporal(best_tr_yet, "samples_pmm.csv");
+  std::cout << "Saved equitemporal." << std::endl;
   return {best_tr_yet, best_reward_yet};
 }
 
@@ -847,11 +828,11 @@ void get_positions_travel_costs(std::string config_file, int argc, char** cli_ar
   env_state_config.generate_samples_with_simple_sampling();
   env_state_config.generate_precalculated_graph_of_costs();
 
-  if (argc == 3) {
-    // CLI args override default config --> ./main *t_max* *V*
-    env_state_config.t_max = atof(cli_args[1]);
-    env_state_config.V = atof(cli_args[2]);
-  }
+//  if (argc == 3) {
+//     CLI args override default config --> ./main *t_max* *V*
+//    env_state_config.t_max = atof(cli_args[1]);
+//    env_state_config.V = atof(cli_args[2]);
+//  }
 //  std::cout << "t_max -> " << env_state_config.t_max <<std::endl;
 //  std::cout << "v -> " << env_state_config.V <<std::endl;
 
@@ -859,51 +840,15 @@ void get_positions_travel_costs(std::string config_file, int argc, char** cli_ar
   MultiWaypointTrajectory curr_traj = std::get<0>(result);
   Scalar curr_reward = std::get<1>(result);
 
-//  Scalar reward_accumulated = 0;
-//  Scalar runtime_accumulated = 0;
-//  Scalar best_reward = 0;
-//  exit(1);
-//
-//  Timer heuristic_runtime_timer{};
-//
-//  MultiWaypointTrajectory best_trajectory{};
-//  for (int i = 0; i < env_state_config.avg_reward_over_runs; i++) {
-//    heuristic_runtime_timer.tic();
-//    auto result = run_paper_heuristic(env_state_config);
-//    MultiWaypointTrajectory curr_traj = std::get<0>(result);
-//    Scalar curr_reward = std::get<1>(result);
-//
-//    reward_accumulated += curr_reward;
-//    if (curr_reward > best_reward) {
-//      best_reward = curr_reward;
-//      best_trajectory = curr_traj;
-//    }
-//    heuristic_runtime_timer.toc();
-//  }
-//  Scalar avg_reward = reward_accumulated / env_state_config.avg_reward_over_runs;
-//
-//  std::cout << "<result>" << env_state_config.t_max << "," << env_state_config.V << "&"
-//            << best_reward << "," << avg_reward << "," << heuristic_runtime_timer.mean() << "</result>" << std::endl;
-//  std::cout << "best_reward -> " << best_reward << std::endl;
-//  std::cout << "avg reward -> " << avg_reward << std::endl;
-//  std::cout << "avg runtime -> " << heuristic_runtime_timer.mean() << std::endl;
-
-//  std::vector<int> sched_loc = std::get<3>(res);
-//  MultiWaypointTrajectory mvt = std::get<0>(res);
-//  std::cout << "locs -> " << to_try[0] << ", " << to_try[1]  << std::endl;
-//  std::cout << "-------------------------" << std::endl;
-//    auto to_try_optimal = calculate_trajectory_cost_and_optimal_velocities(to_try,
-//                                                                           env_state_config,
-//                                                                         true);
-//    std::cout << " | time Optimal -> " << std::get<1>(to_try_optimal) << std::endl;
-//  }
 }
 
 int main(int argc, char** argv) {
-//  std::cout << to_velocity_vector(2.111, 0.381) << std::endl;
+//  std::cout << to_velocity_vector(1.06066, 1.58) << std::endl;
 //  exit(1);
-  test_pmm(argc, argv);
-//  srand(25);
-//  get_positions_travel_costs("/Users/markv/pmm_planner/new_config.yaml", argc, argv);
+//  test_pmm(argc, argv);
+//
+  srand(25);
+  get_positions_travel_costs("/Users/markv/pmm_planner/new_config.yaml", argc, argv);
+
   return 0;
 }

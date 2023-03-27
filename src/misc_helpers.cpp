@@ -114,7 +114,7 @@ void populate_precalculated_travel_costs_map(travel_cost_map &travel_costs,
                 test_loc_1.v = loc_1_velocity;
                 test_loc_2.v = start_vel;
                 PointMassTrajectory3D tr(test_loc_1, test_loc_2, max_acc_per_axis, true);
-                std::cout << "max_acc_per_axis: " << max_acc_per_axis << std::endl;
+//                std::cout << "max_acc_per_axis: " << max_acc_per_axis << std::endl;
 //                exit(1);
                 if (!tr.exists()) {
                   std::cout << "Not-existing" << std::endl;
@@ -146,6 +146,59 @@ void populate_precalculated_travel_costs_map(travel_cost_map &travel_costs,
   //  auto time_taken = travel_costs[0][6][std::get<0>(start_vel_mag_ang)][velocity_norm_samples[1]][std::get<1>(start_vel_mag_ang)][heading_angle_samples[2]];
   //  std::cout << "From start to end -> " << time_taken << std::endl;
   //  exit(1);
+}
+
+std::vector<int> get_missing_values_in_range(std::vector<int> A, int start, int end) {
+  std::sort(A.begin(), A.end());
+
+  // Initialize the output vector
+  std::vector<int> missing_nums;
+
+  // Iterate over the range [start, end] and check for missing numbers
+  for (int i = start; i <= end; i++) {
+    // Use binary search to check if i is present in A
+    if (!std::binary_search(A.begin(), A.end(), i)) {
+      missing_nums.push_back(i);
+    }
+  }
+
+  // Return the output vector
+  return missing_nums;
+}
+
+std::vector<Scalar> get_mwp_trajectory_velocities(MultiWaypointTrajectory& trajectories) {
+  std::vector<Scalar> velocities{};
+  for (auto tr: trajectories) {
+    velocities.push_back(tr.inp_from_v_norm);
+  }
+  velocities.push_back(trajectories[trajectories.size()-1].inp_to_v_norm);
+  return velocities;
+}
+
+std::vector<Scalar> get_mwp_trajectory_yaw_angles(MultiWaypointTrajectory& trajectories) {
+  std::vector<Scalar> yaw_angles{};
+  for (auto tr: trajectories) {
+    int ang1 = tr.inp_from_v_angle * 180 / M_PI;
+    yaw_angles.push_back(ang1);
+  }
+  yaw_angles.push_back((int)(trajectories[trajectories.size()-1].inp_to_v_angle * 180 / M_PI));
+  return yaw_angles;
+}
+
+Scalar get_mwp_trajectory_reward(std::vector<int>& scheduled_locations_idx, std::vector<Scalar>& rewards) {
+  Scalar collected_reward = 0;
+  for (int i = 1; i < scheduled_locations_idx.size(); i++) {
+    collected_reward += rewards[scheduled_locations_idx[i]];
+  }
+  return collected_reward;
+}
+
+Scalar get_mwp_trajectory_cost(MultiWaypointTrajectory& trajectories) {
+  Scalar cost = 0;
+  for (auto& tr: trajectories) {
+    cost += tr.time();
+  }
+  return cost;
 }
 
 

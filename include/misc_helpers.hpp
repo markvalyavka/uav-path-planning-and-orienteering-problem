@@ -2,6 +2,7 @@
 
 
 #include <unordered_map>
+#include <algorithm>
 #include "gravity.hpp"
 #include "pmm_trajectory3d.hpp"
 #include "three_acc.hpp"
@@ -58,5 +59,14 @@ void populate_precalculated_travel_costs_map(travel_cost_map &travel_costs,
                                              Vector<3> start_vel,
                                              Vector<3> end_vel);
 
+std::vector<int> get_missing_values_in_range(std::vector<int> A, int start, int end);
+
+std::vector<Scalar> get_mwp_trajectory_velocities(MultiWaypointTrajectory& trajectories);
+
+std::vector<Scalar> get_mwp_trajectory_yaw_angles(MultiWaypointTrajectory& trajectories);
+
+Scalar get_mwp_trajectory_reward(std::vector<int>& scheduled_locations_idx, std::vector<Scalar>& rewards);
+
+Scalar get_mwp_trajectory_cost(MultiWaypointTrajectory& trajectories);
 
 } // namespace agi
