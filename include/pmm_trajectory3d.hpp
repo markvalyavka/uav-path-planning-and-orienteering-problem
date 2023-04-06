@@ -16,25 +16,25 @@ class PointMassTrajectory3D {
   /*
   version of per axis acceleration limits
   */
-  PointMassTrajectory3D(const QuadState &from, const QuadState &to,
+  PointMassTrajectory3D(QuadState &from, const QuadState &to,
                         const Vector<3> max_acc,
                         const bool equalize_time = true,
                         const bool calc_gradient = false);
-  PointMassTrajectory3D(const QuadState &from, const QuadState &to,
+  PointMassTrajectory3D(QuadState &from, const QuadState &to,
                         const Vector<3> max_acc1, const Vector<3> max_acc2,
                         const bool equalize_time = true,
                         const bool calc_gradient = false);
   /*
   version of norm acceleration limits, using GD to distribute acc
   */
-  PointMassTrajectory3D(const QuadState &from, const QuadState &to,
+  PointMassTrajectory3D(QuadState &from, const QuadState &to,
                         const Scalar max_acc_norm,
                         const bool equalize_time = true,
                         const bool calc_gradient = false);
   /*
   version that limit the thrust by norm using iterative scaling
   */
-  PointMassTrajectory3D(const QuadState &from, const QuadState &to,
+  PointMassTrajectory3D(QuadState &from, const QuadState &to,
                         const Scalar max_acc_norm, const int max_iter,
                         const bool calc_gradient = false);
 

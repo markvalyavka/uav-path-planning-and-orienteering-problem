@@ -41,6 +41,7 @@ class EnvConfig {
   std::vector<std::tuple<Vector<3>, Scalar, Scalar>> velocity_samples_tuples;
   norm_angle_to_velocity_vector_map norm_angle_to_vector;
   travel_cost_map precalculated_costs;
+  imp_travel_cost_map imp_precalculated_costs;
 };
 
 } // agi

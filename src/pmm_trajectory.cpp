@@ -52,6 +52,7 @@ PMMTrajectory::PMMTrajectory(const Scalar ps, const Scalar vs, const Scalar pe,
     a_(1) = 0;
     p_(0) = p_(1) = p_(2) = p_(3) = ps;
     v_(0) = v_(1) = v_(2) = vs;
+//    std::cout << t_.transpose() << std::endl;
 //    std::cout << "already there" << std::endl;
     exists_ = true;
     return;

@@ -30,7 +30,7 @@ EnvConfig::EnvConfig(std::string cfg_file) {
   rewards.insert(rewards.begin(), 0);
   rewards.push_back(0);
 
-  std::cout << "done." << std::endl;
+//  std::cout << "done." << std::endl;
 }
 
 void EnvConfig::generate_samples_with_simple_sampling() {
@@ -47,14 +47,22 @@ void EnvConfig::generate_samples_with_simple_sampling() {
                                  heading_angle_samples);
 }
 void EnvConfig::generate_precalculated_graph_of_costs() {
-  populate_precalculated_travel_costs_map(precalculated_costs,
+//  populate_precalculated_travel_costs_map(precalculated_costs,
+//                                          location_positions,
+//                                          velocity_norm_samples,
+//                                          heading_angle_samples,
+//                                          norm_angle_to_vector,
+//                                          max_acc_per_axis,
+//                                          start_velocity,
+//                                          end_velocity);
+
+  velocity_samples_tuples.insert(velocity_samples_tuples.begin(), {start_velocity,
+                                                                   std::get<0>(to_velocity_norm_and_angle(start_velocity)),
+                                                                   std::get<1>(to_velocity_norm_and_angle(start_velocity))});
+  imp_populate_precalculated_travel_costs_map(imp_precalculated_costs,
                                           location_positions,
-                                          velocity_norm_samples,
-                                          heading_angle_samples,
-                                          norm_angle_to_vector,
-                                          max_acc_per_axis,
-                                          start_velocity,
-                                          end_velocity);
+                                          velocity_samples_tuples,
+                                          max_acc_per_axis);
 };
 
 } // namespace agi

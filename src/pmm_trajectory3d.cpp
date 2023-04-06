@@ -14,7 +14,7 @@ PointMassTrajectory3D::PointMassTrajectory3D() {}
 Basic version with symmetric acc limits in axis.
 Use this to calculate trajectory between 2 positions. [MARK]
 */
-PointMassTrajectory3D::PointMassTrajectory3D(const QuadState &from,
+PointMassTrajectory3D::PointMassTrajectory3D(QuadState &from,
                                              const QuadState &to,
                                              const Vector<3> max_acc,
                                              const bool equalize_time,
@@ -29,7 +29,7 @@ Version that converges to thrust limit by iterative increasing scaled (to match
 time) to the acc norm.
 This version scales time by default.
 */
-PointMassTrajectory3D::PointMassTrajectory3D(const QuadState &from,
+PointMassTrajectory3D::PointMassTrajectory3D(QuadState &from,
                                              const QuadState &to,
                                              const Scalar max_acc_norm,
                                              const int max_iter,
@@ -168,12 +168,21 @@ PointMassTrajectory3D::PointMassTrajectory3D(const QuadState &from,
   z_ = pmm3d.z_;
 }
 
-PointMassTrajectory3D::PointMassTrajectory3D(const QuadState &from,
+PointMassTrajectory3D::PointMassTrajectory3D(QuadState &from,
                                              const QuadState &to,
                                              const Vector<3> max_acc1,
                                              const Vector<3> max_acc2,
                                              const bool equalize_time,
                                              const bool calc_gradient) {
+//  if (fabs(from.p(0) - to.p(0)) < 0.01) {
+//    from.p(0) += 0.1;
+//  }
+//  if (fabs(from.p(1) - to.p(1)) < 0.01) {
+//    from.p(1) += 0.1;
+//  }
+//  if (fabs(from.p(2) - to.p(2)) < 0.01) {
+//    from.p(2) += 0.1;
+//  }
   x_ = PMMTrajectory(from.p(0), from.v(0), to.p(0), to.v(0), max_acc1(0),
                      max_acc2(0), 0, 0.0, false, calc_gradient, false);
   y_ = PMMTrajectory(from.p(1), from.v(1), to.p(1), to.v(1), max_acc1(1),
@@ -225,7 +234,7 @@ PointMassTrajectory3D::PointMassTrajectory3D(const QuadState &from,
   }
 }
 
-PointMassTrajectory3D::PointMassTrajectory3D(const QuadState &from,
+PointMassTrajectory3D::PointMassTrajectory3D(QuadState &from,
                                              const QuadState &to,
                                              const Scalar max_acc_norm,
                                              const bool equalize_time,

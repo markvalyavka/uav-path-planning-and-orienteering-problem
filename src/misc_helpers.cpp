@@ -63,6 +63,63 @@ void populate_norm_angle_to_velocity_vector_map(norm_angle_to_velocity_vector_ma
   }
 }
 
+void imp_populate_precalculated_travel_costs_map(imp_travel_cost_map& travel_costs,
+                                             std::vector<Vector<3>>& location_positions,
+                                             std::vector<std::tuple<Vector<3>, Scalar, Scalar>> velocity_samples_tuples,
+                                             Vector<3> &max_acc_per_axis) {
+
+  QuadState test_loc_1;
+  QuadState test_loc_2;
+  test_loc_1.setZero();
+  test_loc_2.setZero();
+  for (int loc1_id = 0; loc1_id < location_positions.size(); loc1_id++) {
+    for (int loc2_id = 0; loc2_id < location_positions.size(); loc2_id++) {
+      if (loc1_id == loc2_id) {continue;}
+      test_loc_1.p = location_positions[loc1_id];
+      test_loc_2.p = location_positions[loc2_id];
+      for (int vec1_id = 1; vec1_id < velocity_samples_tuples.size(); vec1_id++) {
+        Vector<3> loc_1_velocity = std::get<0>(velocity_samples_tuples[vec1_id]);
+        for (int vec2_id = 1; vec2_id < velocity_samples_tuples.size(); vec2_id++) {
+          Vector<3> loc_2_velocity = std::get<0>(velocity_samples_tuples[vec2_id]);
+
+          // Cost calculation.
+          test_loc_1.v = loc_1_velocity;
+          test_loc_2.v = loc_2_velocity;
+          PointMassTrajectory3D tr(test_loc_1, test_loc_2, max_acc_per_axis, true);
+          if (!tr.exists()) {
+            std::cout << "Not-existing" << std::endl;
+          }
+          travel_costs[loc1_id][loc2_id][vec1_id][vec2_id] = tr.time();
+          if (tr.time() <= 0 || tr.time() > 1000) {
+            std::cout << "time inside new thing -> " << tr.time() << std::endl;
+          }
+        }
+      }
+    }
+  }
+
+  // Precalculate cost from [start_location](start_velocity) to other positions.
+  // This will be used when `start_location` is not sampled.
+  test_loc_1.p = location_positions[0];
+  test_loc_1.v = std::get<0>(velocity_samples_tuples[0]);
+  for (int loc2_id = 1; loc2_id < location_positions.size(); loc2_id++) {
+    test_loc_2.p = location_positions[loc2_id];
+    for (int vec2_id = 1; vec2_id < velocity_samples_tuples.size(); vec2_id++) {
+      test_loc_2.v = std::get<0>(velocity_samples_tuples[vec2_id]);
+      PointMassTrajectory3D tr(test_loc_1, test_loc_2, max_acc_per_axis, true);
+      if (!tr.exists()) {
+        std::cout << "Not-existing" << std::endl;
+      }
+      travel_costs[0][loc2_id][0][vec2_id] = tr.time();
+      if (tr.time() <= 0 || tr.time() > 1000) {
+        std::cout << "time inside new thing -> " << tr.time() << std::endl;
+      }
+    }
+  }
+  std::cout << "Finished." << std::endl;
+};
+
+
 void populate_precalculated_travel_costs_map(travel_cost_map &travel_costs,
                                              std::vector<Vector<3>> &location_positions,
                                              std::vector<Scalar> &velocity_norm_samples,

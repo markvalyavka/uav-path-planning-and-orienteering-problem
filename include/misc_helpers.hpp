@@ -16,6 +16,12 @@
 
 namespace agi {
 
+typedef std::unordered_map<int,
+                           std::unordered_map<int,
+                             std::unordered_map<int,
+                                                                 std::unordered_map<int, Scalar>>>>
+  imp_travel_cost_map;
+
 typedef std::unordered_map<int, std::unordered_map<int,
                                                    std::unordered_map<Scalar,std::unordered_map<Scalar,
                                                                                                  std::unordered_map<Scalar, std::unordered_map<Scalar, Scalar>>>>>>
@@ -49,6 +55,11 @@ std::vector<std::tuple<Vector<3>, Scalar, Scalar>> generate_total_sample_tuples(
 void populate_norm_angle_to_velocity_vector_map(norm_angle_to_velocity_vector_map &map,
                                                 std::vector<Scalar> &vel_norm_samples,
                                                 std::vector<Scalar> &angle_samples);
+
+void imp_populate_precalculated_travel_costs_map(imp_travel_cost_map& travel_costs,
+                                                 std::vector<Vector<3>>& location_positions,
+                                                 std::vector<std::tuple<Vector<3>, Scalar, Scalar>> velocity_samples_tuples,
+                                                 Vector<3> &max_acc_per_axis);
 
 void populate_precalculated_travel_costs_map(travel_cost_map &travel_costs,
                                              std::vector<Vector<3>> &location_positions,
