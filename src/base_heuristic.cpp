@@ -35,19 +35,19 @@ constructed_trajectory run_paper_heuristic(EnvConfig& env_state_config) {
     }
   }
 
-  //  for (int j = 0; j < 100; j++) {
-  //    std::cout << "Second Construction #" << j << std::endl;
-  //    auto destroyed_solution = destruction_heuristic_paper(initial_constr, 20, env_state_config);
-  //    scheduled_locations_idx = std::get<0>(destroyed_solution);
-  //    initial_constr = construction_heuristic(scheduled_locations_idx, env_state_config);
-  //    if (std::get<2>(initial_constr) > best_reward_yet) {
-  //      best_constr_yet = initial_constr;
-  //      best_tr_yet = std::get<0>(initial_constr);
-  //      best_cost = std::get<1>(initial_constr);
-  //      best_reward_yet = std::get<2>(initial_constr);
-  //      best_scheduled_positions = std::get<3>(initial_constr);
-  //    }
-  //  }
+//    for (int j = 0; j < 100; j++) {
+//      std::cout << "Second Construction #" << j << std::endl;
+//
+//      scheduled_locations_idx = destruction_heuristic_paper(initial_constr, 20, env_state_config);;
+//      initial_constr = construction_heuristic(scheduled_locations_idx, env_state_config);
+//      if (std::get<2>(initial_constr) > best_reward_yet) {
+//        best_constr_yet = initial_constr;
+//        best_tr_yet = std::get<0>(initial_constr);
+//        best_cost = std::get<1>(initial_constr);
+//        best_reward_yet = std::get<2>(initial_constr);
+//        best_scheduled_positions = std::get<3>(initial_constr);
+//      }
+//    }
 
   //  std::cout << "------------------  STATS  ---------------" << std::endl;
   //  std::cout << "Final reward -> " << best_reward_yet << std::endl;

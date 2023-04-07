@@ -338,7 +338,32 @@ void get_positions_travel_costs(std::string config_file, int argc, char** cli_ar
   std::cout << "------------------ 7. FINAL STATS  ---------------" << std::endl;
   std::cout << "Cost -> " << get_mwp_trajectory_cost(cone_refoces_tr3) << std::endl;
   std::cout << "Reward -> " << get_mwp_trajectory_reward(scheduled_idx3, env_state_config.rewards) << std::endl;
-  exit(1);
+//  exit(1);
+
+  Scalar total_time = 0;
+  for (auto tr : cone_refoces_tr3) {
+    std::cout << "[" << tr.get_start_state().p.transpose() << " -> " << tr.get_end_state().p.transpose() <<
+      "] | [" << tr.get_start_state().v.transpose() << " -> " << tr.get_end_state().v.transpose()
+              << "]" << " time -> " << tr.time() << std::endl;
+
+    total_time += tr.time();
+    QuadState test_loc_1;
+    QuadState test_loc_2;
+    test_loc_1.setZero();
+    test_loc_2.setZero();
+
+    test_loc_1.p = tr.get_start_state().p;
+    test_loc_2.p = tr.get_end_state().p;
+    test_loc_1.v = tr.get_start_state().v;
+    test_loc_2.v = tr.get_end_state().v;
+    PointMassTrajectory3D tra(test_loc_1, test_loc_2, env_state_config.max_acc_per_axis, true);
+    std::cout << "Actual time -> " << tra.time() << std::endl;
+    if (!tra.exists()) {
+      std::cout << "Not-existing" << std::endl;
+      //    std::cout << loc1_id << " -> " << loc2_id << " | " << vec1_id  << " -> " << vec2_id << " | " << loc_1_velocity.transpose() << " -> " << loc_2_velocity.transpose() << std::endl;
+    }
+  }
+  std::cout << "total time ->" << total_time << std::endl;
 }
 
 int main(int argc, char** argv) {
@@ -346,7 +371,7 @@ int main(int argc, char** argv) {
 //  exit(1);
 //  test_pmm();
 //
-  srand(7);
+  srand(6);
   get_positions_travel_costs("/Users/markv/pmm_planner/new_config.yaml", argc, argv);
 
   return 0;
