@@ -190,20 +190,26 @@ PointMassTrajectory3D::PointMassTrajectory3D(QuadState &from,
   z_ = PMMTrajectory(from.p(2), from.v(2), to.p(2), to.v(2), max_acc1(2),
                      max_acc2(2), 2, 0.0, false, calc_gradient, false);
 //  std::cout << "before scaling" << std::endl;
-//  std::cout << "x_ " << x_ << std::endl;
-//  std::cout << "y_ " << y_ << std::endl;
-//  std::cout << "z_ " << z_ << std::endl << std::endl;
+//  std::cout << "x_: " << x_.time() << std::endl;
+//  std::cout << "    " << " from.p(0) -> " << from.p(0) << " | from.v(0) -> " << from.v(0) << " | to.p(0) -> "
+//            << to.p(0) << " | to.v(0) -> " << to.v(0) << std::endl;
+//  std::cout << "    " << " max_acc1(0) -> " << max_acc1(0) << " | max_acc2(0) -> " << max_acc2(0) << " | calc_gradient -> "
+//            << calc_gradient << std::endl;
+//  std::cout << "y_: " << y_.time() << std::endl;
+//  std::cout << "z_: " << z_.time() << std::endl << std::endl;
   inp_from_v_norm = from.v_norm;
   inp_from_v_angle = from.v_angle;
   inp_to_v_norm = to.v_norm;
   inp_to_v_angle = to.v_angle;
 
+//  if (0) {
   if (equalize_time) {
     Scalar tr_time = time();  // * 2.92;
 //    std::cout << "tr time -> " << tr_time << std::endl;
     size_t i = 0;
     size_t reset_count = 0;
     for (; i < 3; i++) {
+//      std::cout << " iter -> " << i << std::endl;
       if (get_axis_trajectory(i).time() != tr_time) {
         PMMTrajectory scaled =
           PMMTrajectory(get_axis_trajectory(i), tr_time, calc_gradient);
@@ -211,7 +217,7 @@ PointMassTrajectory3D::PointMassTrajectory3D(QuadState &from,
 //          x_.exists_ = false;
 //          std::cout << "scaled does not exists" << std::endl;
           Scalar scale_time = fabs(scaled.a_(0)) / max_acc1(i);
-          // std::cout << "scale_time " << scale_time << std::endl;
+//           std::cout << "scale_time " << scale_time << " | " << "i -> " << i << std::endl;
           scaled = PMMTrajectory(
             from.p(i), from.v(i), to.p(i), to.v(i), max_acc1(i), max_acc2(i), i,
             tr_time * scale_time, false, calc_gradient, false);

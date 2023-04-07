@@ -208,13 +208,34 @@ void get_positions_travel_costs(std::string config_file, int argc, char** cli_ar
   env_state_config.generate_samples_with_simple_sampling();
   env_state_config.generate_precalculated_graph_of_costs();
 
+
+//  std::vector test_scheduled_locs_idx{0, 6, 5, 4, 3, 19, 18, 15, 14, 16, 9, 13, 20};
+//
+//  auto test_tr_and_time = imp_calculate_trajectory_cost_and_optimal_velocities(test_scheduled_locs_idx,
+//                                                   env_state_config,
+//                                                                           true);
+//  auto test_tr = std::get<0>(test_tr_and_time);
+//  auto test_time = std::get<1>(test_tr_and_time);
+//  auto test_reward = get_mwp_trajectory_reward(test_scheduled_locs_idx, env_state_config.rewards);
+//  Scalar test_actual_time = 0;
+//  for (auto tr : test_tr) {
+//    test_actual_time += tr.time();
+//  }
+//  auto test_func_time = get_mwp_trajectory_cost(test_tr);
+//  std::cout << "test_actual_time -> " << test_actual_time << std::endl;
+//  std::cout << "test_time -> " << test_time << std::endl;
+//  std::cout << "test_reward -> " << test_reward << std::endl;
+//  std::cout << "test_func_time -> " << test_func_time << std::endl;
+//  exit(1);
+
+
+  std::cout << "------------------  1. FINAL STATS AFTER RUN PAPER HEU  ---------------" << std::endl;
   auto heu_result = run_paper_heuristic(env_state_config);
   MultiWaypointTrajectory best_tr_yet = std::get<0>(heu_result);
   Scalar best_cost = std::get<1>(heu_result);
   Scalar best_reward_yet = std::get<2>(heu_result);
   std::vector<int> best_scheduled_positions = std::get<3>(heu_result);
 
-  std::cout << "------------------  FINAL STATS AFTER RUN PAPER HEU  ---------------" << std::endl;
   std::cout << "Reward: " << best_reward_yet << std::endl;
   std::cout << "Cost: " << best_cost << std::endl;
   std::cout << "Scheduled locations:" << std::endl;
@@ -224,9 +245,9 @@ void get_positions_travel_costs(std::string config_file, int argc, char** cli_ar
   VelocitySearchGraph::saveTrajectoryEquitemporal(best_tr_yet, "samples_pmm.csv");
   std::cout <<  "--------------------" << std::endl;
   std::cout << "Saved equitemporal." << std::endl;
-  exit(1);
 
-  std::cout << "------------------  START CONE REFOCUSING  ---------------" << std::endl;
+
+  std::cout << "------------------ 2. START CONE REFOCUSING  ---------------" << std::endl;
   std::vector<Scalar> vel_norms = get_mwp_trajectory_velocities(best_tr_yet);
   std::vector<Scalar> yaw_angles = get_mwp_trajectory_yaw_angles(best_tr_yet);
   std::vector<Vector<3>> scheduled_loc_gates;
@@ -234,11 +255,9 @@ void get_positions_travel_costs(std::string config_file, int argc, char** cli_ar
     scheduled_loc_gates.push_back(env_state_config.location_positions[pos_idx]);
   }
   Vector<3> start_vel = to_velocity_vector(best_tr_yet[0].inp_from_v_norm, best_tr_yet[0].inp_from_v_angle);
-
   auto cone_refoces_tr = test_pmm(scheduled_loc_gates, vel_norms, yaw_angles, start_vel);
 
-
-  std::cout << "------------------  AUGMENTING  ---------------" << std::endl;
+  std::cout << "------------------ 3. AUGMENTING  ---------------" << std::endl;
   constructed_trajectory augmented_cone_refocused_tr = construction_heuristic(
     best_scheduled_positions,
     env_state_config,
@@ -255,8 +274,8 @@ void get_positions_travel_costs(std::string config_file, int argc, char** cli_ar
   std::cout << " reward -> " << reward << std::endl;
   std::cout << " actual reward -> " << actual_reward << std::endl;
   VelocitySearchGraph::saveTrajectoryEquitemporal(tr, "samples_pmm.csv");
-  std::cout << "Saved equitemporal." << std::endl;
 
+  std::cout << "------------------ 4. START CONE REFOCUSING - 2  ---------------" << std::endl;
   std::vector<Scalar> vel_norms2 = get_mwp_trajectory_velocities(tr);
   std::vector<Scalar> yaw_angles2 = get_mwp_trajectory_yaw_angles(tr);
   std::vector<Vector<3>> scheduled_loc_gates2;
@@ -270,9 +289,10 @@ void get_positions_travel_costs(std::string config_file, int argc, char** cli_ar
   std::cout << " Final  cost -> " << final_actual_cost << std::endl;
   std::cout << " Final reward -> " << final_actual_reward << std::endl;
   VelocitySearchGraph::saveTrajectoryEquitemporal(cone_refoces_tr1, "samples_pmm.csv");
-  std::cout << "Saved final equitemporal." << std::endl;
+  std::cout << "Saved equitemporal." << std::endl;
 
   // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@2 22222222222222
+  std::cout << "------------------ 5. AUGMENTING  ---------------" << std::endl;
 
   constructed_trajectory augmented_cone_refocused_tr2 = construction_heuristic(
     scheduled_idx,
@@ -285,11 +305,12 @@ void get_positions_travel_costs(std::string config_file, int argc, char** cli_ar
   auto scheduled_idx3 = std::get<3>(augmented_cone_refocused_tr2);
   Scalar actual_cost3 = get_mwp_trajectory_cost(tr3);
   Scalar actual_reward3 = get_mwp_trajectory_reward(scheduled_idx3, env_state_config.rewards);
-  std::cout << " cost -> " << cost3 << std::endl;
+//  std::cout << " cost -> " << cost3 << std::endl;
   std::cout << " actual cost -> " << actual_cost3 << std::endl;
-  std::cout << " reward -> " << reward3 << std::endl;
+//  std::cout << " reward -> " << reward3 << std::endl;
   std::cout << " actual reward -> " << actual_reward3 << std::endl;
 
+  std::cout << "------------------ 6. START CONE REFOCUSING - 3  ---------------" << std::endl;
 
   std::vector<Scalar> vel_norms3 = get_mwp_trajectory_velocities(tr3);
   std::vector<Scalar> yaw_angles3 = get_mwp_trajectory_yaw_angles(tr3);
@@ -302,8 +323,10 @@ void get_positions_travel_costs(std::string config_file, int argc, char** cli_ar
   auto cone_refoces_tr3 = test_pmm(scheduled_loc_gates3, vel_norms3, yaw_angles3, start_vel3);
   VelocitySearchGraph::saveTrajectoryEquitemporal(tr3, "samples_pmm.csv");
   std::cout << "Saved equitemporal." << std::endl;
+  std::cout << "------------------ 7. FINAL STATS  ---------------" << std::endl;
   std::cout << "Cost -> " << get_mwp_trajectory_cost(cone_refoces_tr3) << std::endl;
   std::cout << "Reward -> " << get_mwp_trajectory_reward(scheduled_idx3, env_state_config.rewards) << std::endl;
+  exit(1);
 }
 
 int main(int argc, char** argv) {
@@ -311,7 +334,7 @@ int main(int argc, char** argv) {
 //  exit(1);
 //  test_pmm();
 //
-  srand(13);
+  srand(2);
   get_positions_travel_costs("/Users/markv/pmm_planner/new_config.yaml", argc, argv);
 
   return 0;
