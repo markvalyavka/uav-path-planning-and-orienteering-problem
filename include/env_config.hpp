@@ -39,6 +39,7 @@ class EnvConfig {
   std::vector<Scalar> velocity_norm_samples;
   std::vector<Scalar> heading_angle_samples;
   std::vector<std::tuple<Vector<3>, Scalar, Scalar>> velocity_samples_tuples;
+  std::vector<std::tuple<Vector<3>, Scalar, Scalar>> imp_velocity_samples_tuples;
   norm_angle_to_velocity_vector_map norm_angle_to_vector;
   travel_cost_map precalculated_costs;
   imp_travel_cost_map imp_precalculated_costs;

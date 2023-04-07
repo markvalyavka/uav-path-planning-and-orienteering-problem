@@ -1,8 +1,14 @@
-//
-// Created by mark v on 07.04.2023.
-//
+#pragma once
 
-#ifndef PMM_PLANNER_TRAJECTORY_CALCULATION_H
-#define PMM_PLANNER_TRAJECTORY_CALCULATION_H
+#include "env_config.hpp"
+#include "misc_helpers.hpp"
 
-#endif //PMM_PLANNER_TRAJECTORY_CALCULATION_H
+namespace agi {
+
+
+std::tuple<MultiWaypointTrajectory, Scalar> calculate_trajectory_cost_and_optimal_velocities(std::vector<int> &scheduled_locations_idx,
+                                                                                             EnvConfig& env_params,
+                                                                                             bool sample_start_velocity = false);
+
+
+}
