@@ -222,7 +222,7 @@ constructed_trajectory construction_heuristic(
                 auto new_traj = std::get<0>(try_traj_and_time);
                 ratio_of_best_insertion_so_far = ratio;
                 Vector<3> vel_vector = to_velocity_vector(norm1, angle1);
-                best_insertion_so_far = {unscheduled_idx, insertion_idx, vel_vector, new_traj, new_cost, try_scheduled_locations};
+                best_insertion_so_far = {unscheduled_idx, insertion_idx, vel_vector, new_traj, std::get<1>(try_traj_and_time), try_scheduled_locations};
               }
             }
           }

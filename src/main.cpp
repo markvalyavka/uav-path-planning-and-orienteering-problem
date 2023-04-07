@@ -269,6 +269,11 @@ void get_positions_travel_costs(std::string config_file, int argc, char** cli_ar
   auto scheduled_idx = std::get<3>(augmented_cone_refocused_tr);
   Scalar actual_cost = get_mwp_trajectory_cost(tr);
   Scalar actual_reward = get_mwp_trajectory_reward(scheduled_idx, env_state_config.rewards);
+  std::cout << "Scheduled locations:" << std::endl;
+  for (auto sch: scheduled_idx) {
+    std::cout << sch << " -> ";
+  }
+  std::cout << std::endl;
   std::cout << " cost -> " << cost << std::endl;
   std::cout << " actual cost -> " << actual_cost << std::endl;
   std::cout << " reward -> " << reward << std::endl;
@@ -282,8 +287,13 @@ void get_positions_travel_costs(std::string config_file, int argc, char** cli_ar
   for (int pos_idx : scheduled_idx) {
     scheduled_loc_gates2.push_back(env_state_config.location_positions[pos_idx]);
   }
+
   Vector<3> start_vel2 = to_velocity_vector(tr[0].inp_from_v_norm, tr[0].inp_from_v_angle);
   auto cone_refoces_tr1 = test_pmm(scheduled_loc_gates2, vel_norms2, yaw_angles2, start_vel2);
+  if (cone_refoces_tr1.size() == 0) {
+    std::cout << "Quitting.." << std::endl;
+    exit(1);
+  }
   Scalar final_actual_cost = get_mwp_trajectory_cost(cone_refoces_tr1);
   Scalar final_actual_reward = get_mwp_trajectory_reward(scheduled_idx, env_state_config.rewards);
   std::cout << " Final  cost -> " << final_actual_cost << std::endl;
@@ -291,7 +301,7 @@ void get_positions_travel_costs(std::string config_file, int argc, char** cli_ar
   VelocitySearchGraph::saveTrajectoryEquitemporal(cone_refoces_tr1, "samples_pmm.csv");
   std::cout << "Saved equitemporal." << std::endl;
 
-  // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@2 22222222222222
+
   std::cout << "------------------ 5. AUGMENTING  ---------------" << std::endl;
 
   constructed_trajectory augmented_cone_refocused_tr2 = construction_heuristic(
@@ -323,6 +333,8 @@ void get_positions_travel_costs(std::string config_file, int argc, char** cli_ar
   auto cone_refoces_tr3 = test_pmm(scheduled_loc_gates3, vel_norms3, yaw_angles3, start_vel3);
   VelocitySearchGraph::saveTrajectoryEquitemporal(tr3, "samples_pmm.csv");
   std::cout << "Saved equitemporal." << std::endl;
+
+
   std::cout << "------------------ 7. FINAL STATS  ---------------" << std::endl;
   std::cout << "Cost -> " << get_mwp_trajectory_cost(cone_refoces_tr3) << std::endl;
   std::cout << "Reward -> " << get_mwp_trajectory_reward(scheduled_idx3, env_state_config.rewards) << std::endl;
@@ -334,7 +346,7 @@ int main(int argc, char** argv) {
 //  exit(1);
 //  test_pmm();
 //
-  srand(2);
+  srand(7);
   get_positions_travel_costs("/Users/markv/pmm_planner/new_config.yaml", argc, argv);
 
   return 0;

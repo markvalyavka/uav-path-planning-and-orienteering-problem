@@ -60,7 +60,7 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
 
   Vector<3> max_acc_per_axis = Vector<3>::Constant(max_acc_);
 //  Vector<3> max_acc_per_axis = Vector<3>::Constant(1.06);
-  std::cout << "max_acc_ " << max_acc_ << std::endl;
+//  std::cout << "max_acc_ " << max_acc_ << std::endl;
 //  std::cout << "single_axis " << single_axis << std::endl;
 
   if (gates_waypoints.size() != gates_yaw_deg.size() ||
@@ -119,11 +119,11 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
     num_vel_samples_size > 1 ? (max_velocity_size_ - min_velocity_size_) /
                                  ((Scalar)(num_vel_samples_size - 1))
                              : 0;
-  std::cout << "num_vel_samples_size -> " << num_vel_samples_size << std::endl;
-  std::cout << "vel_samples_size_step -> " << vel_samples_size_step << std::endl;
+//  std::cout << "num_vel_samples_size -> " << num_vel_samples_size << std::endl;
+//  std::cout << "vel_samples_size_step -> " << vel_samples_size_step << std::endl;
   // We create sample for all gates except start and end
-  std::cout << "gate_velocity_samples size -> " << gate_velocity_samples.size() << std::endl;
-  std::cout << "shortest_samples_times size -> " << shortest_samples_times.size() << std::endl;
+//  std::cout << "gate_velocity_samples size -> " << gate_velocity_samples.size() << std::endl;
+//  std::cout << "shortest_samples_times size -> " << shortest_samples_times.size() << std::endl;
 
   // Amount of gates to create samples for. Initially, it's all gates in the middle
   // (all except start an end). Although, if 'end_free' = True, we also create samples
@@ -340,8 +340,9 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
         std::cout << "there is no connection to gate " << gid_to
                   << " with position " << gates_waypoints[gid_to].transpose()
                   << std::endl;
-//        std::cout << from_p.transpose() << std::endl;
-//        std::cout << to_p.transpose() << std::endl;
+        for (int i = 0; i < gates_waypoints.size(); i++) {
+          std::cout << " i-> " << i << " | " << gates_waypoints[i].transpose() << std::endl;
+        }
         return MultiWaypointTrajectory();
       }
     }
