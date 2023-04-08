@@ -371,6 +371,7 @@ int main(int argc, char** argv) {
 //  exit(1);
 //  test_pmm();
 //
+// COMPARE SOLUTION FINAL WITH TYPICAL TRAJECTORY BOTH VISUALLY AND VALUES-WISE
   srand(6);
   get_positions_travel_costs("/Users/markv/pmm_planner/new_config.yaml", argc, argv);
 
