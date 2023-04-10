@@ -40,11 +40,11 @@ class VelocitySearchGraph {
 
   MultiWaypointTrajectory find_velocities_in_positions(
     const std::vector<Vector<3>>& gates_waypoints,
-    const Vector<3>& start_velocity, const Vector<3>& end_velocity,
+    const Vector<3>& start_velocity,
     const std::vector<Scalar>& gates_yaw_deg,
     const std::vector<Scalar>& gates_pitch_deg,
-    const std::vector<Scalar>& gates_vel_norms, const bool end_free,
-    const bool use_gd);
+    const std::vector<Scalar>& gates_vel_norms,
+    const bool sample_start_velocity = true);
   void setYawPitchConeSidesAndPecisiton(const Scalar max_yaw_pitch_ang,
                                         const Scalar precision_yaw_pitch_ang);
 
@@ -69,11 +69,11 @@ class VelocitySearchGraph {
   const Scalar max_acc_;
   Scalar max_yaw_pitch_ang_;
   Scalar precision_yaw_pitch_ang_;
-  const Scalar max_velocity_size_;
-  const Scalar min_velocity_size_;
-  const Scalar min_velocity_size_boundary_;
+  const Scalar max_velocity_norm_;
+  const Scalar min_velocity_norm_;
+  const Scalar min_velocity_norm_boundary_;
   const Scalar yaw_pitch_cone_angle_boundary_;
-  const Scalar precision_velocity_size_;
+  const Scalar precision_velocity_norm_;
 };
 
 }  // namespace agi

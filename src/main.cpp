@@ -56,8 +56,8 @@ MultiWaypointTrajectory test_pmm(std::vector<Vector<3>> gates_waypoints,
   Vector<3> end_velocity(0, 0, 0);
 
   MultiWaypointTrajectory tr = vel_search_graph.find_velocities_in_positions(
-    gates_waypoints, start_velocity, end_velocity, gates_yaw_deg,
-    gates_pitch_deg, gates_vel_norms, end_free, false);
+    gates_waypoints, start_velocity, gates_yaw_deg,
+    gates_pitch_deg, gates_vel_norms, end_free);
 
   return tr;
 }
@@ -145,10 +145,7 @@ MultiWaypointTrajectory test_pmm() {
 //  std::cout << "gates_vel_norms.size() " << gates_vel_norms.size() << std::endl;
 
 
-
-  Timer find_vel("find vel");
   Scalar sum_times = 0;
-  find_vel.tic();
 
 
   MultiWaypointTrajectory tr;
@@ -156,8 +153,8 @@ MultiWaypointTrajectory test_pmm() {
   // to traverse all the gates. Plus, it gives information about the time to reach
   // from gateA to gateB.
   tr = vel_search_graph.find_velocities_in_positions(
-    gates_waypoints, start_velocity, end_velocity, gates_yaw_deg,
-    gates_pitch_deg, gates_vel_norms, end_free, false);
+    gates_waypoints, start_velocity, gates_yaw_deg,
+    gates_pitch_deg, gates_vel_norms, end_free);
   return tr;
 //  for (auto t: tr) {
 //    std::cout << t.inp_from_v_norm << std::endl;
@@ -281,7 +278,9 @@ void get_positions_travel_costs(std::string config_file, int argc, char** cli_ar
   }
   Vector<3> start_vel = to_velocity_vector(best_tr_yet[0].inp_from_v_norm, best_tr_yet[0].inp_from_v_angle);
   auto cone_refoces_tr = test_pmm(scheduled_loc_gates, vel_norms, yaw_angles, start_vel);
-
+  VelocitySearchGraph::saveTrajectoryEquitemporal(cone_refoces_tr, "samples_pmm.csv");
+  std::cout <<  "--------------------" << std::endl;
+  std::cout << "Saved equitemporal." << std::endl;
   exit(1);
 
   std::cout << "------------------ 3. AUGMENTING  ---------------" << std::endl;
