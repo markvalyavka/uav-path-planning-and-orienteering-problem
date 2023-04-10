@@ -38,13 +38,6 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
   const bool use_gd) {
 
 
-  const int gates_size = gates_waypoints.size();
-
-  //  const std::vector<Scalar>& gates_yaw_deg,
-  //  const std::vector<Scalar>& gates_pitch_deg,
-  //  const std::vector<Scalar>& gates_vel_norms,
-  //  const bool end_free
-
 
   // Scalar single_axis = sqrt(pow_max_acc_2 / 3.0);
 
@@ -53,10 +46,10 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
 //  }
   // [Question#] What does this scalar represent? How is 'single_axis' max
   // acceleration different from 'mac_acc_'?
-  Scalar pow_max_acc_2 = max_acc_ * max_acc_;
+//  Scalar pow_max_acc_2 = max_acc_ * max_acc_;
   // solution to a_s^2 + a_s^2 + (a_s+g)^2 = thrust^2
-  Scalar single_axis =
-    (-2 * G + sqrt(4 * G * G - 12 * (G * G - pow_max_acc_2))) / 6.0;
+//  Scalar single_axis =
+//    (-2 * G + sqrt(4 * G * G - 12 * (G * G - pow_max_acc_2))) / 6.0;
 
   Vector<3> max_acc_per_axis = Vector<3>::Constant(max_acc_);
 //  Vector<3> max_acc_per_axis = Vector<3>::Constant(1.06);
@@ -69,12 +62,13 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
     std::cout << "Wrong size of gates/yaw/pitch/norm vectors." << std::endl;
     return MultiWaypointTrajectory();
   }
+  const int gates_size = gates_waypoints.size();
   std::vector<Vector<3>> found_gates_speeds;
   // [Question#] What does found_gates_times[i] represent?
-  std::vector<Scalar> found_gates_times;
+//  std::vector<Scalar> found_gates_times;
   // Allow optimizing the end but omit the start. Therefore, "gates_size - 1"
   found_gates_speeds.resize(gates_size - 1);
-  found_gates_times.resize(gates_size - 1);
+//  found_gates_times.resize(gates_size - 1);
   std::vector<std::vector<Eigen::Vector2f>> gates_yaw_pitch_size_ranges;
 
   // For every gate we have possible ranges of velocity_norm, yaw and pitch.
@@ -473,8 +467,8 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
   for (int g_id = endi; g_id > 0; g_id--) {
     found_gates_speeds[g_id - 1] =
       std::get<0>(gate_velocity_samples[g_id][prev_sample_idx]);
-    found_gates_times[g_id - 1] =
-      shortest_samples_times[g_id][prev_sample_idx].second;
+//    found_gates_times[g_id - 1] =
+//      shortest_samples_times[g_id][prev_sample_idx].second;
 
     prev_sample_idx = shortest_samples_times[g_id][prev_sample_idx].first;
   }

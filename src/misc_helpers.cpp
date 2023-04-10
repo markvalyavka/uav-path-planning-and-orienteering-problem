@@ -109,7 +109,7 @@ void imp_populate_precalculated_travel_costs_map(imp_travel_cost_map& travel_cos
           total++;
           if (!tr.exists()) {
             non_existing++;
-            std::cout << "Not-existing" << std::endl;
+//            std::cout << "Not-existing" << std::endl;
 //            std::cout << loc1_id << " -> " << loc2_id << " | " << vec1_id  << " -> " << vec2_id << " | " << loc_1_velocity.transpose() << " -> " << loc_2_velocity.transpose() << std::endl;
           }
           travel_costs[loc1_id][loc2_id][vec1_id][vec2_id] = tr.time();
@@ -139,7 +139,7 @@ void imp_populate_precalculated_travel_costs_map(imp_travel_cost_map& travel_cos
       test_loc_2.v = std::get<0>(velocity_samples_tuples[vec2_id]);
       PointMassTrajectory3D tr(test_loc_1, test_loc_2, max_acc_per_axis, true);
       if (!tr.exists()) {
-        std::cout << "Not-existing" << std::endl;
+//        std::cout << "Not-existing" << std::endl;
       }
       travel_costs[0][loc2_id][0][vec2_id] = tr.time();
       if (tr.time() <= 0 || tr.time() > 1000) {
@@ -188,7 +188,7 @@ void populate_precalculated_travel_costs_map(travel_cost_map &travel_costs,
                 test_loc_2.v = loc_2_velocity;
                 PointMassTrajectory3D tr(test_loc_1, test_loc_2, max_acc_per_axis, true);
                 if (!tr.exists()) {
-                  std::cout << "Not-existing" << std::endl;
+//                  std::cout << "Not-existing" << std::endl;
                   non_existent++;
                   travel_costs[loc1_id][loc2_id][norm1][norm2][angle1][angle2] = MAX_SCALAR;
                   continue;
@@ -200,7 +200,7 @@ void populate_precalculated_travel_costs_map(travel_cost_map &travel_costs,
                 test_loc_2.v = start_vel;
                 PointMassTrajectory3D tr(test_loc_1, test_loc_2, max_acc_per_axis, true);
                 if (!tr.exists()) {
-                  std::cout << "Not-existing" << std::endl;
+//                  std::cout << "Not-existing" << std::endl;
                   non_existent++;
                   travel_costs[loc1_id][loc2_id][norm1][norm2][angle1][angle2] = MAX_SCALAR;
                   continue;
@@ -212,7 +212,7 @@ void populate_precalculated_travel_costs_map(travel_cost_map &travel_costs,
               test_loc_2.v = loc_2_velocity;
               PointMassTrajectory3D tr(test_loc_1, test_loc_2, max_acc_per_axis, true);
               if (!tr.exists()) {
-                std::cout << "Not-existing" << std::endl;
+//                std::cout << "Not-existing" << std::endl;
                 travel_costs[loc1_id][loc2_id][norm1][norm2][angle1][angle2] = MAX_SCALAR;
                 non_existent++;
                 continue;
@@ -299,6 +299,33 @@ Scalar get_mwp_trajectory_cost(MultiWaypointTrajectory& trajectories) {
     cost += tr.time();
   }
   return cost;
+}
+
+void print_detailed_mwp_stats(MultiWaypointTrajectory& trajectories, Vector<3> max_acc_per_axis) {
+  Scalar total_time = 0;
+  for (auto tr : trajectories) {
+    std::cout << "[" << tr.get_start_state().p.transpose() << " -> " << tr.get_end_state().p.transpose() <<
+      "] | [" << tr.get_start_state().v.transpose() << " -> " << tr.get_end_state().v.transpose()
+              << "]" << " time -> " << tr.time() << std::endl;
+
+    total_time += tr.time();
+    QuadState test_loc_1;
+    QuadState test_loc_2;
+    test_loc_1.setZero();
+    test_loc_2.setZero();
+
+    test_loc_1.p = tr.get_start_state().p;
+    test_loc_2.p = tr.get_end_state().p;
+    test_loc_1.v = tr.get_start_state().v;
+    test_loc_2.v = tr.get_end_state().v;
+    PointMassTrajectory3D tra(test_loc_1, test_loc_2, max_acc_per_axis, true);
+    std::cout << "Actual time -> " << tra.time() << std::endl;
+    if (!tra.exists()) {
+      std::cout << "Not-existing" << std::endl;
+//      std::cout << loc1_id << " -> " << loc2_id << " | " << vec1_id  << " -> " << vec2_id << " | " << loc_1_velocity.transpose() << " -> " << loc_2_velocity.transpose() << std::endl;
+    }
+  }
+  std::cout << "total time ->" << total_time << std::endl;
 }
 
 

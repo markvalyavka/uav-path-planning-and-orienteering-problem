@@ -38,7 +38,7 @@ MultiWaypointTrajectory test_pmm(std::vector<Vector<3>> gates_waypoints,
   const Scalar yaw_pitch_cone_angle_boundary = 40.0;
   // Velocity norm samples.
   const Scalar min_velocity_norm = 0;
-  const Scalar min_velocity_norm_boundary = 0.0001;
+  const Scalar min_velocity_norm_boundary = 0.01;
   const Scalar max_velocity_norm = 2.111;
   // Distance between velocity norms
   const Scalar precision_velocity_norm = 0.1;
@@ -207,7 +207,7 @@ void get_positions_travel_costs(std::string config_file, int argc, char** cli_ar
   EnvConfig env_state_config(config_file);
   env_state_config.generate_samples_with_simple_sampling();
   env_state_config.generate_precalculated_graph_of_costs();
-
+//  exit(1);
 
 //  std::vector test_scheduled_locs_idx{0, 6, 5, 4, 3, 19, 18, 15, 14, 16, 9, 13, 20};
 //
@@ -229,6 +229,31 @@ void get_positions_travel_costs(std::string config_file, int argc, char** cli_ar
 //  exit(1);
 
 
+//  QuadState test_loc_1;
+//  QuadState test_loc_2;
+//  test_loc_1.setZero();
+//  test_loc_2.setZero();
+//
+//  test_loc_1.p = Vector<3>(6.3, 7.9,   0 );
+//  test_loc_2.p = Vector<3>(7.7, 8.2,   0 );
+//  test_loc_1.v = Vector<3>( 1.95984, 0.811794,        0);
+//  test_loc_1.v = Vector<3>( 0.95984, 0.811794,        0);
+//  test_loc_2.v = Vector<3>(1.95984, 0.811794,       0 );
+//  PointMassTrajectory3D tra(test_loc_1, test_loc_2, env_state_config.max_acc_per_axis, true);
+//  if (!tra.exists()) {
+//    std::cout << " Doens't exist@" << std::endl;
+//  }
+//  std::vector<PointMassTrajectory3D> x = {tra};
+//  std::cout << "Actual time -> " << tra.time() << std::endl;
+//  VelocitySearchGraph::saveTrajectoryEquitemporal(x, "samples_pmm.csv");
+//  std::cout <<  "--------------------" << std::endl;
+//  std::cout << "Saved equitemporal." << std::endl;
+//  auto st_in_time = tra.y_.state_in_time(0.5);
+//  std::cout << "state in time " << st_in_time.transpose() << std::endl;
+//  std::cout << "time " << tra.y_.time() << std::endl;
+//  exit(1);
+
+
   std::cout << "------------------  1. FINAL STATS AFTER RUN PAPER HEU  ---------------" << std::endl;
   auto heu_result = run_paper_heuristic(env_state_config);
   MultiWaypointTrajectory best_tr_yet = std::get<0>(heu_result);
@@ -245,7 +270,7 @@ void get_positions_travel_costs(std::string config_file, int argc, char** cli_ar
   VelocitySearchGraph::saveTrajectoryEquitemporal(best_tr_yet, "samples_pmm.csv");
   std::cout <<  "--------------------" << std::endl;
   std::cout << "Saved equitemporal." << std::endl;
-
+//  print_detailed_mwp_stats(best_tr_yet, env_state_config.max_acc_per_axis);
 
   std::cout << "------------------ 2. START CONE REFOCUSING  ---------------" << std::endl;
   std::vector<Scalar> vel_norms = get_mwp_trajectory_velocities(best_tr_yet);
@@ -256,6 +281,8 @@ void get_positions_travel_costs(std::string config_file, int argc, char** cli_ar
   }
   Vector<3> start_vel = to_velocity_vector(best_tr_yet[0].inp_from_v_norm, best_tr_yet[0].inp_from_v_angle);
   auto cone_refoces_tr = test_pmm(scheduled_loc_gates, vel_norms, yaw_angles, start_vel);
+
+  exit(1);
 
   std::cout << "------------------ 3. AUGMENTING  ---------------" << std::endl;
   constructed_trajectory augmented_cone_refocused_tr = construction_heuristic(
@@ -301,7 +328,6 @@ void get_positions_travel_costs(std::string config_file, int argc, char** cli_ar
   VelocitySearchGraph::saveTrajectoryEquitemporal(cone_refoces_tr1, "samples_pmm.csv");
   std::cout << "Saved equitemporal." << std::endl;
 
-
   std::cout << "------------------ 5. AUGMENTING  ---------------" << std::endl;
 
   constructed_trajectory augmented_cone_refocused_tr2 = construction_heuristic(
@@ -338,32 +364,9 @@ void get_positions_travel_costs(std::string config_file, int argc, char** cli_ar
   std::cout << "------------------ 7. FINAL STATS  ---------------" << std::endl;
   std::cout << "Cost -> " << get_mwp_trajectory_cost(cone_refoces_tr3) << std::endl;
   std::cout << "Reward -> " << get_mwp_trajectory_reward(scheduled_idx3, env_state_config.rewards) << std::endl;
-//  exit(1);
+  exit(1);
 
-  Scalar total_time = 0;
-  for (auto tr : cone_refoces_tr3) {
-    std::cout << "[" << tr.get_start_state().p.transpose() << " -> " << tr.get_end_state().p.transpose() <<
-      "] | [" << tr.get_start_state().v.transpose() << " -> " << tr.get_end_state().v.transpose()
-              << "]" << " time -> " << tr.time() << std::endl;
 
-    total_time += tr.time();
-    QuadState test_loc_1;
-    QuadState test_loc_2;
-    test_loc_1.setZero();
-    test_loc_2.setZero();
-
-    test_loc_1.p = tr.get_start_state().p;
-    test_loc_2.p = tr.get_end_state().p;
-    test_loc_1.v = tr.get_start_state().v;
-    test_loc_2.v = tr.get_end_state().v;
-    PointMassTrajectory3D tra(test_loc_1, test_loc_2, env_state_config.max_acc_per_axis, true);
-    std::cout << "Actual time -> " << tra.time() << std::endl;
-    if (!tra.exists()) {
-      std::cout << "Not-existing" << std::endl;
-      //    std::cout << loc1_id << " -> " << loc2_id << " | " << vec1_id  << " -> " << vec2_id << " | " << loc_1_velocity.transpose() << " -> " << loc_2_velocity.transpose() << std::endl;
-    }
-  }
-  std::cout << "total time ->" << total_time << std::endl;
 }
 
 int main(int argc, char** argv) {
@@ -372,7 +375,8 @@ int main(int argc, char** argv) {
 //  test_pmm();
 //
 // COMPARE SOLUTION FINAL WITH TYPICAL TRAJECTORY BOTH VISUALLY AND VALUES-WISE
-  srand(6);
+//  srand(12);
+  srand(12);
   get_positions_travel_costs("/Users/markv/pmm_planner/new_config.yaml", argc, argv);
 
   return 0;

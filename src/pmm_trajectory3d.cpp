@@ -215,7 +215,7 @@ PointMassTrajectory3D::PointMassTrajectory3D(QuadState &from,
           PMMTrajectory(get_axis_trajectory(i), tr_time, calc_gradient);
         if (!scaled.exists_) {
 //          x_.exists_ = false;
-//          std::cout << "scaled does not exists" << std::endl;
+//          std::cout << "i -> " << i << "scaled does not exists" << std::endl;
           Scalar scale_time = fabs(scaled.a_(0)) / max_acc1(i);
 //           std::cout << "scale_time " << scale_time << " | " << "i -> " << i << std::endl;
           scaled = PMMTrajectory(
@@ -238,6 +238,9 @@ PointMassTrajectory3D::PointMassTrajectory3D(QuadState &from,
       }
     }
   }
+//  std::cout << "x_ existst" << x_.exists_ << std::endl;
+//  std::cout << "y_ existst" << y_.exists_ << std::endl;
+//  std::cout << "z_ existst" << z_.exists_ << std::endl;
 }
 
 PointMassTrajectory3D::PointMassTrajectory3D(QuadState &from,
@@ -733,6 +736,10 @@ QuadState PointMassTrajectory3D::state_in_time(const Scalar time_in_tr) const {
   Vector<3> x = x_.state_in_time(time_in_tr);
   Vector<3> y = y_.state_in_time(time_in_tr);
   Vector<3> z = z_.state_in_time(time_in_tr);
+
+//  std::cout << "x in sit -> " << x.transpose() << std::endl;
+//  std::cout << "y in sit -> " << y.transpose() << std::endl;
+//  std::cout << "z in sit -> " << z.transpose() << std::endl;
 
   ds.p(0) = x(0);
   ds.p(1) = y(0);

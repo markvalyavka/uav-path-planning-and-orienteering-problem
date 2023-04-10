@@ -204,7 +204,10 @@ constructed_trajectory construction_heuristic(
 
               try_scheduled_locations.insert(try_scheduled_locations.begin()+insertion_idx, position_to_schedule);
               try_scheduled_locations_idx.insert(try_scheduled_locations_idx.begin()+insertion_idx, unscheduled_idx);
-
+//              auto try_traj_and_time = calculate_trajectory_cost_and_optimal_velocities(
+//                try_scheduled_locations_idx,
+//                env_params,
+//                true);
 //              auto new_cost = std::get<1>(try_traj_and_time);
               Scalar new_cost = cost_of_insertion + current_cost;
 

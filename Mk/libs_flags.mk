@@ -19,7 +19,6 @@ LDFLAGS+=-lpthread -L/opt/homebrew/Cellar/yaml-cpp/0.7.0/lib -lyaml-cpp
 
 #CXXFLAGS+= -g
 CXXFLAGS+= -O3
-#-g -O3 
 #-pg
 #-march=native 
 #CXXFLAGS+= 

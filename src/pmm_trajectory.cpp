@@ -364,22 +364,28 @@ PMMTrajectory::PMMTrajectory(const PMMTrajectory &in, const Scalar total_time,
 
 Vector<3> PMMTrajectory::state_in_time(const Scalar time_in_tr) const {
   Scalar pos, vel, acc;
-
+//  std::cout << "t_(0) -> " << t_(0) << std::endl;
+//  std::cout << "t_(1) -> " << t_(1) << std::endl;
+//  std::cout << "t_(2) -> " << t_(2) << std::endl;
   if (time_in_tr < t_(0)) {  // const acc part with a1
     pos = p_(0) + v_(0) * time_in_tr + 0.5 * a_(0) * time_in_tr * time_in_tr;
     vel = v_(0) + a_(0) * time_in_tr;
     acc = a_(0);
+
   } else if (time_in_tr < t_(0) + t_(1)) {  // const vel part with a=0
     const Scalar time_part = (time_in_tr - t_(0));
     pos = p_(1) + v_(1) * time_part;
     vel = v_(1);
     acc = 0.0;
-  } else if (time_in_tr < time()) {  // const vel part with a2
+//  } else if (true) {
+  } else if (time_in_tr < time()) {  // const vel part with a2/**/
     const Scalar time_part = (time_in_tr - t_(0) - t_(1));
     pos = p_(2) + v_(1) * time_part + 0.5 * a_(1) * time_part * time_part;
     vel = v_(1) + a_(1) * time_part;
     acc = a_(1);
+//    std::cout << "here" << std::endl;
   } else {  // return the last state
+//    std::cout << "here" << std::endl;
     pos = p_(3);
     vel = v_(2);
     acc = a_(1);
