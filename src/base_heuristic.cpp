@@ -159,8 +159,8 @@ constructed_trajectory construction_heuristic(
               curr_state.v = to_velocity_vector(norm1, angle1);
               PointMassTrajectory3D tr(pred_state, curr_state, env_params.max_acc_per_axis, true);
               if (!tr.exists()) {
-                std::cout << "Not-existing here -> time -> " << tr.time() << " speed -> " << pred_state.v.transpose() << std::endl;
-                continue;
+//                std::cout << "Not-existing here -> time -> " << tr.time() << " speed -> " << pred_state.v.transpose() << std::endl;
+                pred_to_curr_cost = MAX_SCALAR;
               } else {
                 pred_to_curr_cost = tr.time();
               }
@@ -181,8 +181,8 @@ constructed_trajectory construction_heuristic(
               succ_state.v = current_trajectory[insertion_idx-1].get_end_state().v;
               PointMassTrajectory3D tr(curr_state, succ_state, env_params.max_acc_per_axis, true);
               if (!tr.exists()) {
-                std::cout << "Not-existing here -> time -> " << tr.time() << " speed -> " << succ_state.v.transpose() << std::endl;
-                continue;
+//                std::cout << "Not-existing here -> time -> " << tr.time() << " speed -> " << succ_state.v.transpose() << std::endl;
+                curr_to_succ_cost = MAX_SCALAR;
               } else {
                 curr_to_succ_cost = tr.time();
               }
@@ -211,7 +211,7 @@ constructed_trajectory construction_heuristic(
 //              auto new_cost = std::get<1>(try_traj_and_time);
               Scalar new_cost = cost_of_insertion + current_cost;
 
-              if (new_cost < t_max) {
+              if (new_cost * 0.97 < t_max) {
 
                 auto try_traj_and_time = calculate_trajectory_cost_and_optimal_velocities(
                   try_scheduled_locations_idx,
