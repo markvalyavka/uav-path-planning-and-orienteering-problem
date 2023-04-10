@@ -66,7 +66,7 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
   std::vector<Vector<3>> found_gates_speeds;
   // [Question#] What does found_gates_times[i] represent?
 //  std::vector<Scalar> found_gates_times;
-  // Allow optimizing the end but omit the start. Therefore, "gates_size - 1"
+  // Allow optimizing the end but omit the start. Therefore, "gates_size - 1 "
   found_gates_speeds.resize(gates_size - 1);
 //  found_gates_times.resize(gates_size - 1);
   std::vector<std::vector<Eigen::Vector2f>> gates_yaw_pitch_size_ranges;
