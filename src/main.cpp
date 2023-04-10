@@ -234,7 +234,7 @@ void get_positions_travel_costs(std::string config_file, int argc, char** cli_ar
   std::vector<Vector<3>> current_scheduled_positions{};
 
 
-  int imp_iterations = 4;
+  int imp_iterations = 5;
 
 
   for(int imp_i = 0; imp_i < imp_iterations; imp_i++) {
@@ -394,7 +394,7 @@ int main(int argc, char** argv) {
 //
 // COMPARE SOLUTION FINAL WITH TYPICAL TRAJECTORY BOTH VISUALLY AND VALUES-WISE
 //  srand(12);
-  srand(2);
+  srand(18);
   get_positions_travel_costs("/Users/markv/pmm_planner/new_config.yaml", argc, argv);
 
   return 0;
