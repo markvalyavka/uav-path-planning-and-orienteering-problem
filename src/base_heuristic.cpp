@@ -22,7 +22,7 @@ constructed_trajectory run_paper_heuristic(EnvConfig& env_state_config) {
 
 
   for (int j = 0; j < 100; j++) {
-    std::cout << "First Construction #" << j << std::endl;
+    std::cout << "First Construction (50%) #" << j << std::endl;
 
     scheduled_locations_idx = destruction_heuristic_paper(initial_constr, 50, env_state_config);
     initial_constr = construction_heuristic(scheduled_locations_idx, env_state_config);
@@ -49,30 +49,6 @@ constructed_trajectory run_paper_heuristic(EnvConfig& env_state_config) {
 //      }
 //    }
 
-  //  std::cout << "------------------  STATS  ---------------" << std::endl;
-  //  std::cout << "Final reward -> " << best_reward_yet << std::endl;
-  //  std::cout << "Final cost -> " << best_cost << std::endl;
-  //  std::cout << std::endl;
-  //  std::cout << "Velocity norms:" << std::endl;
-  //  auto vel_norms = get_mwp_trajectory_velocities(best_tr_yet);
-  //  for (auto n : vel_norms) {
-  //    std::cout << n << ", ";
-  //  }
-  //  std::cout << std::endl;
-  //  std::cout << "Velocity angles:" << std::endl;
-  //  auto yaw_angles = get_mwp_trajectory_yaw_angles(best_tr_yet);
-  //  for (auto ya : yaw_angles) {
-  //    std::cout << ya << ", ";
-  //  }
-  //  std::cout << std::endl;
-  //  std::cout << "Scheduled locations:" << std::endl;
-    for (auto sch: std::get<3>(best_constr_yet)) {
-      std::cout << sch << " -> ";
-    }
-    std::cout << std::endl;
-  std::cout << " IN RPH cost -> " << best_cost << std::endl;
-  std::cout << " IN RPH cost best_constr_yet -> " << std::get<1>(best_constr_yet) << std::endl;
-//  std::cout << " IN RPH reward -> " << std::get<2>(initial_constr) << std::endl;
   return best_constr_yet;
 }
 

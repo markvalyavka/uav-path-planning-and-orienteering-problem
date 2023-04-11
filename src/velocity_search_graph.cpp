@@ -347,7 +347,7 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
     // minimum time between iteration, the algorithm has converged
     // and the iteration ends.
     if (shortest_time > 0.995 * last_shortest_time) {
-      std::cout << "We break" << std::endl;
+//      std::cout << "We break" << std::endl;
       break;
     }
     last_shortest_time = shortest_time;
