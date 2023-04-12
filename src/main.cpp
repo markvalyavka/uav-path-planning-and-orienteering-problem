@@ -13,6 +13,9 @@
 #include <cstdlib>
 #include <random>
 
+#include <thread>
+#include <future>
+
 #include "gravity.hpp"
 #include "pmm_trajectory3d.hpp"
 #include "three_acc.hpp"
@@ -140,10 +143,21 @@ void run_improved_trajectory_algorithm(std::string config_file, int argc, char**
   Scalar final_reward = 0;
   std::vector<int> final_scheduled_locations_idx{};
   // --------------------------------------------------------
+  std::vector<Scalar> cost_leeway_coeffs = {1, 1.02, 1.04, 1.06, 1.08, 1.1};
 
-  std::vector<Scalar> leeway_coefficients = {1, 1.02, 1.04, 1.06, 1.08, 1.1};
-  for (Scalar coeff : leeway_coefficients) {
-    auto result = run_improved_trajectory_algorithm_with_cost_coeff(env_state_config, coeff);
+  // Create a vector to store the results.
+  std::vector<std::future<std::tuple<MultiWaypointTrajectory, Scalar, Scalar, std::vector<int>>>> future_results;
+  // Create a thread for each value of cost_leeway_coeff.
+  for (const auto& cost_leeway_coeff : cost_leeway_coeffs) {
+    future_results.emplace_back(std::async(std::launch::async, run_improved_trajectory_algorithm_with_cost_coeff, std::ref(env_state_config), cost_leeway_coeff));
+  }
+  // Collect the results.
+  std::vector<std::tuple<MultiWaypointTrajectory, Scalar, Scalar, std::vector<int>>> output;
+  for (auto& fut_res : future_results) {
+    output.emplace_back(fut_res.get());
+  }
+
+  for (const auto& result : output) {
     Scalar curr_cost = std::get<1>(result);
     Scalar curr_reward = std::get<2>(result);
     if (curr_cost < env_state_config.t_max & curr_reward > final_reward) {
