@@ -47,6 +47,9 @@ def plot_3d_positions_graph(pmm, pmm_equidistant):
     ax3d = fig2.add_subplot(111, projection='3d', computed_zorder=False)
     fig2.text(0, 1, f"Reward: 350", transform=ax3d.transAxes, fontsize=10,
               verticalalignment='center', bbox=dict(facecolor='#f7f7f7', edgecolor='#333333', linewidth=1.5, boxstyle='round,pad=0.5'))
+    fig2.text(0, 0.94, f"Cost: 19.95 s", transform=ax3d.transAxes, fontsize=10,
+              verticalalignment='center', bbox=dict(facecolor='#f7f7f7', edgecolor='#333333', linewidth=1.5, boxstyle='round,pad=0.5'))
+
 
     velocity_norms = np.sqrt(pmm[:, 4] * pmm[:, 4] + pmm[:, 5] * pmm[:, 5] + pmm[:, 6] * pmm[:, 6])
     # for i, v in enumerate(velocity_norms):

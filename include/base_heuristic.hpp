@@ -19,11 +19,13 @@ typedef std::tuple<MultiWaypointTrajectory, Scalar, Scalar, std::vector<int>, st
 
 int randint(int Min, int Max);
 
-constructed_trajectory run_paper_heuristic(EnvConfig& env_state_config);
+constructed_trajectory run_paper_heuristic(EnvConfig& env_state_config,
+                                           Scalar cost_leeway_coeff = 1);
 
 constructed_trajectory construction_heuristic(
   std::vector<int> scheduled_locations_idx,
   EnvConfig& env_params,
+  Scalar cost_leeway_coeff = 1,
   MultiWaypointTrajectory mwp_trajectory = MultiWaypointTrajectory{});
 
 // Combination of DH1 and DH2. Remove location for which
@@ -51,7 +53,7 @@ std::vector<Scalar> calculate_heuristic_ratio(std::vector<int>& scheduled_locati
                                               std::vector<Scalar> rewards,
                                               travel_cost_map& precalculated_costs);
 
-std::vector<int> destruction_heuristic_paper(const constructed_trajectory& constr_tr,
+std::vector<int> destruction_heuristic_paper(constructed_trajectory& constr_tr,
                                              Scalar percentage,
                                              EnvConfig& env_params);
 

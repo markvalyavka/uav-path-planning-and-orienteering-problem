@@ -6,7 +6,8 @@ int randint(int Min, int Max) {
   return std::rand() % (Max + 1 - Min) + Min;
 }
 
-constructed_trajectory run_paper_heuristic(EnvConfig& env_state_config) {
+constructed_trajectory run_paper_heuristic(EnvConfig& env_state_config,
+                                           Scalar cost_leeway_coeff) {
 
   // idx == location by idx in `location_positions`
   std::vector<int> scheduled_locations_idx = {0, (int)env_state_config.location_positions.size()-1};
@@ -25,7 +26,7 @@ constructed_trajectory run_paper_heuristic(EnvConfig& env_state_config) {
     std::cout << "First Construction (50%) #" << j << std::endl;
 
     scheduled_locations_idx = destruction_heuristic_paper(initial_constr, 50, env_state_config);
-    initial_constr = construction_heuristic(scheduled_locations_idx, env_state_config);
+    initial_constr = construction_heuristic(scheduled_locations_idx, env_state_config, cost_leeway_coeff);
 //    break;
     if (std::get<2>(initial_constr) > best_reward_yet) {
       best_constr_yet = initial_constr;
@@ -60,6 +61,7 @@ constructed_trajectory run_paper_heuristic(EnvConfig& env_state_config) {
 constructed_trajectory construction_heuristic(
   std::vector<int> scheduled_locations_idx,
   EnvConfig& env_params,
+  Scalar cost_leeway_coeff,
   MultiWaypointTrajectory mwp_trajectory) {
 
   // location_positions  &
@@ -192,7 +194,7 @@ constructed_trajectory construction_heuristic(
 //              auto new_cost = std::get<1>(try_traj_and_time);
               Scalar new_cost = cost_of_insertion + current_cost;
 
-              if (new_cost < t_max * 1.08) {
+              if (new_cost < t_max * cost_leeway_coeff) {
 
                 auto new_trajectory_and_time = calculate_trajectory_cost_and_optimal_velocities(
                   potential_scheduled_locations_idx,
@@ -342,7 +344,7 @@ std::vector<Scalar> calculate_heuristic_ratio(std::vector<int>& scheduled_locati
 }
 
 
-std::vector<int> destruction_heuristic_paper(const constructed_trajectory& constr_tr,
+std::vector<int> destruction_heuristic_paper(constructed_trajectory& constr_tr,
                                              Scalar percentage,
                                              EnvConfig& env_params) {
   // ENV PARAMS

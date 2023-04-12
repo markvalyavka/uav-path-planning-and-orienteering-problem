@@ -56,14 +56,14 @@ void EnvConfig::generate_precalculated_graph_of_costs() {
                                           start_velocity,
                                           end_velocity);
 
-  imp_velocity_samples_tuples = velocity_samples_tuples;
-  imp_velocity_samples_tuples.insert(imp_velocity_samples_tuples.begin(), {start_velocity,
-                                                                   std::get<0>(to_velocity_norm_and_angle(start_velocity)),
-                                                                   std::get<1>(to_velocity_norm_and_angle(start_velocity))});
-  imp_populate_precalculated_travel_costs_map(imp_precalculated_costs,
-                                          location_positions,
-                                          velocity_samples_tuples,
-                                          max_acc_per_axis);
+//  imp_velocity_samples_tuples = velocity_samples_tuples;
+//  imp_velocity_samples_tuples.insert(imp_velocity_samples_tuples.begin(), {start_velocity,
+//                                                                   std::get<0>(to_velocity_norm_and_angle(start_velocity)),
+//                                                                   std::get<1>(to_velocity_norm_and_angle(start_velocity))});
+//  imp_populate_precalculated_travel_costs_map(imp_precalculated_costs,
+//                                          location_positions,
+//                                          velocity_samples_tuples,
+//                                          max_acc_per_axis);
 };
 
 } // namespace agi
