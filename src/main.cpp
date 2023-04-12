@@ -38,7 +38,7 @@ MultiWaypointTrajectory optimize_with_cone_refocusing(std::vector<Vector<3>> gat
 
   // Default cone refocusing params.
   const Scalar min_velocity_norm = 0;
-  const Scalar max_velocity_norm = 2.111;
+  const Scalar max_velocity_norm = 2.12132;
   const Scalar min_velocity_norm_boundary = 0.01;
   const Scalar precision_velocity_norm = 0.1;  // Distance between velocity norms
   const Scalar max_acc_norm = 1.06066;
@@ -93,7 +93,7 @@ void get_positions_travel_costs(std::string config_file, int argc, char** cli_ar
   std::vector<Vector<3>> current_scheduled_positions{};
 
 
-  int imp_iterations = 5;
+  int imp_iterations = 6;
 
 
   for(int imp_i = 0; imp_i < imp_iterations; imp_i++) {
@@ -112,13 +112,18 @@ void get_positions_travel_costs(std::string config_file, int argc, char** cli_ar
     current_cost = get_mwp_trajectory_cost(cone_refocused_trajectory);
     current_reward = get_mwp_trajectory_reward(current_scheduled_positions_idx, env_state_config.rewards);
     current_scheduled_positions = scheduled_positions;
-    if (current_cost < env_state_config.t_max & current_reward > final_reward) {
+
+    if (current_cost > env_state_config.t_max) {
+      // If trajectory cost after refocusing is greater than budget,
+      // we can stop the algorithm as there is no chance of further improvement.
+      break;
+    }
+    if (current_reward > final_reward) {
       final_trajectory = current_trajectory;
       final_cost = current_cost;
       final_reward = current_reward;
       final_scheduled_positions_idx = current_scheduled_positions_idx;
     }
-
 
     std::cout << "------------------ AUGMENTING (Iter #" << imp_i << ") ---------------" << std::endl;
     constructed_trajectory augmented_trajectory = construction_heuristic(
@@ -148,14 +153,17 @@ void get_positions_travel_costs(std::string config_file, int argc, char** cli_ar
   VelocitySearchGraph::saveTrajectoryEquitemporal(final_trajectory, "samples_pmm.csv");
   std::cout << "Saved equitemporal." << std::endl;
 //  exit(1);
-  print_detailed_mwp_stats(final_trajectory, env_state_config.max_acc_per_axis);
+//  print_detailed_mwp_stats(final_trajectory, env_state_config.max_acc_per_axis);
 
 }
 
 int main(int argc, char** argv) {
 
+  // 1. Add `leeway` to construction heuristic.
+  // 2. Heuristic by variably changing `leeway` (progressively go from 1.10 -> 1.0)?
+  // 3. Try to optimize final solution with very powerful (lots of samples cones refocusing?)
 
-  srand(5);
+  srand(3);
   get_positions_travel_costs("/Users/markv/pmm_planner/new_config.yaml", argc, argv);
 
   return 0;
