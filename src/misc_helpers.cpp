@@ -328,5 +328,22 @@ void print_detailed_mwp_stats(MultiWaypointTrajectory& trajectories, Vector<3> m
   std::cout << "total time ->" << total_time << std::endl;
 }
 
+void save_trajectory_results(MultiWaypointTrajectory& tr, Scalar reward) {
+
+  // Save results.
+  Scalar cost = get_mwp_trajectory_cost(tr);
+
+  YAML::Node node;
+  node["cost"] = cost;
+  node["reward"] = reward;
+
+  std::ofstream fout("output/result.yaml");
+  fout << node;
+  fout.close();
+
+  // Save samples.
+  VelocitySearchGraph::saveTrajectoryEquitemporal(tr, "output/result_samples_pmm.csv");
+}
+
 
 } // namespace agi

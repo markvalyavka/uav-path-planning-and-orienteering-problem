@@ -3,6 +3,7 @@
 
 #include <unordered_map>
 #include <algorithm>
+#include <fstream>
 #include "gravity.hpp"
 #include "pmm_trajectory3d.hpp"
 #include "three_acc.hpp"
@@ -81,5 +82,7 @@ Scalar get_mwp_trajectory_reward(std::vector<int>& scheduled_locations_idx, std:
 Scalar get_mwp_trajectory_cost(MultiWaypointTrajectory& trajectories);
 
 void print_detailed_mwp_stats(MultiWaypointTrajectory& trajectories, Vector<3> max_acc_per_axis);
+
+void save_trajectory_results(MultiWaypointTrajectory& tr, Scalar reward);
 
 } // namespace agi

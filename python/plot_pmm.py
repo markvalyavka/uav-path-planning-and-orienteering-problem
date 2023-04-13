@@ -41,25 +41,30 @@ def get_trajectory_positions(config_file):
         rewards = config['rewards']
         return rewards, np.array([start, *locations, end])
 
+def load_trajectory_results(results_file_path):
+    with open(results_file_path, 'r') as f:
+        data = yaml.load(f, Loader=yaml.FullLoader)
+    return data
 
-def plot_3d_positions_graph(pmm, pmm_equidistant):
+
+def plot_3d_positions_graph(pmm_samples, tr_results):
     fig2 = plt.figure(figsize=(12, 7))
     ax3d = fig2.add_subplot(111, projection='3d', computed_zorder=False)
-    fig2.text(0, 1, f"Reward: 350", transform=ax3d.transAxes, fontsize=10,
+
+    # Display trajectory results (cost and reward).
+    fig2.text(0, 1, f"Reward: {tr_results['reward']}", transform=ax3d.transAxes, fontsize=10,
               verticalalignment='center', bbox=dict(facecolor='#f7f7f7', edgecolor='#333333', linewidth=1.5, boxstyle='round,pad=0.5'))
-    fig2.text(0, 0.94, f"Cost: 19.95 s", transform=ax3d.transAxes, fontsize=10,
+    fig2.text(0, 0.94, f"Cost: {tr_results['cost']:.2f} s", transform=ax3d.transAxes, fontsize=10,
               verticalalignment='center', bbox=dict(facecolor='#f7f7f7', edgecolor='#333333', linewidth=1.5, boxstyle='round,pad=0.5'))
 
 
-    velocity_norms = np.sqrt(pmm[:, 4] * pmm[:, 4] + pmm[:, 5] * pmm[:, 5] + pmm[:, 6] * pmm[:, 6])
-    # for i, v in enumerate(velocity_norms):
-    #     print(i, v)
-    # ax3d.plot(pmm[:, 1], pmm[:, 2], pmm[:, 3])
-    velocities_plot = ax3d.scatter(pmm[:, 1], pmm[:, 2], pmm[:, 3], c=velocity_norms, cmap='jet', s=0.35, zorder=-1)
+    velocity_norms = np.sqrt(pmm_samples[:, 4] * pmm_samples[:, 4] + pmm_samples[:, 5] * pmm_samples[:, 5] + pmm_samples[:, 6] * pmm_samples[:, 6])
 
-    # ax3d.plot(pmm_equidistant[:, 1], pmm_equidistant[:, 2], pmm_equidistant[:, 3], '.k')
+    velocities_plot = ax3d.scatter(pmm_samples[:, 1], pmm_samples[:, 2], pmm_samples[:, 3], c=velocity_norms, cmap='jet', s=0.35, zorder=-1)
 
-    rewards, locations = get_trajectory_positions('../new_config.yaml')
+
+
+    rewards, locations = get_trajectory_positions('../new_config_ts1.yaml')
     # print(locations)
     p = ax3d.scatter(locations[1:len(locations)-1, 0], locations[1:len(locations)-1, 1], locations[1:len(locations)-1, 2], c=rewards, cmap='viridis_r', s=[30]*(len(locations)-2), alpha=1)
     ax3d.scatter(locations[0, 0], locations[0, 1], locations[0, 2], c='r', s=[30], alpha=1)
@@ -99,10 +104,12 @@ def plot_3d_positions_graph(pmm, pmm_equidistant):
 
 
 if __name__ == "__main__":
-    trajectory_pmm_file = '../samples_pmm.csv'
-    trajectory_pmm_equidistant_file = '../samples_equidistant.csv'
-    pmm = load_trajectory_samples_pmm(trajectory_pmm_file)
-    # pmm_equidistant = load_trajectory_samples_pmm(trajectory_pmm_equidistant_file)
+    # Define paths to result files.
+    trajectory_pmm_samples_path = '../output/result_samples_pmm.csv'
+    trajectory_results_path = '../output/result.yaml'
 
-    plot_3d_positions_graph(pmm, None)
+    tr_samples = load_trajectory_samples_pmm(trajectory_pmm_samples_path)
+    tr_results = load_trajectory_results(trajectory_results_path)
+
+    plot_3d_positions_graph(tr_samples, tr_results)
 

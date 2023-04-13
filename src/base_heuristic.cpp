@@ -44,9 +44,8 @@ constructed_trajectory run_paper_heuristic(EnvConfig& env_state_config,
 
 //  for (int j = 0; j < 100; j++) {
 //    std::cout << "Second Construction (20%) #" << j << std::endl;
-//
-//    scheduled_locations_idx = destruction_heuristic_paper(initial_constr, 20, env_state_config);;
-//    initial_constr = construction_heuristic(scheduled_locations_idx, env_state_config);
+//    scheduled_locations_idx = destruction_heuristic_paper(initial_constr, 20, env_state_config, rng);
+//    initial_constr = construction_heuristic(scheduled_locations_idx, env_state_config, cost_leeway_coeff);
 //    if (std::get<2>(initial_constr) > best_reward_yet) {
 //      best_constr_yet = initial_constr;
 //      best_tr_yet = std::get<0>(initial_constr);
@@ -207,6 +206,10 @@ constructed_trajectory construction_heuristic(
                   true);
 
                 MultiWaypointTrajectory new_trajectory = std::get<0>(new_trajectory_and_time);
+                if (new_trajectory.size() == 0) {
+                  std::cout << "it's zero" << std::endl;
+                  continue;
+                 }
                 ratio_of_best_insertion_so_far = ratio;
 //                Vector<3> vel_vector = to_velocity_vector(norm1, angle1);
                 best_insertion_so_far = {unscheduled_idx, insertion_idx, new_trajectory, std::get<1>(new_trajectory_and_time), potential_scheduled_locations};
@@ -259,6 +262,9 @@ void destruction_heuristic_3(std::vector<int>& sched_loc,
     auto to_try_optimal = calculate_trajectory_cost_and_optimal_velocities(to_try,
                                                                            env_state_config,
                                                                            true);
+    if (std::get<0>(to_try_optimal).size() == 0) {
+      continue;
+    }
     Scalar optimal_time = std::get<1>(to_try_optimal);
     Scalar curr_time = curr_traj[i-1].time() + curr_traj[i].time();
     Scalar diff = abs(optimal_time - curr_time);
@@ -285,6 +291,9 @@ void destruction_heuristic_2(std::vector<int>& sched_loc,
     auto to_try_optimal = calculate_trajectory_cost_and_optimal_velocities(to_try,
                                                                            env_state_config,
                                                                            true);
+    if (std::get<0>(to_try_optimal).size() == 0) {
+      continue;
+    }
     Scalar optimal_time = std::get<1>(to_try_optimal);
     Scalar curr_time = curr_traj[i-1].time() + curr_traj[i].time();
     Scalar diff = abs(optimal_time - curr_time);
@@ -387,6 +396,9 @@ std::vector<int> destruction_heuristic_paper(constructed_trajectory& constr_tr,
       destruction_heuristic_3(sched_loc, unsched_loc, mvt, ratios, env_params);
     }
     auto new_traj_time = calculate_trajectory_cost_and_optimal_velocities(sched_loc,env_params, true);
+    if (std::get<0>(new_traj_time).size() == 0) {
+      continue;
+    }
     mvt = std::get<0>(new_traj_time);
     cost = std::get<1>(new_traj_time);
     ratios = calculate_heuristic_ratio(sched_loc, mvt, rewards, travel_costs);

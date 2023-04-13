@@ -443,7 +443,7 @@ std::tuple<MultiWaypointTrajectory, Scalar> calculate_trajectory_cost_and_optima
 
     if (!tr_max_between.exists()) {
       // This trajectory does not exist.
-      std::cout << "found pmm trajectory does not exist, gate " << i
+      std::cout << "found pmm trajectory does not exist in traj_calc, gate " << i
                 << std::endl;
       std::cout << "equalized" << std::endl;
       std::cout << tr_max_between << std::endl;
