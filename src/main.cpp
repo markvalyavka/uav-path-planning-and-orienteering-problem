@@ -145,7 +145,7 @@ void run_improved_trajectory_algorithm(std::string config_file, int argc, char**
   env_state_config.generate_samples_with_simple_sampling();
   env_state_config.generate_precalculated_graph_of_costs();
 
-  int seed = 5;
+  int seed = 1;
 
   // --------------------------------------------------------
   MultiWaypointTrajectory final_trajectory{};
