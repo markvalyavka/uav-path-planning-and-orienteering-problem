@@ -133,7 +133,7 @@ std::tuple<MultiWaypointTrajectory, Scalar, Scalar, std::vector<int>> run_improv
     }
   }
 
-  std::cout << "IN FUNCT REWARD -> " << final_reward << std::endl;
+//  std::cout << "IN FUNCT REWARD -> " << final_reward << std::endl;
 
   return {final_trajectory, final_cost, final_reward, final_scheduled_positions_idx};
 }
@@ -158,7 +158,7 @@ void run_improved_trajectory_algorithm(std::string config_file, int random_seed)
 
 
   std::vector<Scalar> cost_leeway_coeffs = {1, 1.02, 1.03, 1.04, 1.05, 1.06, 1.07, 1.08, 1.09, 1.1, 1.11, 1.16, 1.3, 1.5};
-//  std::vector<Scalar> cost_leeway_coeffs = {1.1};
+//  std::vector<Scalar> cost_leeway_coeffs = {1.02};
   // Create a thread for each value of cost_leeway_coeff.
   for (const auto cost_leeway_coeff : cost_leeway_coeffs) {
     future_results.emplace_back(std::async(std::launch::async,
@@ -222,9 +222,9 @@ int main(int argc, char** argv) {
   // 3. Try to optimize final solution with very powerful (lots of samples cones refocusing?)
   // 4. Allow `start_vel` sampling in cone_refocus. (from stash)
 
-  int random_seed = 1;
+  int random_seed = 4;
 
-  run_improved_trajectory_algorithm("/Users/markv/pmm_planner/input_configs/cfg_ts1.yaml", random_seed);
+  run_improved_trajectory_algorithm("/Users/markv/pmm_planner/input_configs/cfg_ts3.yaml", random_seed);
 //  run_basic_trajectory_algorithm("/Users/markv/pmm_planner/cfg_ts1.yaml", random_seed);
 
   return 0;

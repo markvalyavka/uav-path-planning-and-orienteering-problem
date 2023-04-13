@@ -31,8 +31,11 @@ constructed_trajectory run_paper_heuristic(EnvConfig& env_state_config,
     std::cout << "First Construction (50%) #" << j << std::endl;
 
     scheduled_locations_idx = destruction_heuristic_paper(initial_constr, 50, env_state_config, rng);
-    initial_constr = construction_heuristic(scheduled_locations_idx, env_state_config, cost_leeway_coeff);
-
+    constructed_trajectory temp_constr = construction_heuristic(scheduled_locations_idx, env_state_config, cost_leeway_coeff);
+    if (std::get<0>(temp_constr).size() == 0) {
+      continue;
+    }
+    initial_constr = temp_constr;
     if (std::get<2>(initial_constr) > best_reward_yet) {
       best_constr_yet = initial_constr;
       best_tr_yet = std::get<0>(initial_constr);
@@ -100,6 +103,14 @@ constructed_trajectory construction_heuristic(
       scheduled_locations_idx,
       env_params,
       true);
+    std::cout << "herererere " << std::endl;
+    for(auto loc : scheduled_locations_idx) {
+      std::cout << loc << " -> ";
+    }
+    std::cout << std::endl;
+    if (std::get<0>(current_traj_and_time).size() == 0) {
+      return {MultiWaypointTrajectory(), MAX_SCALAR, 0, std::vector<int>{}, std::vector<int>{}};
+    }
     current_trajectory = std::get<0>(current_traj_and_time);
   }
 

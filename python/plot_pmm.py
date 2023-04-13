@@ -47,7 +47,7 @@ def load_trajectory_results(results_file_path):
     return data
 
 
-def plot_3d_positions_graph(pmm_samples, tr_results):
+def plot_3d_positions_graph(pmm_samples, tr_results, problem_input_config_path):
     fig2 = plt.figure(figsize=(12, 7))
     ax3d = fig2.add_subplot(111, projection='3d', computed_zorder=False)
 
@@ -64,7 +64,7 @@ def plot_3d_positions_graph(pmm_samples, tr_results):
 
 
 
-    rewards, locations = get_trajectory_positions('../input_configs/cfg_ts1.yaml')
+    rewards, locations = get_trajectory_positions(problem_input_config_path)
     # print(locations)
     p = ax3d.scatter(locations[1:len(locations)-1, 0], locations[1:len(locations)-1, 1], locations[1:len(locations)-1, 2], c=rewards, cmap='viridis_r', s=[30]*(len(locations)-2), alpha=1)
     ax3d.scatter(locations[0, 0], locations[0, 1], locations[0, 2], c='r', s=[30], alpha=1)
@@ -107,9 +107,10 @@ if __name__ == "__main__":
     # Define paths to result files.
     trajectory_pmm_samples_path = '../output/result_samples_pmm.csv'
     trajectory_results_path = '../output/result.yaml'
+    problem_input_config_path = '../input_configs/cfg_ts3.yaml'
 
     tr_samples = load_trajectory_samples_pmm(trajectory_pmm_samples_path)
     tr_results = load_trajectory_results(trajectory_results_path)
 
-    plot_3d_positions_graph(tr_samples, tr_results)
+    plot_3d_positions_graph(tr_samples, tr_results, problem_input_config_path)
 
