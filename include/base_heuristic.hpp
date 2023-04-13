@@ -4,6 +4,7 @@
 #include "misc_helpers.hpp"
 #include <unordered_map>
 #include <algorithm>
+#include <random>
 #include "gravity.hpp"
 #include "pmm_trajectory3d.hpp"
 #include "three_acc.hpp"
@@ -20,6 +21,7 @@ typedef std::tuple<MultiWaypointTrajectory, Scalar, Scalar, std::vector<int>, st
 int randint(int Min, int Max);
 
 constructed_trajectory run_paper_heuristic(EnvConfig& env_state_config,
+                                           int random_seed,
                                            Scalar cost_leeway_coeff = 1);
 
 constructed_trajectory construction_heuristic(
@@ -55,7 +57,8 @@ std::vector<Scalar> calculate_heuristic_ratio(std::vector<int>& scheduled_locati
 
 std::vector<int> destruction_heuristic_paper(constructed_trajectory& constr_tr,
                                              Scalar percentage,
-                                             EnvConfig& env_params);
+                                             EnvConfig& env_params,
+                                             std::mt19937_64& rng);
 
 
 } // namespace agi

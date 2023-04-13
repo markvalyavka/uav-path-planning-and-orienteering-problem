@@ -64,17 +64,19 @@ MultiWaypointTrajectory optimize_with_cone_refocusing(std::vector<Vector<3>> gat
 
 
 std::tuple<MultiWaypointTrajectory, Scalar, Scalar, std::vector<int>> run_improved_trajectory_algorithm_with_cost_coeff(EnvConfig& env_state_config,
+                                                                                                                        int random_seed,
                                                                                                                         Scalar cost_leeway_coeff) {
 
   std::cout << "------------------  1. FINAL STATS AFTER RUN PAPER HEU  ---------------" << std::endl;
-  constructed_trajectory heuristic_result = run_paper_heuristic(env_state_config, cost_leeway_coeff);
+  constructed_trajectory heuristic_result = run_paper_heuristic(env_state_config, random_seed, cost_leeway_coeff);
   // -----------------------------------------------------------------------
   MultiWaypointTrajectory final_trajectory = std::get<0>(heuristic_result);
   Scalar final_cost = std::get<1>(heuristic_result);
   Scalar final_reward = std::get<2>(heuristic_result);
   std::vector<int> final_scheduled_positions_idx = std::get<3>(heuristic_result);
   // -----------------------------------------------------------------------
-
+//  std::cout << "initial cost -> " << final_cost << std::endl;
+//  std::cout << "initial reward -> " << final_reward << std::endl;
   MultiWaypointTrajectory current_trajectory = std::get<0>(heuristic_result);
   Scalar current_cost = std::get<1>(heuristic_result);
   Scalar current_reward = std::get<2>(heuristic_result);
@@ -99,9 +101,10 @@ std::tuple<MultiWaypointTrajectory, Scalar, Scalar, std::vector<int>> run_improv
     if (current_cost > env_state_config.t_max) {
       // If trajectory cost after refocusing is greater than budget,
       // we can stop the algorithm as there is no chance of further improvement.
+//      std::cout << "hre" << std::endl;
       break;
     }
-    if (current_reward > final_reward) {
+    if (current_reward >= final_reward) {
       final_trajectory = current_trajectory;
       final_cost = current_cost;
       final_reward = current_reward;
@@ -127,6 +130,8 @@ std::tuple<MultiWaypointTrajectory, Scalar, Scalar, std::vector<int>> run_improv
     }
   }
 
+  std::cout << "IN FUNCT REWARD -> " << final_reward << std::endl;
+
   return {final_trajectory, final_cost, final_reward, final_scheduled_positions_idx};
 }
 
@@ -137,35 +142,40 @@ void run_improved_trajectory_algorithm(std::string config_file, int argc, char**
   env_state_config.generate_samples_with_simple_sampling();
   env_state_config.generate_precalculated_graph_of_costs();
 
+  int seed = 20;
   // --------------------------------------------------------
   MultiWaypointTrajectory final_trajectory{};
   Scalar final_cost = 0;
   Scalar final_reward = 0;
   std::vector<int> final_scheduled_locations_idx{};
   // --------------------------------------------------------
-  std::vector<Scalar> cost_leeway_coeffs = {1, 1.02, 1.04, 1.06, 1.08, 1.1};
 
   // Create a vector to store the results.
   std::vector<std::future<std::tuple<MultiWaypointTrajectory, Scalar, Scalar, std::vector<int>>>> future_results;
-  // Create a thread for each value of cost_leeway_coeff.
-  for (const auto& cost_leeway_coeff : cost_leeway_coeffs) {
-    future_results.emplace_back(std::async(std::launch::async, run_improved_trajectory_algorithm_with_cost_coeff, std::ref(env_state_config), cost_leeway_coeff));
-  }
-  // Collect the results.
   std::vector<std::tuple<MultiWaypointTrajectory, Scalar, Scalar, std::vector<int>>> output;
+
+
+  std::vector<Scalar> cost_leeway_coeffs = {1, 1.02, 1.03, 1.04, 1.05, 1.06, 1.07, 1.08, 1.09, 1.1, 1.11, 1.16, 1.3};
+  // Create a thread for each value of cost_leeway_coeff.
+  for (const auto cost_leeway_coeff : cost_leeway_coeffs) {
+    future_results.emplace_back(std::async(std::launch::async, run_improved_trajectory_algorithm_with_cost_coeff, std::ref(env_state_config), seed, cost_leeway_coeff));
+  }
   for (auto& fut_res : future_results) {
-    output.emplace_back(fut_res.get());
+    output.push_back(fut_res.get());
   }
 
-  for (const auto& result : output) {
+  int i = 0;
+  for (auto& result : output) {
     Scalar curr_cost = std::get<1>(result);
     Scalar curr_reward = std::get<2>(result);
+    std::cout << "coeff -> " << cost_leeway_coeffs[i] << " cost -> " << curr_cost << " reward -> " << curr_reward << std::endl;
     if (curr_cost < env_state_config.t_max & curr_reward > final_reward) {
       final_trajectory = std::get<0>(result);
       final_cost = std::get<1>(result);
       final_reward = std::get<2>(result);
       final_scheduled_locations_idx = std::get<3>(result);
     }
+    i++;
   }
 
   std::cout << "------------------ FINAL RESULT  ---------------" << std::endl;
@@ -180,7 +190,8 @@ void run_improved_trajectory_algorithm(std::string config_file, int argc, char**
 int main(int argc, char** argv) {
 
   // 1. Add `leeway` to construction heuristic. (`check`)
-  // 2. Heuristic by variably changing `leeway` (progressively go from 1.10 -> 1.0) -> threads?
+  // 2. Heuristic by variably changing `leeway` (progressively go from 1.10 -> 1.0) -> threads? (`check`)
+  //   2.1. For small t_max, even 1.1 coeff might be too small
   // 3. Try to optimize final solution with very powerful (lots of samples cones refocusing?)
   // 4. Allow `start_vel` sampling in cone_refocus.
 

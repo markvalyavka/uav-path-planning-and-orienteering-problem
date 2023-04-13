@@ -7,8 +7,10 @@ int randint(int Min, int Max) {
 }
 
 constructed_trajectory run_paper_heuristic(EnvConfig& env_state_config,
+                                           int random_seed,
                                            Scalar cost_leeway_coeff) {
 
+  std::mt19937_64 rng(random_seed);
   // idx == location by idx in `location_positions`
   std::vector<int> scheduled_locations_idx = {0, (int)env_state_config.location_positions.size()-1};
 
@@ -25,9 +27,9 @@ constructed_trajectory run_paper_heuristic(EnvConfig& env_state_config,
   for (int j = 0; j < 100; j++) {
     std::cout << "First Construction (50%) #" << j << std::endl;
 
-    scheduled_locations_idx = destruction_heuristic_paper(initial_constr, 50, env_state_config);
+    scheduled_locations_idx = destruction_heuristic_paper(initial_constr, 50, env_state_config, rng);
     initial_constr = construction_heuristic(scheduled_locations_idx, env_state_config, cost_leeway_coeff);
-//    break;
+
     if (std::get<2>(initial_constr) > best_reward_yet) {
       best_constr_yet = initial_constr;
       best_tr_yet = std::get<0>(initial_constr);
@@ -51,9 +53,9 @@ constructed_trajectory run_paper_heuristic(EnvConfig& env_state_config,
 //    }
 //  }
 
-  std::cout << "------------------ HERE TEST RESULT  ---------------" << std::endl;
-  std::cout << "Best cost -> " << best_cost << std::endl;
-  std::cout << "Best reward -> " << best_reward_yet << std::endl;
+//  std::cout << "------------------ HERE TEST RESULT  ---------------" << std::endl;
+//  std::cout << "Best cost -> " << best_cost << std::endl;
+//  std::cout << "Best reward -> " << best_reward_yet << std::endl;
 //  exit(1);
   return best_constr_yet;
 }
@@ -346,7 +348,8 @@ std::vector<Scalar> calculate_heuristic_ratio(std::vector<int>& scheduled_locati
 
 std::vector<int> destruction_heuristic_paper(constructed_trajectory& constr_tr,
                                              Scalar percentage,
-                                             EnvConfig& env_params) {
+                                             EnvConfig& env_params,
+                                             std::mt19937_64& rng) {
   // ENV PARAMS
   travel_cost_map& travel_costs = env_params.precalculated_costs;
   std::vector<Scalar>& rewards = env_params.rewards;
@@ -356,14 +359,17 @@ std::vector<int> destruction_heuristic_paper(constructed_trajectory& constr_tr,
   Scalar reward = std::get<2>(constr_tr);
   std::vector<int> sched_loc = std::get<3>(constr_tr);
   std::vector<int> unsched_loc = std::get<4>(constr_tr);
+
   std::vector<Scalar> ratios = calculate_heuristic_ratio(sched_loc, mvt, rewards, travel_costs);
 
-  int num_positions_to_remove = sched_loc.size() * percentage / 100;
 
-  //  std::cout << "Percentage -> " << percentage <<"% " << "removes " << num_positions_to_remove << " positions" << std::endl;
+  int num_positions_to_remove = std::ceil(sched_loc.size() * percentage / 100.0);
+//  std::cout << "Percentage -> " << percentage <<"% " << "removes " << num_positions_to_remove << " positions" << std::endl;
 
+  std::uniform_int_distribution<int> dist(1, 3);
   for (int i = 0; i < num_positions_to_remove; i++) {
-    int random_number = randint(1, 3);
+    int random_number = dist(rng);
+
     if (random_number == 1) {
       destruction_heuristic_1(sched_loc, unsched_loc, ratios);
     } else if (random_number == 2) {
@@ -374,7 +380,6 @@ std::vector<int> destruction_heuristic_paper(constructed_trajectory& constr_tr,
     auto new_traj_time = calculate_trajectory_cost_and_optimal_velocities(sched_loc,env_params, true);
     mvt = std::get<0>(new_traj_time);
     cost = std::get<1>(new_traj_time);
-    //    std::cout << cost << std::endl;
     ratios = calculate_heuristic_ratio(sched_loc, mvt, rewards, travel_costs);
   }
 
