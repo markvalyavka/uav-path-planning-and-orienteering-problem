@@ -96,9 +96,12 @@ std::tuple<MultiWaypointTrajectory, Scalar, Scalar, std::vector<int>> run_improv
     MultiWaypointTrajectory cone_refocused_trajectory = optimize_with_cone_refocusing(scheduled_positions, vel_norms, yaw_angles, start_vel);
 
     current_trajectory = cone_refocused_trajectory;
+    if (current_trajectory.size() < 2) {
+      break;
+    }
     current_cost = get_mwp_trajectory_cost(cone_refocused_trajectory);
     current_reward = get_mwp_trajectory_reward(current_scheduled_positions_idx, env_state_config.rewards);
-    if (current_cost > env_state_config.t_max) {
+    if (current_cost > env_state_config.t_max || current_cost <= 0) {
       // If trajectory cost after refocusing is greater than budget,
       // we can stop the algorithm as there is no chance of further improvement.
 //      std::cout << "hre" << std::endl;
@@ -142,7 +145,8 @@ void run_improved_trajectory_algorithm(std::string config_file, int argc, char**
   env_state_config.generate_samples_with_simple_sampling();
   env_state_config.generate_precalculated_graph_of_costs();
 
-  int seed = 20;
+  int seed = 5;
+
   // --------------------------------------------------------
   MultiWaypointTrajectory final_trajectory{};
   Scalar final_cost = 0;
@@ -155,7 +159,7 @@ void run_improved_trajectory_algorithm(std::string config_file, int argc, char**
   std::vector<std::tuple<MultiWaypointTrajectory, Scalar, Scalar, std::vector<int>>> output;
 
 
-  std::vector<Scalar> cost_leeway_coeffs = {1, 1.02, 1.03, 1.04, 1.05, 1.06, 1.07, 1.08, 1.09, 1.1, 1.11, 1.16, 1.3};
+  std::vector<Scalar> cost_leeway_coeffs = {1, 1.02, 1.03, 1.04, 1.05, 1.06, 1.07, 1.08, 1.09, 1.1, 1.11, 1.16, 1.3, 1.5};
   // Create a thread for each value of cost_leeway_coeff.
   for (const auto cost_leeway_coeff : cost_leeway_coeffs) {
     future_results.emplace_back(std::async(std::launch::async, run_improved_trajectory_algorithm_with_cost_coeff, std::ref(env_state_config), seed, cost_leeway_coeff));
@@ -195,7 +199,7 @@ int main(int argc, char** argv) {
   // 3. Try to optimize final solution with very powerful (lots of samples cones refocusing?)
   // 4. Allow `start_vel` sampling in cone_refocus.
 
-  srand(1);
+//  srand(1);
   run_improved_trajectory_algorithm("/Users/markv/pmm_planner/new_config.yaml", argc, argv);
 
   return 0;

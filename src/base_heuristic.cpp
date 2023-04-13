@@ -23,6 +23,9 @@ constructed_trajectory run_paper_heuristic(EnvConfig& env_state_config,
   Scalar best_reward_yet = std::get<2>(initial_constr);
   std::vector<int> best_scheduled_positions = std::get<3>(initial_constr);
 
+  if (best_tr_yet.size() == 0) {
+    return best_constr_yet;
+  }
 
   for (int j = 0; j < 100; j++) {
     std::cout << "First Construction (50%) #" << j << std::endl;
@@ -362,14 +365,20 @@ std::vector<int> destruction_heuristic_paper(constructed_trajectory& constr_tr,
 
   std::vector<Scalar> ratios = calculate_heuristic_ratio(sched_loc, mvt, rewards, travel_costs);
 
+  std::cout << "sched_loc.size() :" << sched_loc.size() << std::endl;
+  int num_positions_to_remove = sched_loc.size() * percentage / 100.0;
+  std::cout << "Percentage -> " << percentage <<"% " << "removes " << num_positions_to_remove << " positions" << std::endl;
 
-  int num_positions_to_remove = std::ceil(sched_loc.size() * percentage / 100.0);
-//  std::cout << "Percentage -> " << percentage <<"% " << "removes " << num_positions_to_remove << " positions" << std::endl;
+  // Guards.
+  if (sched_loc.size() - num_positions_to_remove < 2) {
+    return sched_loc;
+  } else if (sched_loc.size() - num_positions_to_remove == 2) {
+    return std::vector<int>{sched_loc[0], sched_loc[sched_loc.size()-1]};
+  }
 
   std::uniform_int_distribution<int> dist(1, 3);
   for (int i = 0; i < num_positions_to_remove; i++) {
     int random_number = dist(rng);
-
     if (random_number == 1) {
       destruction_heuristic_1(sched_loc, unsched_loc, ratios);
     } else if (random_number == 2) {
