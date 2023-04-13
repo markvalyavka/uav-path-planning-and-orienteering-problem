@@ -1,7 +1,7 @@
 import yaml
 
 txt_filename = "/Users/markv/Desktop/Tsiligirides_2/tsiligirides_problem_2_budget_15.txt"
-yaml_filename = "../new_config.yaml"
+yaml_filename = "../input_configs/cfg_ts2_paper_benchmark.yaml"
 
 start_location = end_location = None
 locations = []

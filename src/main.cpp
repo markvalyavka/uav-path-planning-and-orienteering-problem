@@ -224,8 +224,8 @@ int main(int argc, char** argv) {
 
   int random_seed = 1;
 
-  run_improved_trajectory_algorithm("/Users/markv/pmm_planner/new_config_ts1.yaml", random_seed);
-//  run_basic_trajectory_algorithm("/Users/markv/pmm_planner/new_config_ts1.yaml", random_seed);
+  run_improved_trajectory_algorithm("/Users/markv/pmm_planner/input_configs/cfg_ts1.yaml", random_seed);
+//  run_basic_trajectory_algorithm("/Users/markv/pmm_planner/cfg_ts1.yaml", random_seed);
 
   return 0;
 }

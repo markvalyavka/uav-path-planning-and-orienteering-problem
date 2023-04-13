@@ -64,7 +64,7 @@ def plot_3d_positions_graph(pmm_samples, tr_results):
 
 
 
-    rewards, locations = get_trajectory_positions('../new_config_ts1.yaml')
+    rewards, locations = get_trajectory_positions('../input_configs/cfg_ts1.yaml')
     # print(locations)
     p = ax3d.scatter(locations[1:len(locations)-1, 0], locations[1:len(locations)-1, 1], locations[1:len(locations)-1, 2], c=rewards, cmap='viridis_r', s=[30]*(len(locations)-2), alpha=1)
     ax3d.scatter(locations[0, 0], locations[0, 1], locations[0, 2], c='r', s=[30], alpha=1)
