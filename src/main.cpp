@@ -135,7 +135,7 @@ std::tuple<MultiWaypointTrajectory, Scalar, Scalar, std::vector<int>> run_improv
 }
 
 
-void run_improved_trajectory_algorithm(std::string config_file, int random_seed) {
+std::tuple<MultiWaypointTrajectory, Scalar, Scalar> run_improved_trajectory_algorithm(std::string config_file, int random_seed) {
   // LOAD CONFIG
   EnvConfig env_state_config(config_file);
   env_state_config.generate_samples_with_simple_sampling();
@@ -185,6 +185,7 @@ void run_improved_trajectory_algorithm(std::string config_file, int random_seed)
   save_trajectory_results(final_trajectory, final_reward);
   //  exit(1);
   //  print_detailed_mwp_stats(final_trajectory, env_state_config.max_acc_per_axis);
+  return {final_trajectory, final_cost, final_reward};
 }
 
 void run_basic_trajectory_algorithm(std::string config_file, int random_seed) {
@@ -208,16 +209,46 @@ void run_basic_trajectory_algorithm(std::string config_file, int random_seed) {
   save_trajectory_results(final_trajectory, final_reward);
 }
 
+void run_benchmarking(std::string config_file) {
+
+  MultiWaypointTrajectory best_tr{};
+  Scalar best_cost = MAX_SCALAR;
+  Scalar best_reward = 0;
+  // ---------------
+  Scalar reward_accum = 0;
+  Timer timer("time runtime of improved trajectory algorithm");
+  std::vector<int> rand_seeds = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+  for (int seed : rand_seeds) {
+    timer.tic();
+    auto result = run_improved_trajectory_algorithm(config_file, seed);
+    MultiWaypointTrajectory tr = std::get<0>(result);
+    Scalar cost = std::get<1>(result);
+    Scalar reward = std::get<2>(result);
+    reward_accum += reward;
+    if (reward > best_reward) {
+      best_tr = tr;
+      best_cost = cost;
+      best_reward = reward;
+    }
+    timer.toc();
+  }
+
+  std::cout << "best_reward: " << best_reward << std::endl;
+  std::cout << "avg_reward: " << reward_accum / (Scalar)(rand_seeds.size()) << std::endl;
+  std::cout << "avg_runtime: " << timer.mean() << std::endl;
+  std::cout << "timer count: " << timer.count() << std::endl;
+}
+
 int main(int argc, char** argv) {
 
   // 3. Try to optimize final solution with very powerful (lots of samples cones refocusing?)
   // 4. Allow `start_vel` sampling in cone_refocus. (from stash)
 
-  int random_seed = 4;
+//  int random_seed = 5;
   std::string config_file_env = "/Users/markv/pmm_planner/input_configs/cfg_ts2_paper_benchmark.yaml";
-
-  run_improved_trajectory_algorithm(config_file_env, random_seed);
-  run_basic_trajectory_algorithm(config_file_env, random_seed);
+  run_benchmarking(config_file_env);
+//  run_improved_trajectory_algorithm(config_file_env, random_seed);
+//  run_basic_trajectory_algorithm(config_file_env, random_seed);
 
   return 0;
 }
