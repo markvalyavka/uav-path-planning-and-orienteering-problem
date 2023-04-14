@@ -63,7 +63,7 @@ MultiWaypointTrajectory optimize_with_cone_refocusing(std::vector<Vector<3>> gat
 }
 
 
-std::tuple<MultiWaypointTrajectory, Scalar, Scalar, std::vector<int>> run_improved_trajectory_algorithm_with_cost_coeff(EnvConfig& env_state_config,
+std::tuple<MultiWaypointTrajectory, Scalar, Scalar, std::vector<int>> run_improved_trajectory_algorithm_with_cost_coeff(EnvConfig env_state_config,
                                                                                                                         int random_seed,
                                                                                                                         Scalar cost_leeway_coeff) {
 
@@ -159,7 +159,8 @@ std::tuple<MultiWaypointTrajectory, Scalar, Scalar> run_improved_trajectory_algo
   for (const auto cost_leeway_coeff : cost_leeway_coeffs) {
     future_results.emplace_back(std::async(std::launch::async,
                                            run_improved_trajectory_algorithm_with_cost_coeff,
-                                           std::ref(env_state_config), random_seed, cost_leeway_coeff));
+                                           env_state_config, random_seed, cost_leeway_coeff));
+//    output.push_back(run_improved_trajectory_algorithm_with_cost_coeff(env_state_config, random_seed, cost_leeway_coeff));
   }
   for (auto& fut_res : future_results) {
     output.push_back(fut_res.get());
@@ -188,7 +189,7 @@ std::tuple<MultiWaypointTrajectory, Scalar, Scalar> run_improved_trajectory_algo
   return {final_trajectory, final_cost, final_reward};
 }
 
-void run_basic_trajectory_algorithm(std::string config_file, int random_seed) {
+std::tuple<MultiWaypointTrajectory, Scalar, Scalar> run_basic_trajectory_algorithm(std::string config_file, int random_seed) {
   EnvConfig env_state_config(config_file);
   env_state_config.generate_samples_with_simple_sampling();
   env_state_config.generate_precalculated_graph_of_costs();
@@ -207,6 +208,7 @@ void run_basic_trajectory_algorithm(std::string config_file, int random_seed) {
   std::cout << "Final cost -> " << final_cost << std::endl;
   std::cout << "Final reward -> " << final_reward << std::endl;
   save_trajectory_results(final_trajectory, final_reward);
+  return {final_trajectory, final_cost, final_reward};
 }
 
 void run_benchmarking(std::string config_file) {
@@ -221,6 +223,7 @@ void run_benchmarking(std::string config_file) {
   for (int seed : rand_seeds) {
     timer.tic();
     auto result = run_improved_trajectory_algorithm(config_file, seed);
+//    auto result = run_basic_trajectory_algorithm(config_file, seed);
     MultiWaypointTrajectory tr = std::get<0>(result);
     Scalar cost = std::get<1>(result);
     Scalar reward = std::get<2>(result);
@@ -232,7 +235,7 @@ void run_benchmarking(std::string config_file) {
     }
     timer.toc();
   }
-
+  std::cout << "------------------   ---------------" << std::endl;
   std::cout << "best_reward: " << best_reward << std::endl;
   std::cout << "avg_reward: " << reward_accum / (Scalar)(rand_seeds.size()) << std::endl;
   std::cout << "avg_runtime: " << timer.mean() << std::endl;
@@ -245,7 +248,7 @@ int main(int argc, char** argv) {
   // 4. Allow `start_vel` sampling in cone_refocus. (from stash)
 
 //  int random_seed = 5;
-  std::string config_file_env = "/Users/markv/pmm_planner/input_configs/cfg_ts2_paper_benchmark.yaml";
+  std::string config_file_env = "/Users/markv/pmm_planner/input_configs/cfg_ts1.yaml";
   run_benchmarking(config_file_env);
 //  run_improved_trajectory_algorithm(config_file_env, random_seed);
 //  run_basic_trajectory_algorithm(config_file_env, random_seed);

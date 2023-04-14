@@ -76,6 +76,10 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
     number_of_locations - 1, {Eigen::Vector2f(-max_yaw_pitch_ang_, max_yaw_pitch_ang_),
                      Eigen::Vector2f(0, 0),
                      Eigen::Vector2f(min_velocity_norm_, max_velocity_norm_)});
+//  gates_yaw_pitch_size_ranges.resize(
+//    number_of_locations - 1, {Eigen::Vector2f(-max_yaw_pitch_ang_, max_yaw_pitch_ang_),
+//                              Eigen::Vector2f(-max_yaw_pitch_ang_, max_yaw_pitch_ang_),
+//                              Eigen::Vector2f(min_velocity_norm_, max_velocity_norm_)});
 
   // Samples have [gateid][sample_id] =
   //          (velocity_vector, (yaw, pitch, vel_norm), (yaw_coneindex, pitch_coneindex, vel_size_coneindex))

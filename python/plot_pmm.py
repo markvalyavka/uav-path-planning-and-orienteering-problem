@@ -107,7 +107,7 @@ if __name__ == "__main__":
     # Define paths to result files.
     trajectory_pmm_samples_path = '../output/result_samples_pmm.csv'
     trajectory_results_path = '../output/result.yaml'
-    problem_input_config_path = '../input_configs/cfg_ts3.yaml'
+    problem_input_config_path = '../input_configs/cfg_ts1.yaml'
 
     tr_samples = load_trajectory_samples_pmm(trajectory_pmm_samples_path)
     tr_results = load_trajectory_results(trajectory_results_path)

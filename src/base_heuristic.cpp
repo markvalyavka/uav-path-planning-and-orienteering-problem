@@ -46,9 +46,13 @@ constructed_trajectory run_paper_heuristic(EnvConfig& env_state_config,
   }
 
 //  for (int j = 0; j < 100; j++) {
-//    std::cout << "Second Construction (20%) #" << j << std::endl;
+////    std::cout << "Second Construction (20%) #" << j << std::endl;
 //    scheduled_locations_idx = destruction_heuristic_paper(initial_constr, 20, env_state_config, rng);
-//    initial_constr = construction_heuristic(scheduled_locations_idx, env_state_config, cost_leeway_coeff);
+//    constructed_trajectory temp_constr = construction_heuristic(scheduled_locations_idx, env_state_config, cost_leeway_coeff);
+//    if (std::get<0>(temp_constr).size() == 0) {
+//      continue;
+//    }
+//    initial_constr = temp_constr;
 //    if (std::get<2>(initial_constr) > best_reward_yet) {
 //      best_constr_yet = initial_constr;
 //      best_tr_yet = std::get<0>(initial_constr);

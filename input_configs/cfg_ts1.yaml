@@ -40,7 +40,7 @@ locations:
 max_velocity_norm: 2.12132
 max_acceleration: 1.06066
 number_of_angle_samples: 8
-number_of_velocity_samples: 3
+number_of_velocity_samples: 1
 rewards: [10, 10, 10, 10, 5, 5, 5, 5, 10, 10, 10, 5, 10, 15, 15, 10, 5, 5, 5, 10, 10, 10, 15, 15, 15, 10, 10, 10, 10, 10]
 avg_reward_over_runs: 1
-t_max: 50
+t_max: 20
