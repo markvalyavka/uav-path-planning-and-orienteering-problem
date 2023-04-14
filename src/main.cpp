@@ -67,7 +67,7 @@ std::tuple<MultiWaypointTrajectory, Scalar, Scalar, std::vector<int>> run_improv
                                                                                                                         int random_seed,
                                                                                                                         Scalar cost_leeway_coeff) {
 
-  std::cout << "------------------  1. FINAL STATS AFTER RUN PAPER HEU  ---------------" << std::endl;
+//  std::cout << "------------------  1. FINAL STATS AFTER RUN PAPER HEU  ---------------" << std::endl;
   constructed_trajectory heuristic_result = run_paper_heuristic(env_state_config, random_seed, cost_leeway_coeff);
   // -----------------------------------------------------------------------
   MultiWaypointTrajectory final_trajectory = std::get<0>(heuristic_result);
@@ -75,8 +75,7 @@ std::tuple<MultiWaypointTrajectory, Scalar, Scalar, std::vector<int>> run_improv
   Scalar final_reward = std::get<2>(heuristic_result);
   std::vector<int> final_scheduled_positions_idx = std::get<3>(heuristic_result);
   // -----------------------------------------------------------------------
-//  std::cout << "initial cost -> " << final_cost << std::endl;
-//  std::cout << "initial reward -> " << final_reward << std::endl;
+
   MultiWaypointTrajectory current_trajectory = std::get<0>(heuristic_result);
   Scalar current_cost = std::get<1>(heuristic_result);
   Scalar current_reward = std::get<2>(heuristic_result);
@@ -85,7 +84,7 @@ std::tuple<MultiWaypointTrajectory, Scalar, Scalar, std::vector<int>> run_improv
   int imp_iterations = 6;
 
   for(int imp_i = 0; imp_i < imp_iterations; imp_i++) {
-    std::cout << "------------------ CONE REFOCUSING (Iter #" << imp_i << ") ---------------" << std::endl;
+//    std::cout << "------------------ CONE REFOCUSING (Iter #" << imp_i << ") ---------------" << std::endl;
     std::vector<Scalar> vel_norms = get_mwp_trajectory_velocities(current_trajectory);
     std::vector<Scalar> yaw_angles = get_mwp_trajectory_yaw_angles(current_trajectory);
     std::vector<Vector<3>> scheduled_positions;
@@ -104,7 +103,6 @@ std::tuple<MultiWaypointTrajectory, Scalar, Scalar, std::vector<int>> run_improv
     if (current_cost > env_state_config.t_max || current_cost <= 0) {
       // If trajectory cost after refocusing is greater than budget,
       // we can stop the algorithm as there is no chance of further improvement.
-//      std::cout << "hre" << std::endl;
       break;
     }
     if (current_reward >= final_reward) {
@@ -114,7 +112,7 @@ std::tuple<MultiWaypointTrajectory, Scalar, Scalar, std::vector<int>> run_improv
       final_scheduled_positions_idx = current_scheduled_positions_idx;
     }
 
-    std::cout << "------------------ AUGMENTING (Iter #" << imp_i << ") ---------------" << std::endl;
+//    std::cout << "------------------ AUGMENTING (Iter #" << imp_i << ") ---------------" << std::endl;
     constructed_trajectory augmented_trajectory = construction_heuristic(
       current_scheduled_positions_idx,
       env_state_config,
@@ -132,8 +130,6 @@ std::tuple<MultiWaypointTrajectory, Scalar, Scalar, std::vector<int>> run_improv
       final_scheduled_positions_idx = current_scheduled_positions_idx;
     }
   }
-
-//  std::cout << "IN FUNCT REWARD -> " << final_reward << std::endl;
 
   return {final_trajectory, final_cost, final_reward, final_scheduled_positions_idx};
 }
@@ -209,23 +205,19 @@ void run_basic_trajectory_algorithm(std::string config_file, int random_seed) {
   std::cout << "------------------ FINAL RESULT [BASIC_ALGORITHM]  ---------------" << std::endl;
   std::cout << "Final cost -> " << final_cost << std::endl;
   std::cout << "Final reward -> " << final_reward << std::endl;
-  VelocitySearchGraph::saveTrajectoryEquitemporal(final_trajectory, "samples_pmm.csv");
-  std::cout << "Saved equitemporal." << std::endl;
+  save_trajectory_results(final_trajectory, final_reward);
 }
 
 int main(int argc, char** argv) {
 
-
-  // 1. Add `leeway` to construction heuristic. (`check`)
-  // 2. Heuristic by variably changing `leeway` (progressively go from 1.10 -> 1.0) -> threads? (`check`)
-  //   2.1. For small t_max, even 1.1 coeff might be too small (`check`)
   // 3. Try to optimize final solution with very powerful (lots of samples cones refocusing?)
   // 4. Allow `start_vel` sampling in cone_refocus. (from stash)
 
   int random_seed = 4;
+  std::string config_file_env = "/Users/markv/pmm_planner/input_configs/cfg_ts2_paper_benchmark.yaml";
 
-  run_improved_trajectory_algorithm("/Users/markv/pmm_planner/input_configs/cfg_ts3.yaml", random_seed);
-//  run_basic_trajectory_algorithm("/Users/markv/pmm_planner/cfg_ts1.yaml", random_seed);
+  run_improved_trajectory_algorithm(config_file_env, random_seed);
+  run_basic_trajectory_algorithm(config_file_env, random_seed);
 
   return 0;
 }

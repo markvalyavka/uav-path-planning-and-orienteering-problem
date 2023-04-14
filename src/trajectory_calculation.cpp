@@ -218,10 +218,10 @@ std::tuple<MultiWaypointTrajectory, Scalar> imp_calculate_trajectory_cost_and_op
 
     if (!tr_max_between.exists()) {
       // This trajectory does not exist.
-      std::cout << "found pmm trajectory does not exist, gate " << i
-                << std::endl;
-      std::cout << "equalized" << std::endl;
-      std::cout << tr_max_between << std::endl;
+//      std::cout << "found pmm trajectory does not exist, gate " << i
+//                << std::endl;
+//      std::cout << "equalized" << std::endl;
+//      std::cout << tr_max_between << std::endl;
       return {MultiWaypointTrajectory(), DBL_MAX};
     }
     if (fabs(tr_max_between.time_min() - tr_max_between.time()) >=
@@ -234,9 +234,9 @@ std::tuple<MultiWaypointTrajectory, Scalar> imp_calculate_trajectory_cost_and_op
   // ------ Add all other trajectories --- END
 
   if (fabs(time_sum - shortest_time) > 0.0001) {
-    std::cout << "error calculating pmm trajectory" << std::endl;
-    std::cout << "time_sum " << time_sum << std::endl;
-    std::cout << "shortest_time" << shortest_time << std::endl;
+//    std::cout << "error calculating pmm trajectory" << std::endl;
+//    std::cout << "time_sum " << time_sum << std::endl;
+//    std::cout << "shortest_time" << shortest_time << std::endl;
     return {MultiWaypointTrajectory(), DBL_MAX};
   }
   return {trajectories, shortest_time};
@@ -443,10 +443,10 @@ std::tuple<MultiWaypointTrajectory, Scalar> calculate_trajectory_cost_and_optima
 
     if (!tr_max_between.exists()) {
       // This trajectory does not exist.
-      std::cout << "found pmm trajectory does not exist in traj_calc, gate " << i
-                << std::endl;
-      std::cout << "equalized" << std::endl;
-      std::cout << tr_max_between << std::endl;
+//      std::cout << "found pmm trajectory does not exist in traj_calc, gate " << i
+//                << std::endl;
+//      std::cout << "equalized" << std::endl;
+//      std::cout << tr_max_between << std::endl;
       return {MultiWaypointTrajectory(), DBL_MAX};
     }
     if (fabs(tr_max_between.time_min() - tr_max_between.time()) >=
@@ -459,9 +459,9 @@ std::tuple<MultiWaypointTrajectory, Scalar> calculate_trajectory_cost_and_optima
   // ------ Add all other trajectories --- END
 
   if (fabs(time_sum - shortest_time) > 0.0001) {
-    std::cout << "error calculating pmm trajectory" << std::endl;
-    std::cout << "time_sum " << time_sum << std::endl;
-    std::cout << "shortest_time" << shortest_time << std::endl;
+//    std::cout << "error calculating pmm trajectory" << std::endl;
+//    std::cout << "time_sum " << time_sum << std::endl;
+//    std::cout << "shortest_time" << shortest_time << std::endl;
     return {MultiWaypointTrajectory(), DBL_MAX};
   }
   return {trajectories, shortest_time};

@@ -28,7 +28,7 @@ constructed_trajectory run_paper_heuristic(EnvConfig& env_state_config,
   }
 
   for (int j = 0; j < 100; j++) {
-    std::cout << "First Construction (50%) #" << j << std::endl;
+//    std::cout << "First Construction (50%) #" << j << std::endl;
 
     scheduled_locations_idx = destruction_heuristic_paper(initial_constr, 50, env_state_config, rng);
     constructed_trajectory temp_constr = construction_heuristic(scheduled_locations_idx, env_state_config, cost_leeway_coeff);
@@ -97,17 +97,12 @@ constructed_trajectory construction_heuristic(
   MultiWaypointTrajectory current_trajectory;
   if (mwp_trajectory.size() > 0) {
     current_trajectory = mwp_trajectory;
-    std::cout << "[NOTE]: trajectory received as param. " << std::endl;
+//    std::cout << "[NOTE]: trajectory received as param. " << std::endl;
   } else {
     auto current_traj_and_time = calculate_trajectory_cost_and_optimal_velocities(
       scheduled_locations_idx,
       env_params,
       true);
-    std::cout << "herererere " << std::endl;
-    for(auto loc : scheduled_locations_idx) {
-      std::cout << loc << " -> ";
-    }
-    std::cout << std::endl;
     if (std::get<0>(current_traj_and_time).size() == 0) {
       return {MultiWaypointTrajectory(), MAX_SCALAR, 0, std::vector<int>{}, std::vector<int>{}};
     }
@@ -218,7 +213,7 @@ constructed_trajectory construction_heuristic(
 
                 MultiWaypointTrajectory new_trajectory = std::get<0>(new_trajectory_and_time);
                 if (new_trajectory.size() == 0) {
-                  std::cout << "it's zero" << std::endl;
+//                  std::cout << "it's zero" << std::endl;
                   continue;
                  }
                 ratio_of_best_insertion_so_far = ratio;
@@ -249,11 +244,11 @@ constructed_trajectory construction_heuristic(
     unscheduled_locations_idx.erase(std::remove(unscheduled_locations_idx.begin(), unscheduled_locations_idx.end(), best_loc_idx_to_schedule), unscheduled_locations_idx.end());
   }
 
-  std::cout <<  "-------------------------" << std::endl;
-  std::cout << "Final cost: " << current_cost << std::endl;
-  std::cout << "Collected reward: " << collected_reward << std::endl;
-  std::cout << "Actual cost: " << get_mwp_trajectory_cost(current_trajectory) << std::endl;
-  std::cout << "Actuual reward: " << get_mwp_trajectory_reward(scheduled_locations_idx, rewards) << std::endl;
+//  std::cout <<  "-------------------------" << std::endl;
+//  std::cout << "Final cost: " << current_cost << std::endl;
+//  std::cout << "Collected reward: " << collected_reward << std::endl;
+//  std::cout << "Actual cost: " << get_mwp_trajectory_cost(current_trajectory) << std::endl;
+//  std::cout << "Actuual reward: " << get_mwp_trajectory_reward(scheduled_locations_idx, rewards) << std::endl;
 
   // OUTPUT: MultiWaypointTrajectory, trajectory_cost, trajectory_reward, scheduled_locations_idx, unscheduled_locations_idx
   return {current_trajectory, current_cost, collected_reward, scheduled_locations_idx, unscheduled_locations_idx};
@@ -385,9 +380,9 @@ std::vector<int> destruction_heuristic_paper(constructed_trajectory& constr_tr,
 
   std::vector<Scalar> ratios = calculate_heuristic_ratio(sched_loc, mvt, rewards, travel_costs);
 
-  std::cout << "sched_loc.size() :" << sched_loc.size() << std::endl;
+//  std::cout << "sched_loc.size() :" << sched_loc.size() << std::endl;
   int num_positions_to_remove = sched_loc.size() * percentage / 100.0;
-  std::cout << "Percentage -> " << percentage <<"% " << "removes " << num_positions_to_remove << " positions" << std::endl;
+//  std::cout << "Percentage -> " << percentage <<"% " << "removes " << num_positions_to_remove << " positions" << std::endl;
 
   // Guards.
   if (sched_loc.size() - num_positions_to_remove < 2) {

@@ -159,7 +159,7 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
     // COPY BACK TO => found_gates_speeds, gate_velocity_samples, shortest_samples_times
 
     // loop gates 1....sample_num_gates (0 is start and gatesize-1 is end)
-    std::cout << "Improvement -> " << iterimp << std::endl;
+//    std::cout << "Improvement -> " << iterimp << std::endl;
 
     // here creating only the samples
     for (size_t gid = 1; gid <= sample_num_gates; gid++) {
@@ -312,12 +312,12 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
 //      }
 
       if (min_dist_to_gate == DBL_MAX) {
-        std::cout << "there is no connection to gate " << gid_to
-                  << " with position " << location_positions[gid_to].transpose()
-                  << std::endl;
-        for (int i = 0; i < location_positions.size(); i++) {
-          std::cout << " i-> " << i << " | " << location_positions[i].transpose() << std::endl;
-        }
+//        std::cout << "there is no connection to gate " << gid_to
+//                  << " with position " << location_positions[gid_to].transpose()
+//                  << std::endl;
+//        for (int i = 0; i < location_positions.size(); i++) {
+//          std::cout << " i-> " << i << " | " << location_positions[i].transpose() << std::endl;
+//        }
         return MultiWaypointTrajectory();
       }
     }
@@ -338,8 +338,8 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
     }
 //    std::cout << "end_best_idx -> " << end_best_idx << std::endl;
 
-    std::cout << "last_shortest_time blah -> " << last_shortest_time << std::endl;
-    std::cout << "shortest_time blah -> " << shortest_time << std::endl << std::endl;
+//    std::cout << "last_shortest_time blah -> " << last_shortest_time << std::endl;
+//    std::cout << "shortest_time blah -> " << shortest_time << std::endl << std::endl;
     // We continue this iterative
     // process until the ratio between previous minimum time and
     // new minimum time is less than . In our case, this  has
@@ -420,7 +420,7 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
       prev_sample_idx = shortest_samples_times[g_id][prev_sample_idx].first;
     }
   }
-  std::cout << "Exiting the iter improvement loop.." << std::endl;
+//  std::cout << "Exiting the iter improvement loop.." << std::endl;
 
 
   // COPY BACK TO => found_gates_speeds, gate_velocity_samples, shortest_samples_times
@@ -441,7 +441,7 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
     }
   }
 
-   std::cout << "last_shortest_time -> " << last_shortest_time << std::endl;
+//   std::cout << "last_shortest_time -> " << last_shortest_time << std::endl;
 
   int prev_sample_idx = end_best_idx;
   for (int g_id = endi; g_id > 0; g_id--) {
@@ -472,7 +472,7 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
   trajectories.push_back(tr_max_acc_start);
   time_sum += tr_max_acc_start.time();
   if (!tr_max_acc_start.exists()) {
-    std::cout << "Trajectory does not exist from start location." << std::endl;
+//    std::cout << "Trajectory does not exist from start location." << std::endl;
     return MultiWaypointTrajectory();
   }
   // ------ Add trajectory "start" -> "location_1" ---- END
@@ -494,10 +494,10 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
 
     if (!tr_max_between.exists()) {
       // This trajectory does not exist.
-      std::cout << "found pmm trajectory does not exist, gate " << i
-                << std::endl;
-      std::cout << "equalized" << std::endl;
-      std::cout << tr_max_between << std::endl;
+//      std::cout << "found pmm trajectory does not exist, gate " << i
+//                << std::endl;
+//      std::cout << "equalized" << std::endl;
+//      std::cout << tr_max_between << std::endl;
       return MultiWaypointTrajectory();
     }
     if (fabs(tr_max_between.time_min() - tr_max_between.time()) >=
@@ -509,9 +509,9 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
   }
   // ------ Add all other trajectories --- END
   if (fabs(time_sum - shortest_time) > 0.0001) {
-    std::cout << "error calculating pmm trajectory" << std::endl;
-    std::cout << "time_sum " << time_sum << std::endl;
-    std::cout << "shortest_time" << shortest_time << std::endl;
+//    std::cout << "error calculating pmm trajectory" << std::endl;
+//    std::cout << "time_sum " << time_sum << std::endl;
+//    std::cout << "shortest_time" << shortest_time << std::endl;
     return MultiWaypointTrajectory();
   }
   Scalar actual_time = 0;
@@ -520,7 +520,7 @@ MultiWaypointTrajectory VelocitySearchGraph::find_velocities_in_positions(
   }
 //  std::cout << "End of trajectory calculation. Return trajectories found.." << std::endl;
 //  std::cout << "Actual time -> " << actual_time << std::endl;
-  std::cout << "Actual time -> " << time_sum << std::endl;
+//  std::cout << "Actual time -> " << time_sum << std::endl;
 //  for (auto t : found_gates_times) {
 //    std::cout << "time -> " << t << std::endl;
 //  }
