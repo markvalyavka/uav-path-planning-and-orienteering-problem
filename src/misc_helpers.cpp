@@ -285,7 +285,7 @@ std::vector<Scalar> get_mwp_trajectory_yaw_angles(MultiWaypointTrajectory& traje
   return yaw_angles;
 }
 
-Scalar get_mwp_trajectory_reward(std::vector<int>& scheduled_locations_idx, std::vector<Scalar>& rewards) {
+Scalar get_mwp_trajectory_reward(const std::vector<int>& scheduled_locations_idx, const std::vector<Scalar>& rewards) {
   Scalar collected_reward = 0;
   for (int i = 1; i < scheduled_locations_idx.size(); i++) {
     collected_reward += rewards[scheduled_locations_idx[i]];

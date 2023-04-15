@@ -20,15 +20,23 @@ typedef std::tuple<MultiWaypointTrajectory, Scalar, Scalar, std::vector<int>, st
 
 int randint(int Min, int Max);
 
-constructed_trajectory run_paper_heuristic(EnvConfig& env_state_config,
+constructed_trajectory run_improved_heuristic(const EnvConfig& env_state_config,
                                            int random_seed,
                                            Scalar cost_leeway_coeff = 1);
 
+constructed_trajectory run_basic_paper_heuristic(const EnvConfig& env_state_config,
+                                           int random_seed,
+                                           bool optimize_at_every_improvement = false);
+
 constructed_trajectory construction_heuristic(
   std::vector<int> scheduled_locations_idx,
-  EnvConfig& env_params,
+  const EnvConfig& env_params,
   Scalar cost_leeway_coeff = 1,
   MultiWaypointTrajectory mwp_trajectory = MultiWaypointTrajectory{});
+
+constructed_trajectory construction_heuristic_full_optimization(
+  std::vector<int> scheduled_locations_idx,
+  const EnvConfig& env_params);
 
 // Combination of DH1 and DH2. Remove location for which
 // "ratio_of_insertion / max(abs(optimal_flight_time - current_flight_time))" is the lowest.
@@ -36,13 +44,13 @@ void destruction_heuristic_3(std::vector<int>& sched_loc,
                              std::vector<int>& unsched_loc,
                              MultiWaypointTrajectory& curr_traj,
                              std::vector<Scalar> ratios,
-                             EnvConfig& env_state_config);
+                             const EnvConfig& env_state_config);
 
 // Remove location with most non-optimal connection of heading angle and velocity.
 void destruction_heuristic_2(std::vector<int>& sched_loc,
                              std::vector<int>& unsched_loc,
                              MultiWaypointTrajectory& curr_traj,
-                             EnvConfig& env_state_config);
+                             const EnvConfig& env_state_config);
 
 // Remove location with lowest insertion ratio.
 void destruction_heuristic_1(std::vector<int>& sched_loc,
@@ -53,11 +61,11 @@ void destruction_heuristic_1(std::vector<int>& sched_loc,
 std::vector<Scalar> calculate_heuristic_ratio(std::vector<int>& scheduled_locations_idx,
                                               MultiWaypointTrajectory& current_trajectory,
                                               std::vector<Scalar> rewards,
-                                              travel_cost_map& precalculated_costs);
+                                              const travel_cost_map& precalculated_costs);
 
 std::vector<int> destruction_heuristic_paper(constructed_trajectory& constr_tr,
                                              Scalar percentage,
-                                             EnvConfig& env_params,
+                                             const EnvConfig& env_params,
                                              std::mt19937_64& rng);
 
 

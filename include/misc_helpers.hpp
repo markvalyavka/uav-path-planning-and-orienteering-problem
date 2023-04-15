@@ -77,7 +77,7 @@ std::vector<Scalar> get_mwp_trajectory_velocities(MultiWaypointTrajectory& traje
 
 std::vector<Scalar> get_mwp_trajectory_yaw_angles(MultiWaypointTrajectory& trajectories);
 
-Scalar get_mwp_trajectory_reward(std::vector<int>& scheduled_locations_idx, std::vector<Scalar>& rewards);
+Scalar get_mwp_trajectory_reward(const std::vector<int>& scheduled_locations_idx, const std::vector<Scalar>& rewards);
 
 Scalar get_mwp_trajectory_cost(MultiWaypointTrajectory& trajectories);
 
