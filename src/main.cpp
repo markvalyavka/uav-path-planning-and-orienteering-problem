@@ -156,8 +156,17 @@ std::tuple<MultiWaypointTrajectory, Scalar, Scalar> run_improved_trajectory_algo
 
 
   std::vector<Scalar> cost_leeway_coeffs = {1, 1.02, 1.03, 1.04, 1.05, 1.06, 1.07, 1.08, 1.09, 1.1, 1.11, 1.16, 1.3, 1.5};
+//  std::vector<Scalar> cost_leeway_coeffs = {1.03, 1.07, 1.11};
 //  std::vector<Scalar> cost_leeway_coeffs = {1.02};
-  // Create a thread for each value of cost_leeway_coeff.
+//   Create a thread for each value of cost_leeway_coeff.
+//  for (const auto cost_leeway_coeff : cost_leeway_coeffs) {
+//    output.push_back(run_improved_trajectory_algorithm_with_cost_coeff(env_state_config, random_seed, cost_leeway_coeff));
+//    future_results.emplace_back(std::async(std::launch::async,
+//                                           run_improved_trajectory_algorithm_with_cost_coeff,
+//                                           std::ref(env_state_config), random_seed, cost_leeway_coeff));
+//  }
+
+
   for (const auto cost_leeway_coeff : cost_leeway_coeffs) {
     future_results.emplace_back(std::async(std::launch::async,
                                            run_improved_trajectory_algorithm_with_cost_coeff,
@@ -244,9 +253,35 @@ void run_benchmarking(std::string config_file) {
   std::cout << "avg_reward: " << reward_accum / (Scalar)(rand_seeds.size()) << std::endl;
   std::cout << "avg_runtime: " << timer.mean() << std::endl;
   std::cout << "timer count: " << timer.count() << std::endl;
+  save_trajectory_results(best_tr, best_reward);
+}
+
+void bug_test() {
+//  EnvConfig env_state_config("/Users/markv/pmm_planner/input_configs/cfg_ts2_paper_benchmark.yaml");
+  EnvConfig env_state_config("/Users/markv/pmm_planner/input_configs/cfg_ts3.yaml");
+  env_state_config.generate_samples_with_simple_sampling();
+  env_state_config.generate_precalculated_graph_of_costs();
+  std::cout << env_state_config.max_acc_per_axis.transpose() << std::endl;
+//  Vector<3> max_acc_per_axis = Vector<3>(1.06066, 1.06066, 1.06066);
+  QuadState test_loc_1;
+  QuadState test_loc_2;
+  test_loc_1.setZero();
+  test_loc_2.setZero();
+  test_loc_1.p = Vector<3>(4.4, 8.4, 0);
+  test_loc_2.p = Vector<3>(4.4001, 12.3, 0);
+  test_loc_1.v = Vector<3>(0, 0, 0);
+  test_loc_2.v = Vector<3>(0, 1.06066, 0);
+
+  PointMassTrajectory3D tr(test_loc_1, test_loc_2, env_state_config.max_acc_per_axis, true);
+  if (!tr.exists()) {
+    std::cout << "Not-existing" << std::endl;
+  }
+  std::cout << "time -> " << tr.time() << std::endl;
 }
 
 int main(int argc, char** argv) {
+//  bug_test();
+//  exit(1);
 
   std::string config_file_env = "/Users/markv/pmm_planner/input_configs/cfg_ts2_paper_benchmark.yaml";
 
