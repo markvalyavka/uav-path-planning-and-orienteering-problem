@@ -81,11 +81,11 @@ std::tuple<MultiWaypointTrajectory, Scalar, Scalar, std::vector<int>> run_improv
   Scalar current_cost = std::get<1>(heuristic_result);
   Scalar current_reward = std::get<2>(heuristic_result);
   std::vector<int> current_scheduled_positions_idx = std::get<3>(heuristic_result);
-
+  std::cout << " CURRENT COST -> " << current_cost << std::endl;
   int imp_iterations = 6;
 
   for(int imp_i = 0; imp_i < imp_iterations; imp_i++) {
-//    std::cout << "------------------ CONE REFOCUSING (Iter #" << imp_i << ") ---------------" << std::endl;
+    std::cout << "------------------ CONE REFOCUSING (Iter #" << imp_i << ") ---------------" << std::endl;
     std::vector<Scalar> vel_norms = get_mwp_trajectory_velocities(current_trajectory);
     std::vector<Scalar> yaw_angles = get_mwp_trajectory_yaw_angles(current_trajectory);
     std::vector<Vector<3>> scheduled_positions;
@@ -113,7 +113,7 @@ std::tuple<MultiWaypointTrajectory, Scalar, Scalar, std::vector<int>> run_improv
       final_scheduled_positions_idx = current_scheduled_positions_idx;
     }
 
-//    std::cout << "------------------ AUGMENTING (Iter #" << imp_i << ") ---------------" << std::endl;
+    std::cout << "------------------ AUGMENTING (Iter #" << imp_i << ") ---------------" << std::endl;
     constructed_trajectory augmented_trajectory = construction_heuristic(
       current_scheduled_positions_idx,
       env_state_config,
@@ -133,6 +133,7 @@ std::tuple<MultiWaypointTrajectory, Scalar, Scalar, std::vector<int>> run_improv
   }
 //  std::cout << "Final cost -> " << final_cost << std::endl;
 //  std::cout << "Final reward -> " << final_reward << std::endl;
+  std::cout << "coeff -> " << cost_leeway_coeff << " cost -> " << final_cost << " reward -> " << final_reward << std::endl;
   return {final_trajectory, final_cost, final_reward, final_scheduled_positions_idx};
 }
 
@@ -155,32 +156,54 @@ std::tuple<MultiWaypointTrajectory, Scalar, Scalar> run_improved_trajectory_algo
   std::vector<std::tuple<MultiWaypointTrajectory, Scalar, Scalar, std::vector<int>>> output;
 
 
-  std::vector<Scalar> cost_leeway_coeffs = {1, 1.02, 1.03, 1.04, 1.05, 1.06, 1.07, 1.08, 1.09, 1.1, 1.11, 1.16, 1.3, 1.5};
-//  std::vector<Scalar> cost_leeway_coeffs = {1.03, 1.07, 1.11};
-//  std::vector<Scalar> cost_leeway_coeffs = {1.02};
+  std::vector<Scalar> cost_leeway_coeffs = {1, 1.01, 1.02, 1.03, 1.04, 1.05, 1.06, 1.07, 1.08, 1.09, 1.1, 1.13, 1.14, 1.15, 1.16, 1.17, 1.18, 1.19, 1.2, 1.21, 1.22, 1.23, 1.24, 1.25, 1.3, 1.5};
+//  std::vector<Scalar> cost_leeway_coeffs = {1.03, 1.07, 1.11, 1.17, 1.2};
+//  std::vector<Scalar> cost_leeway_coeffs = {1, 1.17, 1.2};
 //   Create a thread for each value of cost_leeway_coeff.
+
+  auto initial_output = run_improved_trajectory_algorithm_with_cost_coeff(env_state_config, random_seed, 1);
+
+//  exit(1);
+  int left = 0;
+  int right = cost_leeway_coeffs.size() - 1;
+  while (left < right) {
+    int mid = left + (right - left + 1) / 2; // Use ceiling division to favor right side if number of elements is even.
+    Scalar cost_leeway_coeff = cost_leeway_coeffs[mid];
+    std::cout << "cost_leeway_coeff 0> " << cost_leeway_coeff << std::endl;
+    auto outp = run_improved_trajectory_algorithm_with_cost_coeff(env_state_config, random_seed, cost_leeway_coeff);
+    if (std::get<1>(outp) <= env_state_config.t_max) {
+      std::cout << "here" << std::endl;
+      left = mid;
+      initial_output = outp;
+    } else {
+      right = mid - 1;
+    }
+  }
+  output.push_back(initial_output);
+
 //  for (const auto cost_leeway_coeff : cost_leeway_coeffs) {
-//    output.push_back(run_improved_trajectory_algorithm_with_cost_coeff(env_state_config, random_seed, cost_leeway_coeff));
+//    return {final_trajectory, final_cost, final_reward, final_scheduled_positions_idx};
+
+
 //    future_results.emplace_back(std::async(std::launch::async,
 //                                           run_improved_trajectory_algorithm_with_cost_coeff,
 //                                           std::ref(env_state_config), random_seed, cost_leeway_coeff));
 //  }
 
 
-  for (const auto cost_leeway_coeff : cost_leeway_coeffs) {
-    future_results.emplace_back(std::async(std::launch::async,
-                                           run_improved_trajectory_algorithm_with_cost_coeff,
-                                           std::ref(env_state_config), random_seed, cost_leeway_coeff));
-  }
-  for (auto& fut_res : future_results) {
-    output.push_back(fut_res.get());
-  }
+//  for (const auto cost_leeway_coeff : cost_leeway_coeffs) {
+//    future_results.emplace_back(std::async(std::launch::async,
+//                                           run_improved_trajectory_algorithm_with_cost_coeff,
+//                                           std::ref(env_state_config), random_seed, cost_leeway_coeff));
+//  }
+//  for (auto& fut_res : future_results) {
+//    output.push_back(fut_res.get());
+//  }
 
   int i = 0;
   for (auto& result : output) {
     Scalar curr_cost = std::get<1>(result);
     Scalar curr_reward = std::get<2>(result);
-    std::cout << "coeff -> " << cost_leeway_coeffs[i] << " cost -> " << curr_cost << " reward -> " << curr_reward << std::endl;
     if (curr_cost < env_state_config.t_max & curr_reward > final_reward) {
       final_trajectory = std::get<0>(result);
       final_cost = std::get<1>(result);
@@ -285,11 +308,13 @@ int main(int argc, char** argv) {
 
   std::string config_file_env = "/Users/markv/pmm_planner/input_configs/cfg_ts2_paper_benchmark.yaml";
 
-//  int random_seed = 1;
+//  int random_seed = 3;
   run_benchmarking(config_file_env);
-
+  Timer t("1");
+  t.tic();
 //  run_improved_trajectory_algorithm(config_file_env, random_seed);
 //  run_basic_trajectory_algorithm(config_file_env, random_seed, false);
-
+  t.toc();
+//  std::cout << "time -> " << t.mean() << std::endl;
   return 0;
 }

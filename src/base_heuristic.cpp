@@ -380,7 +380,7 @@ constructed_trajectory construction_heuristic(
   Scalar current_cost = get_mwp_trajectory_cost(current_trajectory);
   Scalar collected_reward = get_mwp_trajectory_reward(scheduled_locations_idx, rewards);
 
-  while (current_cost < t_max) {
+  while (current_cost < t_max * cost_leeway_coeff) {
 
     // <what_idx_to_insert, where_to_insert, velocity>
     std::tuple<int, int, MultiWaypointTrajectory, Scalar, std::vector<Vector<3>>> best_insertion_so_far{};
