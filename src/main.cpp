@@ -42,14 +42,16 @@ MultiWaypointTrajectory optimize_with_cone_refocusing(std::vector<Vector<3>> gat
   // Default cone refocusing params.
   const Scalar min_velocity_norm = 0;
   const Scalar max_velocity_norm = 2.12132;
-//  const Scalar max_velocity_norm = 3;
   const Scalar min_velocity_norm_boundary = 0.01;
-  const Scalar precision_velocity_norm = 0.1;  // Distance between velocity norms
+  // Distance (granularity) between velocity norms. A smaller value would
+  // generate more samples between min_velocity_norm and max_velocity_norm,
+  // leading to higher precision, but it would also increase computation time.
+  const Scalar precision_velocity_norm = 0.1;
   const Scalar max_acc_norm = 1.06066;
-//  const Scalar max_acc_norm = 1.5;
   const Scalar yaw_pitch_cone_angle_boundary = 40.0;
   const Scalar max_yaw_pitch_ang = 20.0;
-  const Scalar precision_yaw_pitch_ang = 20.0; // Distance between yaw angles
+  // Distance (granularity) between yaw angles.
+  const Scalar precision_yaw_pitch_ang = 20.0;
   const bool sample_start_velocity = true;
   std::vector<Scalar> gates_pitch_deg(gates_yaw_deg.size(), 0);
 
@@ -156,7 +158,8 @@ std::tuple<MultiWaypointTrajectory, Scalar, Scalar> run_improved_trajectory_algo
   std::vector<std::tuple<MultiWaypointTrajectory, Scalar, Scalar, std::vector<int>>> output;
 
 
-  std::vector<Scalar> cost_leeway_coeffs = {1, 1.01, 1.02, 1.03, 1.04, 1.05, 1.06, 1.07, 1.08, 1.09, 1.1, 1.13, 1.14, 1.15, 1.16, 1.17, 1.18, 1.19, 1.2, 1.21, 1.22, 1.23, 1.24, 1.25, 1.3, 1.5};
+  std::vector<Scalar> cost_leeway_coeffs = {1, 1.01, 1.02, 1.03, 1.04, 1.05, 1.06, 1.07, 1.08, 1.09, 1.1, 1.13, 1.14, 1.15, 1.16, 1.17, 1.18, 1.19, 1.2, 1.21, 1.22, 1.23, 1.24, 1.25, 1.26, 1.27,
+                                            1.28, 1.29, 1.3, 1.35, 1.4, 1.5};
 //  std::vector<Scalar> cost_leeway_coeffs = {1.03, 1.07, 1.11, 1.17, 1.2};
 //  std::vector<Scalar> cost_leeway_coeffs = {1, 1.17, 1.2};
 //   Create a thread for each value of cost_leeway_coeff.
@@ -180,25 +183,6 @@ std::tuple<MultiWaypointTrajectory, Scalar, Scalar> run_improved_trajectory_algo
     }
   }
   output.push_back(initial_output);
-
-//  for (const auto cost_leeway_coeff : cost_leeway_coeffs) {
-//    return {final_trajectory, final_cost, final_reward, final_scheduled_positions_idx};
-
-
-//    future_results.emplace_back(std::async(std::launch::async,
-//                                           run_improved_trajectory_algorithm_with_cost_coeff,
-//                                           std::ref(env_state_config), random_seed, cost_leeway_coeff));
-//  }
-
-
-//  for (const auto cost_leeway_coeff : cost_leeway_coeffs) {
-//    future_results.emplace_back(std::async(std::launch::async,
-//                                           run_improved_trajectory_algorithm_with_cost_coeff,
-//                                           std::ref(env_state_config), random_seed, cost_leeway_coeff));
-//  }
-//  for (auto& fut_res : future_results) {
-//    output.push_back(fut_res.get());
-//  }
 
   int i = 0;
   for (auto& result : output) {
@@ -279,41 +263,18 @@ void run_benchmarking(std::string config_file) {
   save_trajectory_results(best_tr, best_reward);
 }
 
-void bug_test() {
-//  EnvConfig env_state_config("/Users/markv/pmm_planner/input_configs/cfg_ts2_paper_benchmark.yaml");
-  EnvConfig env_state_config("/Users/markv/pmm_planner/input_configs/cfg_ts3.yaml");
-  env_state_config.generate_samples_with_simple_sampling();
-  env_state_config.generate_precalculated_graph_of_costs();
-  std::cout << env_state_config.max_acc_per_axis.transpose() << std::endl;
-//  Vector<3> max_acc_per_axis = Vector<3>(1.06066, 1.06066, 1.06066);
-  QuadState test_loc_1;
-  QuadState test_loc_2;
-  test_loc_1.setZero();
-  test_loc_2.setZero();
-  test_loc_1.p = Vector<3>(4.4, 8.4, 0);
-  test_loc_2.p = Vector<3>(4.4001, 12.3, 0);
-  test_loc_1.v = Vector<3>(0, 0, 0);
-  test_loc_2.v = Vector<3>(0, 1.06066, 0);
-
-  PointMassTrajectory3D tr(test_loc_1, test_loc_2, env_state_config.max_acc_per_axis, true);
-  if (!tr.exists()) {
-    std::cout << "Not-existing" << std::endl;
-  }
-  std::cout << "time -> " << tr.time() << std::endl;
-}
-
 int main(int argc, char** argv) {
 //  bug_test();
 //  exit(1);
 
-  std::string config_file_env = "/Users/markv/pmm_planner/input_configs/cfg_ts2_paper_benchmark.yaml";
+  std::string config_file_env = "/Users/markv/pmm_planner/input_configs/cfg_ts1.yaml";
 
-//  int random_seed = 3;
-  run_benchmarking(config_file_env);
+  int random_seed = 12;
+//  run_benchmarking(config_file_env);
   Timer t("1");
   t.tic();
 //  run_improved_trajectory_algorithm(config_file_env, random_seed);
-//  run_basic_trajectory_algorithm(config_file_env, random_seed, false);
+  run_basic_trajectory_algorithm(config_file_env, random_seed, false);
   t.toc();
 //  std::cout << "time -> " << t.mean() << std::endl;
   return 0;

@@ -161,27 +161,6 @@ std::tuple<MultiWaypointTrajectory, Scalar> calculate_trajectory_cost_and_optima
   // Total time of all trajectories.
   Scalar time_sum = 0;
 
-  // ------ Add trajectory "start" -> "location_1"
-  //  QuadState from_start_state;
-  //  from_start_state.p = location_positions[0];
-  //  from_start_state.v = start_velocity;
-  //  from_start_state.v_norm = std::get<0>(start_vel_mag_ang);
-  //  from_start_state.v_angle = std::get<1>(start_vel_mag_ang);;
-  //  QuadState to_state;
-  //  to_state.p = location_positions[1];
-  //  to_state.v = std::get<0>(found_optimal_gates_velocities[0]);
-  //  to_state.v_norm = std::get<1>(found_optimal_gates_velocities[0]);
-  //  to_state.v_angle = std::get<2>(found_optimal_gates_velocities[0]);
-  //  PointMassTrajectory3D tr_max_acc_start;
-  //  tr_max_acc_start =
-  //    PointMassTrajectory3D(from_start_state, to_state, max_acc_per_axis, true);
-
-  //  trajectories.push_back(tr_max_acc_start);
-  //  time_sum += tr_max_acc_start.time();
-  //  if (!tr_max_acc_start.exists()) {
-  //    std::cout << "Trajectory does not exist from start location." << std::endl;
-  //    return {MultiWaypointTrajectory(), DBL_MAX};
-  //  }
   // ------ Add trajectory "start" -> "location_1" ---- END
 
   // ------ Add all other trajectories

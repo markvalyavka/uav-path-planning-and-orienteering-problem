@@ -59,7 +59,12 @@ def plot_3d_positions_graph(pmm_samples, tr_results, problem_input_config_path):
 
 
     velocity_norms = np.sqrt(pmm_samples[:, 4] * pmm_samples[:, 4] + pmm_samples[:, 5] * pmm_samples[:, 5] + pmm_samples[:, 6] * pmm_samples[:, 6])
+    # import numpy as np
 
+# your code...
+
+# Clip velocity_norms data to a maximum of 3
+    velocity_norms = np.clip(velocity_norms, a_min=None, a_max=3)
     velocities_plot = ax3d.scatter(pmm_samples[:, 1], pmm_samples[:, 2], pmm_samples[:, 3], c=velocity_norms, cmap='jet', s=0.35, zorder=-1)
 
 
@@ -69,13 +74,14 @@ def plot_3d_positions_graph(pmm_samples, tr_results, problem_input_config_path):
     p = ax3d.scatter(locations[1:len(locations)-1, 0], locations[1:len(locations)-1, 1], locations[1:len(locations)-1, 2], c=rewards, cmap='viridis_r', s=[30]*(len(locations)-2), alpha=1)
     ax3d.scatter(locations[0, 0], locations[0, 1], locations[0, 2], c='r', s=[30], alpha=1)
     ax3d.scatter(locations[len(locations)-1, 0], locations[len(locations)-1, 1], locations[len(locations)-1, 2], c='r', s=[30], alpha=1)
-
+    # import matplotlib.colors as colors
+    # norm = colors.Normalize(vmin=0, vmax=3)
     ax3d.set_xlabel('x in m', labelpad=10)
     ax3d.set_ylabel('y in m', labelpad=10)
     ax3d.set_zlabel('z in m', labelpad=10)
     fig2.colorbar(p, label="rewards", ticks=[int(max(rewards)/4), int(max(rewards)/2), int(max(rewards)*3/4), int(max(rewards))], shrink=0.7)
     fig2.colorbar(velocities_plot, label="velocity m/s", pad=0.15,
-                  ticks=[int(max(velocity_norms) / 4), int(max(velocity_norms) / 2), int(max(velocity_norms) * 3 / 4), int(max(velocity_norms))], shrink=0.7)
+                  ticks=[0, 3/4, 3/2, 3*3/4, 3], shrink=0.7)
     fig2.subplots_adjust(left=0.05, right=0.95, bottom=0.05, top=0.95, wspace=0.05, hspace=0.2)
     plt.legend()
     plt.show()
@@ -107,7 +113,7 @@ if __name__ == "__main__":
     # Define paths to result files.
     trajectory_pmm_samples_path = '../output/result_samples_pmm.csv'
     trajectory_results_path = '../output/result.yaml'
-    problem_input_config_path = '../input_configs/cfg_ts2_paper_benchmark.yaml'
+    problem_input_config_path = '../input_configs/cfg_ts1.yaml'
 
     tr_samples = load_trajectory_samples_pmm(trajectory_pmm_samples_path)
     tr_results = load_trajectory_results(trajectory_results_path)

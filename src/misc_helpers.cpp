@@ -212,29 +212,11 @@ void populate_precalculated_travel_costs_map(travel_cost_map &travel_costs,
               test_loc_2.v = loc_2_velocity;
               PointMassTrajectory3D tr(test_loc_1, test_loc_2, max_acc_per_axis, true);
               if (!tr.exists()) {
-//                std::cout << "Not-existing" << std::endl;
                 travel_costs[loc1_id][loc2_id][norm1][norm2][angle1][angle2] = MAX_SCALAR;
                 non_existent++;
                 continue;
               }
-              //              if (loc1_id == 0 && loc2_id == 1) {
-              //                std::cout << "from_p -> " << location_positions[loc1_id].transpose() << std::endl;
-              //                std::cout << "to_p -> " << location_positions[loc2_id].transpose() << std::endl;
-              //                std::cout << "from_v -> " << to_velocity_vector(norm1, angle1).transpose() << std::endl;
-              //                std::cout << "to_v -> " << to_velocity_vector(norm2, angle2).transpose() << std::endl;
-              //                std::cout << "Time between " <<loc1_id << " and " << loc2_id << " is " << tr.time() << std::endl;
-              //              }
               travel_costs[loc1_id][loc2_id][norm1][norm2][angle1][angle2] = tr.time();
-//              if (tr.time() <= 0 || tr.time() > 1000) {
-//                if (loc1_id == 2 && loc2_id == 6) {
-//                  std::cout << "TIME -> " << tr.time() << std::endl;
-//                  std::cout << loc1_id << " -> " << loc2_id << " | " << loc_1_velocity.transpose() << " -> " << loc_2_velocity.transpose() << std::endl;
-//                  //                exit(1);
-//                }
-////                std::cout << loc1_id << " -> " << loc2_id << " | " << loc_1_velocity.transpose() << " -> " << loc_2_velocity.transpose() << std::endl;
-////                std::cout << "NORMAL HEU -> time inside new thing -> " << tr.time() << std::endl;
-//              }
-
             }
           }
         }
@@ -243,9 +225,6 @@ void populate_precalculated_travel_costs_map(travel_cost_map &travel_costs,
   }
   std::cout << "total -> " << total << std::endl;
   std::cout << "non_existent -> " << non_existent << std::endl;
-  //  auto time_taken = travel_costs[0][6][std::get<0>(start_vel_mag_ang)][velocity_norm_samples[1]][std::get<1>(start_vel_mag_ang)][heading_angle_samples[2]];
-  //  std::cout << "From start to end -> " << time_taken << std::endl;
-//    exit(1);
 }
 
 std::vector<int> get_missing_values_in_range(std::vector<int> A, int start, int end) {

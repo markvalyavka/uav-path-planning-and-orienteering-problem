@@ -43,4 +43,4 @@ number_of_angle_samples: 8
 number_of_velocity_samples: 3
 rewards: [10, 10, 10, 10, 5, 5, 5, 5, 10, 10, 10, 5, 10, 15, 15, 10, 5, 5, 5, 10, 10, 10, 15, 15, 15, 10, 10, 10, 10, 10]
 avg_reward_over_runs: 1
-t_max: 40
+t_max: 50
